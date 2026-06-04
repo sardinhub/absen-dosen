@@ -10,7 +10,6 @@ export default function AdminRegisterPage() {
   // Form States
   const [role, setRole] = useState("dosen");
   const [nama, setNama] = useState("");
-  const [nip, setNip] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fotoProfil, setFotoProfil] = useState(null);
@@ -44,7 +43,6 @@ export default function AdminRegisterPage() {
 
   const resetForm = () => {
     setNama("");
-    setNip("");
     setEmail("");
     setPassword("");
     setFotoProfil(null);
@@ -59,12 +57,6 @@ export default function AdminRegisterPage() {
 
     if (!nama.trim() || !email.trim() || !password.trim()) {
       setError(lang === "id" ? "Semua field bertanda bintang (*) wajib diisi!" : "All fields with an asterisk (*) are required!");
-      setLoading(false);
-      return;
-    }
-
-    if (role === "dosen" && !nip.trim()) {
-      setError(lang === "id" ? "NIP wajib diisi untuk Dosen!" : "NIP is required for Lecturers!");
       setLoading(false);
       return;
     }
@@ -87,7 +79,7 @@ export default function AdminRegisterPage() {
         email: email.toLowerCase(),
         password: password,
         nama_lengkap: nama,
-        nip: role === "dosen" ? nip : "ADMIN",
+        nip: "-", // Default placeholder since NIP is removed
         role: role,
         foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
       };
@@ -154,21 +146,6 @@ export default function AdminRegisterPage() {
               required
             />
           </div>
-
-          {/* NIP (only if Dosen) */}
-          {role === "dosen" && (
-            <div className="form-group">
-              <label className="form-label">NIP <span style={{ color: "var(--danger)" }}>*</span></label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="e.g. NIP. 198012122005011002"
-                value={nip}
-                onChange={(e) => setNip(e.target.value)}
-                required={role === "dosen"}
-              />
-            </div>
-          )}
 
           {/* Email */}
           <div className="form-group">

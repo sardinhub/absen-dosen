@@ -136,7 +136,7 @@ export default function DosenDashboard() {
           {t.welcome}, <span className="gradient-text">{user.nama_lengkap}</span>
         </h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-          NIP: {user.nip} | {lang === "id" ? "Hari ini:" : "Today is:"} {lang === "id" ? currentDayId : currentDayEn}, {new Date().toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'long', year: 'numeric' })}
+          {lang === "id" ? "Hari ini:" : "Today is:"} {lang === "id" ? currentDayId : currentDayEn}, {new Date().toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
       </div>
 

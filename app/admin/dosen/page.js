@@ -16,7 +16,6 @@ export default function AdminDosen() {
 
   // Form Fields
   const [nama, setNama] = useState("");
-  const [nip, setNip] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fotoProfil, setFotoProfil] = useState(null);
@@ -41,7 +40,6 @@ export default function AdminDosen() {
 
   const resetForm = () => {
     setNama("");
-    setNip("");
     setEmail("");
     setPassword("");
     setFotoProfil(null);
@@ -57,7 +55,6 @@ export default function AdminDosen() {
   const openEditModal = (dosen) => {
     setSelectedDosen(dosen);
     setNama(dosen.nama_lengkap);
-    setNip(dosen.nip);
     setEmail(dosen.email);
     setPassword(dosen.password);
     setFotoProfil(dosen.foto_profil || null);
@@ -82,7 +79,7 @@ export default function AdminDosen() {
           email: email,
           password: password || "dosen", // Default password
           nama_lengkap: nama,
-          nip: nip,
+          nip: "-", // Default placeholder since NIP is removed
           role: "dosen",
           foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100" // Default profile
         };
@@ -93,10 +90,10 @@ export default function AdminDosen() {
         const updatedDosen = {
           ...selectedDosen,
           nama_lengkap: nama,
-          nip: nip,
           email: email,
           password: password,
-          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
+          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100",
+          nip: "-"
         };
         await saveUser(updatedDosen);
       }
@@ -141,7 +138,6 @@ export default function AdminDosen() {
               <tr>
                 <th>Avatar</th>
                 <th>{t.lecturerName}</th>
-                <th>{t.nip}</th>
                 <th>{t.email}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
               </tr>
@@ -155,7 +151,6 @@ export default function AdminDosen() {
                   <td>
                     <strong>{dosen.nama_lengkap}</strong>
                   </td>
-                  <td>{dosen.nip}</td>
                   <td>{dosen.email}</td>
                   <td style={{ textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
@@ -197,18 +192,6 @@ export default function AdminDosen() {
               placeholder="e.g. Capt. John Doe, M.T."
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">{t.nip} <span style={{ color: "var(--danger)" }}>*</span></label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="e.g. NIP. 198012122005011002"
-              value={nip}
-              onChange={(e) => setNip(e.target.value)}
               required
             />
           </div>

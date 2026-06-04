@@ -117,7 +117,6 @@ export default function AdminValidasi() {
                     </td>
                     <td>
                       <strong>{item.dosen_nama}</strong>
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{item.dosen_nip}</div>
                     </td>
                     <td>
                       <span className="badge badge-warning" style={{ marginRight: "0.5rem", fontSize: "0.7rem" }}>{item.mk_kode}</span>
@@ -166,7 +165,6 @@ export default function AdminValidasi() {
               <div>
                 <label className="form-label">{t.lecturerName}</label>
                 <p style={{ fontWeight: "bold" }}>{activeItem.dosen_nama}</p>
-                <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{activeItem.dosen_nip}</p>
               </div>
               <div>
                 <label className="form-label">{t.course}</label>
