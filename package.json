@@ -1,0 +1,20 @@
+{
+  "name": "sikad-triesakti",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "^18",
+    "react-dom": "^18",
+    "@supabase/supabase-js": "^2.45.0",
+    "react-signature-canvas": "^1.0.6",
+    "jspdf": "^2.5.1",
+    "html2canvas": "^1.4.1",
+    "xlsx": "^0.18.5"
+  }
+}
