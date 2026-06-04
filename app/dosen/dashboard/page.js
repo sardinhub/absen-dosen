@@ -105,7 +105,7 @@ export default function DosenDashboard() {
                 <strong>{t.room}:</strong> {schedule.ruangan}
               </span>
               <span>
-                <strong>Code:</strong> {schedule.mk_kode} ({schedule.sks} SKS)
+                <strong>Code:</strong> {schedule.mk_kode}
               </span>
             </div>
           </div>

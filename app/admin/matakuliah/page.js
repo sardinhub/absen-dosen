@@ -17,8 +17,7 @@ export default function AdminMataKuliah() {
   // Form Fields
   const [kode, setKode] = useState("");
   const [nama, setNama] = useState("");
-  const [sks, setSks] = useState(3);
-  const [semester, setSemester] = useState("1");
+  const [tahunAjaran, setTahunAjaran] = useState("");
 
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -41,8 +40,7 @@ export default function AdminMataKuliah() {
   const resetForm = () => {
     setKode("");
     setNama("");
-    setSks(3);
-    setSemester("1");
+    setTahunAjaran(String(new Date().getFullYear()));
     setSelectedCourse(null);
   };
 
@@ -56,8 +54,7 @@ export default function AdminMataKuliah() {
     setSelectedCourse(course);
     setKode(course.kode_mk);
     setNama(course.nama_mk);
-    setSks(course.sks);
-    setSemester(course.semester);
+    setTahunAjaran(course.semester || String(new Date().getFullYear()));
     setModalMode("edit");
     setIsModalOpen(true);
   };
@@ -78,8 +75,8 @@ export default function AdminMataKuliah() {
           id: "mk" + (rawCourses.length + 1),
           kode_mk: kode.toUpperCase(),
           nama_mk: nama,
-          sks: parseInt(sks),
-          semester: semester
+          sks: 0, // Set to 0 since SKS is removed
+          semester: tahunAjaran // We store Tahun Ajaran inside the semester column
         };
 
         await saveCourse(newCourse);
@@ -89,8 +86,8 @@ export default function AdminMataKuliah() {
           ...selectedCourse,
           kode_mk: kode.toUpperCase(),
           nama_mk: nama,
-          sks: parseInt(sks),
-          semester: semester
+          sks: 0,
+          semester: tahunAjaran
         };
         await saveCourse(updatedCourse);
       }
@@ -135,8 +132,7 @@ export default function AdminMataKuliah() {
               <tr>
                 <th>{lang === "id" ? "Kode" : "Code"}</th>
                 <th>{t.course}</th>
-                <th>SKS</th>
-                <th>Semester</th>
+                <th>{lang === "id" ? "Tahun Ajaran" : "Academic Year"}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
               </tr>
             </thead>
@@ -149,8 +145,7 @@ export default function AdminMataKuliah() {
                   <td>
                     <strong>{course.nama_mk}</strong>
                   </td>
-                  <td style={{ fontWeight: "bold" }}>{course.sks} SKS</td>
-                  <td>Semester {course.semester}</td>
+                  <td>{course.semester}</td>
                   <td style={{ textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                       <button
@@ -208,32 +203,15 @@ export default function AdminMataKuliah() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">SKS <span style={{ color: "var(--danger)" }}>*</span></label>
+            <label className="form-label">{lang === "id" ? "Tahun Ajaran" : "Academic Year"} <span style={{ color: "var(--danger)" }}>*</span></label>
             <input
-              type="number"
+              type="text"
               className="form-control"
-              min="1"
-              max="6"
-              value={sks}
-              onChange={(e) => setSks(e.target.value)}
+              placeholder="e.g. 2026/2027"
+              value={tahunAjaran}
+              onChange={(e) => setTahunAjaran(e.target.value)}
               required
             />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Semester <span style={{ color: "var(--danger)" }}>*</span></label>
-            <select
-              className="form-control"
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-              style={{ background: "#0b0f19" }}
-            >
-              {Array.from({ length: 8 }).map((_, idx) => (
-                <option key={idx} value={String(idx + 1)}>
-                  Semester {idx + 1}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div className="modal-footer" style={{ border: "none", padding: 0, marginTop: "2rem" }}>
