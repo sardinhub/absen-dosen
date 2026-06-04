@@ -129,12 +129,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div style={{ marginTop: "1.25rem", textAlign: "center" }}>
-          <Link href="/register" style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "600", textDecoration: "none" }}>
-            {lang === "id" ? "Belum punya akun? Daftar Sekarang" : "Don't have an account? Register Now"}
-          </Link>
-        </div>
-
         <div className="auth-footer">
           <p>© {new Date().getFullYear()} Triesakti Makassar. All rights reserved.</p>
           <p style={{ marginTop: "0.5rem", opacity: 0.5 }}>
