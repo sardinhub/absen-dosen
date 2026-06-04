@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getUsers } from "../../lib/db";
 import { translations } from "../../lib/translations";
@@ -127,6 +128,12 @@ export default function LoginPage() {
             ) : t.login}
           </button>
         </form>
+
+        <div style={{ marginTop: "1.25rem", textAlign: "center" }}>
+          <Link href="/register" style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "600", textDecoration: "none" }}>
+            {lang === "id" ? "Belum punya akun? Daftar Sekarang" : "Don't have an account? Register Now"}
+          </Link>
+        </div>
 
         <div className="auth-footer">
           <p>© {new Date().getFullYear()} Triesakti Makassar. All rights reserved.</p>

@@ -19,6 +19,7 @@ export default function AdminDosen() {
   const [nip, setNip] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fotoProfil, setFotoProfil] = useState(null);
 
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -43,6 +44,7 @@ export default function AdminDosen() {
     setNip("");
     setEmail("");
     setPassword("");
+    setFotoProfil(null);
     setSelectedDosen(null);
   };
 
@@ -58,6 +60,7 @@ export default function AdminDosen() {
     setNip(dosen.nip);
     setEmail(dosen.email);
     setPassword(dosen.password);
+    setFotoProfil(dosen.foto_profil || null);
     setModalMode("edit");
     setIsModalOpen(true);
   };
@@ -81,7 +84,7 @@ export default function AdminDosen() {
           nama_lengkap: nama,
           nip: nip,
           role: "dosen",
-          foto_profil: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 999999)}?auto=format&fit=crop&q=80&w=100` // Mock avatar
+          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100" // Default profile
         };
 
         await saveUser(newUser);
@@ -92,7 +95,8 @@ export default function AdminDosen() {
           nama_lengkap: nama,
           nip: nip,
           email: email,
-          password: password
+          password: password,
+          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
         };
         await saveUser(updatedDosen);
       }
@@ -233,6 +237,44 @@ export default function AdminDosen() {
               onChange={(e) => setPassword(e.target.value)}
               required={modalMode === "add"}
             />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">
+              {lang === "id" ? "Foto Profil Dosen (Opsional)" : "Lecturer Profile Photo (Optional)"}
+            </label>
+            <input
+              type="file"
+              className="form-control"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setFotoProfil(reader.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+            {fotoProfil && (
+              <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+                <img 
+                  src={fotoProfil} 
+                  alt="Preview" 
+                  style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover", border: "1px solid var(--border-color)" }} 
+                />
+                <button 
+                  type="button" 
+                  className="btn btn-secondary btn-sm" 
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}
+                  onClick={() => setFotoProfil(null)}
+                >
+                  {lang === "id" ? "Hapus" : "Remove"}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="modal-footer" style={{ border: "none", padding: 0, marginTop: "2rem" }}>
