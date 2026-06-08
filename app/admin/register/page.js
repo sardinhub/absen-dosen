@@ -98,7 +98,7 @@ export default function AdminRegisterPage() {
   };
 
   return (
-    <div style={{ maxWidth: "650px", margin: "0 auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", minHeight: "calc(100vh - 8rem)", maxWidth: "650px", margin: "0 auto" }}>
       <div className="glass-panel" style={{ padding: "1.5rem 2rem", background: "linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%)", marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.5rem", fontWeight: 800 }}>
           {lang === "id" ? "Registrasi Akun Baru" : "Register New Account"}

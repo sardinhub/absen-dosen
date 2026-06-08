@@ -297,6 +297,13 @@
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  transition: var(--transition-smooth);
+}
+
+@media (min-width: 769px) {
+  .modal-overlay {
+    padding-left: 280px;
+  }
 }
 
 .modal-content {
