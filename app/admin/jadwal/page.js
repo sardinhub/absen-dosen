@@ -115,7 +115,7 @@ export default function AdminJadwal() {
         await saveSchedule(newSchedule);
       } else {
         const updatedSchedule = {
-          ...selectedSchedule,
+          id: selectedSchedule.id,
           dosen_id: dosenId,
           mk_id: mkId,
           kelas: kelas,
