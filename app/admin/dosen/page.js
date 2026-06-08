@@ -33,8 +33,17 @@ export default function AdminDosen() {
 
   useEffect(() => {
     syncData();
+
+    // Auto-refresh data every 10 seconds for real-time updates
+    const interval = setInterval(() => {
+      syncData();
+    }, 10000);
+
     window.addEventListener("storage", syncData);
-    return () => window.removeEventListener("storage", syncData);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", syncData);
+    };
   }, []);
 
   const t = translations[lang];
