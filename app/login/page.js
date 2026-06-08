@@ -40,9 +40,11 @@ export default function LoginPage() {
       // Get latest database from abstraction layer
       const users = await getUsers();
       
-      // Find matching user
+      // Find matching user, robust against accidental spaces
       const matchedUser = users.find(
-        (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+        (u) => 
+          (u.email || "").trim().toLowerCase() === email.trim().toLowerCase() && 
+          (u.password || "").trim() === password.trim()
       );
 
       if (matchedUser) {
