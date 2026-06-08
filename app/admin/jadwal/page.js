@@ -93,8 +93,11 @@ export default function AdminJadwal() {
     setIsModalOpen(true);
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleSave = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
 
     try {
       if (modalMode === "add") {
@@ -127,9 +130,13 @@ export default function AdminJadwal() {
       await syncData();
       setIsModalOpen(false);
       resetForm();
+      setIsSaving(false);
       alert(lang === "id" ? "Jadwal berhasil disimpan!" : "Schedule saved successfully!");
     } catch (err) {
-      alert(lang === "id" ? "Gagal menyimpan jadwal!" : "Failed to save schedule!");
+      console.error("Save Error:", err);
+      setIsSaving(false);
+      const errDetail = err?.message || JSON.stringify(err);
+      alert((lang === "id" ? "Gagal menyimpan jadwal! DETAIL ERROR DARI SUPABASE:\n\n" : "Failed to save schedule! ERROR:\n\n") + errDetail);
     }
   };
 
@@ -324,11 +331,11 @@ export default function AdminJadwal() {
           </div>
 
           <div className="modal-footer" style={{ border: "none", padding: 0, marginTop: "2rem" }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>
+            <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)} disabled={isSaving}>
               {t.cancel}
             </button>
-            <button type="submit" className="btn btn-primary">
-              {t.saveChanges}
+            <button type="submit" className="btn btn-primary" disabled={isSaving}>
+              {isSaving ? (lang === "id" ? "Menyimpan..." : "Saving...") : t.saveChanges}
             </button>
           </div>
         </form>
