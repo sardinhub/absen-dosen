@@ -18,6 +18,17 @@ export default function AdminRegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dosenList, setDosenList] = useState([]);
+  const [selectedDosenId, setSelectedDosenId] = useState("");
+
+  const fetchDosen = async () => {
+    try {
+      const users = await getUsers();
+      setDosenList(users.filter((u) => u.role === "dosen"));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const syncData = () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -25,9 +36,39 @@ export default function AdminRegisterPage() {
 
   useEffect(() => {
     syncData();
+    fetchDosen();
     window.addEventListener("storage", syncData);
     return () => window.removeEventListener("storage", syncData);
   }, []);
+
+  // Auto-generate email and password when a Dosen is selected
+  useEffect(() => {
+    if (role === "dosen" && selectedDosenId) {
+      const selected = dosenList.find((d) => d.id === selectedDosenId);
+      if (selected) {
+        setNama(selected.nama_lengkap);
+        
+        // Extract First Name (skip titles like Capt., Dr. that contain dots)
+        const words = selected.nama_lengkap.split(/\s+/);
+        let firstName = "dosen";
+        for (let w of words) {
+          if (!w.includes(".")) {
+            firstName = w.replace(/,/g, "");
+            break;
+          }
+        }
+        
+        const formattedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+        setEmail(`${firstName.toLowerCase()}@triesaktigroup.id`);
+        setPassword(`${formattedFirstName}999`);
+      }
+    } else if (role === "admin") {
+      setNama("");
+      setEmail("");
+      setPassword("");
+      setSelectedDosenId("");
+    }
+  }, [role, selectedDosenId, dosenList]);
 
   const t = translations[lang];
 
@@ -43,10 +84,13 @@ export default function AdminRegisterPage() {
   };
 
   const resetForm = () => {
-    setNama("");
-    setEmail("");
-    setPassword("");
+    if (role === "admin") {
+      setNama("");
+      setEmail("");
+      setPassword("");
+    }
     setFotoProfil(null);
+    setSelectedDosenId("");
     setError("");
   };
 
@@ -65,27 +109,34 @@ export default function AdminRegisterPage() {
     try {
       const users = await getUsers();
       
-      // Validate unique email
-      if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      // Validate unique email (ignoring self if updating)
+      const userId = (role === "dosen" && selectedDosenId) 
+        ? selectedDosenId 
+        : (role === "admin" ? "admin_" : "u_") + Math.random().toString(36).substr(2, 9);
+        
+      const existingUser = users.find((u) => u.id === userId);
+
+      if (users.some((u) => u.email.toLowerCase() === email.toLowerCase() && u.id !== userId)) {
         setError(lang === "id" ? "Email sudah terdaftar!" : "Email already registered!");
         setLoading(false);
         return;
       }
 
-      // Generate a unique ID
-      const newUserId = (role === "admin" ? "admin_" : "u_") + Math.random().toString(36).substr(2, 9);
-
-      const newUser = {
-        id: newUserId,
+      const userToSave = {
+        ...(existingUser || {}),
+        id: userId,
         email: email.toLowerCase(),
         password: password,
         nama_lengkap: nama,
-        nip: "-", // Default placeholder since NIP is removed
         role: role,
-        foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
+        foto_profil: fotoProfil || (existingUser ? existingUser.foto_profil : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100")
       };
+      
+      if (!existingUser) {
+         userToSave.nip = "-";
+      }
 
-      await saveUser(newUser);
+      await saveUser(userToSave);
 
       setSuccess(lang === "id" ? `User baru (${role.toUpperCase()}) berhasil didaftarkan!` : `New user (${role.toUpperCase()}) registered successfully!`);
       resetForm();
@@ -133,20 +184,40 @@ export default function AdminRegisterPage() {
             </select>
           </div>
 
-          {/* Full Name */}
-          <div className="form-group">
-            <label className="form-label">
-              {lang === "id" ? "Nama Lengkap" : "Full Name"} <span style={{ color: "var(--danger)" }}>*</span>
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="e.g. Capt. John Doe, M.T."
-              value={nama}
-              onChange={(e) => setNama(e.target.value)}
-              required
-            />
-          </div>
+          {/* Full Name / Dosen Selector */}
+          {role === "dosen" ? (
+            <div className="form-group">
+              <label className="form-label">
+                {lang === "id" ? "Pilih Data Dosen" : "Select Lecturer Data"} <span style={{ color: "var(--danger)" }}>*</span>
+              </label>
+              <select
+                className="form-control"
+                value={selectedDosenId}
+                onChange={(e) => setSelectedDosenId(e.target.value)}
+                style={{ background: "#0b0f19" }}
+                required
+              >
+                <option value="">{lang === "id" ? "-- Pilih Dosen --" : "-- Select Lecturer --"}</option>
+                {dosenList.map((d) => (
+                  <option key={d.id} value={d.id}>{d.nama_lengkap}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="form-group">
+              <label className="form-label">
+                {lang === "id" ? "Nama Lengkap" : "Full Name"} <span style={{ color: "var(--danger)" }}>*</span>
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="e.g. John Doe"
+                value={nama}
+                onChange={(e) => setNama(e.target.value)}
+                required
+              />
+            </div>
+          )}
 
           {/* Email */}
           <div className="form-group">
