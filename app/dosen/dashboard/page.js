@@ -88,6 +88,8 @@ export default function DosenDashboard() {
     const attRecord = getAttendanceStatus(schedule.id);
     const isCheckedIn = !!attRecord;
 
+    const isToday = schedule.hari.toLowerCase() === currentDayId.toLowerCase();
+
     return (
       <div key={schedule.id} className="glass-panel schedule-card">
         <div className="schedule-details">
@@ -119,10 +121,14 @@ export default function DosenDashboard() {
                 {new Date(attRecord.waktu_absen).toLocaleTimeString()}
               </span>
             </div>
-          ) : (
+          ) : isToday ? (
             <Link href={`/dosen/absen/${schedule.id}`} className="btn btn-primary btn-sm" style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}>
               {t.checkIn}
             </Link>
+          ) : (
+            <button disabled className="btn btn-primary btn-sm" style={{ padding: "0.5rem 1rem", fontSize: "0.8rem", opacity: 0.5, cursor: "not-allowed" }} title={lang === "id" ? "Bukan jadwal hari ini" : "Not scheduled for today"}>
+              {t.checkIn}
+            </button>
           )}
         </div>
       </div>
@@ -146,7 +152,7 @@ export default function DosenDashboard() {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 20, height: 20, color: "var(--primary)" }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
-            <span>{t.todaySchedule} ({lang === "id" ? currentDayId : currentDayEn})</span>
+            <span>{lang === "id" ? "Jadwal Mengajar Anda" : "Your Teaching Schedule"}</span>
           </h3>
           <button 
             className="btn btn-secondary" 
