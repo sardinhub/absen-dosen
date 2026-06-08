@@ -132,6 +132,7 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
               <li key={idx}>
                 <Link 
                   href={item.path} 
+                  prefetch={true}
                   className={`sidebar-link ${isActive ? "active" : ""}`}
                   onClick={() => setIsOpen(false)}
                 >

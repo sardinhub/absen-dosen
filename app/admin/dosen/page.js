@@ -129,6 +129,7 @@ export default function AdminDosen() {
       resetForm();
       alert(lang === "id" ? "Data Dosen berhasil disimpan!" : "Lecturer data saved successfully!");
     } catch (err) {
+      console.error("Save Error:", err);
       alert(lang === "id" ? "Gagal menyimpan data dosen!" : "Failed to save lecturer!");
     }
   };
@@ -170,6 +171,7 @@ export default function AdminDosen() {
                 <th>Avatar</th>
                 <th>{t.lecturerName}</th>
                 <th>{t.email}</th>
+                <th>{lang === "id" ? "Info Rekening" : "Account Info"}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
               </tr>
             </thead>
@@ -183,6 +185,21 @@ export default function AdminDosen() {
                     <strong>{dosen.nama_lengkap}</strong>
                   </td>
                   <td>{dosen.email}</td>
+                  <td>
+                    {dosen.no_rekening ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem" }}>
+                        <span style={{ fontWeight: 700, fontSize: "0.8rem", color: "var(--primary)" }}>{dosen.nama_bank}</span>
+                        <span style={{ fontSize: "0.85rem" }}>{dosen.no_rekening}</span>
+                        {dosen.nama_pemilik_rek && (
+                          <span style={{ fontSize: "0.7rem", color: "var(--text-secondary)" }}>a.n. {dosen.nama_pemilik_rek}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontStyle: "italic" }}>
+                        {lang === "id" ? "Belum ada" : "No data"}
+                      </span>
+                    )}
+                  </td>
                   <td style={{ textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                       <button
