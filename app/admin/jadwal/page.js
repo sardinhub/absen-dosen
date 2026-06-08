@@ -64,11 +64,11 @@ export default function AdminJadwal() {
   const resetForm = () => {
     setDosenId("");
     setMkId("");
-    setKelas("");
+    setKelas("GS38");
     setHari("Senin");
     setJamMulai("08:00");
     setJamSelesai("10:00");
-    setRuangan("");
+    setRuangan("GA");
     setSelectedSchedule(null);
   };
 
@@ -100,8 +100,30 @@ export default function AdminJadwal() {
     setIsSaving(true);
 
     try {
+      const rawSchedules = await getSchedules();
+
+      // Collision Detection Logic
+      const isConflict = rawSchedules.some(existing => {
+        // Skip checking against itself if in edit mode
+        if (modalMode === "edit" && existing.id === selectedSchedule.id) return false;
+        
+        const sameHari = existing.hari.toLowerCase() === hari.toLowerCase();
+        // Time overlaps if NewStart < OldEnd AND NewEnd > OldStart
+        const timeOverlaps = (jamMulai < existing.jam_selesai) && (jamSelesai > existing.jam_mulai);
+        // It's a conflict if they share the same physical room or the same group of students (class)
+        const sameKelasOrRuangan = (existing.kelas.toLowerCase() === kelas.toLowerCase()) || 
+                                   (existing.ruangan.toLowerCase() === ruangan.toLowerCase());
+        
+        return sameHari && timeOverlaps && sameKelasOrRuangan;
+      });
+
+      if (isConflict) {
+        setIsSaving(false);
+        alert(lang === "id" ? "Gagal menyimpan! Jadwal bertabrakan dengan jadwal lain di Kelas, Ruangan, atau Waktu yang bertepatan." : "Failed to save! The schedule conflicts with an existing schedule.");
+        return;
+      }
+
       if (modalMode === "add") {
-        const rawSchedules = await getSchedules();
         const newSchedule = {
           id: "j" + (rawSchedules.length + 1),
           dosen_id: dosenId,
@@ -267,26 +289,32 @@ export default function AdminJadwal() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
             <div className="form-group">
               <label className="form-label">{t.class} <span style={{ color: "var(--danger)" }}>*</span></label>
-              <input
-                type="text"
+              <select
                 className="form-control"
-                placeholder="e.g. Aero-A"
                 value={kelas}
                 onChange={(e) => setKelas(e.target.value)}
+                style={{ background: "#0b0f19" }}
                 required
-              />
+              >
+                {["GS38", "GS39", "AV08", "FA10", "AV08-FA10"].map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
 
             <div className="form-group">
               <label className="form-label">{t.room} <span style={{ color: "var(--danger)" }}>*</span></label>
-              <input
-                type="text"
+              <select
                 className="form-control"
-                placeholder="e.g. R. Simulator"
                 value={ruangan}
                 onChange={(e) => setRuangan(e.target.value)}
+                style={{ background: "#0b0f19" }}
                 required
-              />
+              >
+                {["GA", "QG", "LabKom", "GC", "Aula"].map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
             </div>
           </div>
 
