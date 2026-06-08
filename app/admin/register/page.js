@@ -41,26 +41,14 @@ export default function AdminRegisterPage() {
     return () => window.removeEventListener("storage", syncData);
   }, []);
 
-  // Auto-generate email and password when a Dosen is selected
+  // Populate email and password from existing Dosen data
   useEffect(() => {
     if (role === "dosen" && selectedDosenId) {
       const selected = dosenList.find((d) => d.id === selectedDosenId);
       if (selected) {
         setNama(selected.nama_lengkap);
-        
-        // Extract First Name (skip titles like Capt., Dr. that contain dots)
-        const words = selected.nama_lengkap.split(/\s+/);
-        let firstName = "dosen";
-        for (let w of words) {
-          if (!w.includes(".")) {
-            firstName = w.replace(/,/g, "");
-            break;
-          }
-        }
-        
-        const formattedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-        setEmail(`${firstName.toLowerCase()}@triesaktigroup.id`);
-        setPassword(`${formattedFirstName}999`);
+        setEmail(selected.email || "");
+        setPassword(selected.password || "");
       }
     } else if (role === "admin") {
       setNama("");
