@@ -134,7 +134,7 @@ export default function DosenRiwayat() {
                 <th>{t.class}</th>
                 <th>{t.meetingNo}</th>
                 <th>{t.subject}</th>
-                <th>{t.signature}</th>
+                <th>{lang === "id" ? "Selfie Kehadiran" : "Attendance Selfie"}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
               </tr>
             </thead>
@@ -159,7 +159,7 @@ export default function DosenRiwayat() {
                     </td>
                     <td>
                       {item.tanda_tangan ? (
-                        <img src={item.tanda_tangan} alt="Signature thumbnail" className="signature-preview-thumbnail" />
+                        <img src={item.tanda_tangan} alt="Selfie thumbnail" style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "50%", border: "2px solid var(--border-color)" }} />
                       ) : "-"}
                     </td>
                     <td style={{ textAlign: "right" }}>
@@ -226,8 +226,10 @@ export default function DosenRiwayat() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "0.5rem" }}>
               <div>
-                <label className="form-label" style={{ textAlign: "center" }}>{t.signature}</label>
-                <img src={activeItem.tanda_tangan} alt="Full e-signature" className="signature-preview-large" />
+                <label className="form-label" style={{ textAlign: "center" }}>{lang === "id" ? "Foto Selfie Kehadiran" : "Attendance Selfie"}</label>
+                <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", height: "150px" }}>
+                  <img src={activeItem.tanda_tangan} alt="Selfie Kehadiran" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }} />
+                </div>
               </div>
               <div>
                 <label className="form-label" style={{ textAlign: "center" }}>{t.proofPhoto}</label>

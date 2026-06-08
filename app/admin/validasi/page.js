@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAttendance, getUsers, getSchedules, getCourses, saveAttendance } from "../../../lib/db";
+import { getAttendance, getUsers, getSchedules, getCourses, saveAttendance, deleteAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import Modal from "../../../components/Modal";
 
@@ -83,6 +83,21 @@ export default function AdminValidasi() {
     }
   };
 
+  const handleDelete = async (id) => {
+    const confirmMsg = lang === "id" 
+      ? "Apakah Anda yakin ingin menghapus data kehadiran ini secara permanen?" 
+      : "Are you sure you want to permanently delete this attendance record?";
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      await deleteAttendance(id);
+      await syncData();
+      alert(lang === "id" ? "Data kehadiran berhasil dihapus." : "Attendance record deleted successfully.");
+    } catch (err) {
+      alert(lang === "id" ? "Gagal menghapus data kehadiran!" : "Failed to delete attendance record!");
+    }
+  };
+
   const openDetails = (item) => {
     setActiveItem(item);
     setIsModalOpen(true);
@@ -109,7 +124,7 @@ export default function AdminValidasi() {
                 <th>{t.course}</th>
                 <th>{t.class}</th>
                 <th>{t.meetingNo}</th>
-                <th>{t.signature}</th>
+                <th>{lang === "id" ? "Selfie Kehadiran" : "Attendance Selfie"}</th>
                 <th>{t.status}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
               </tr>
@@ -135,7 +150,7 @@ export default function AdminValidasi() {
                     <td style={{ fontWeight: "bold" }}>#{item.pertemuan_ke}</td>
                     <td>
                       {item.tanda_tangan ? (
-                        <img src={item.tanda_tangan} alt="E-signature thumbnail" className="signature-preview-thumbnail" />
+                        <img src={item.tanda_tangan} alt="Selfie thumbnail" style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "50%", border: "2px solid var(--border-color)" }} />
                       ) : "-"}
                     </td>
                     <td>
@@ -144,9 +159,14 @@ export default function AdminValidasi() {
                       </span>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <button className="btn btn-secondary btn-sm" style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }} onClick={() => openDetails(item)}>
-                        {lang === "id" ? "Validasi" : "Validate"}
-                      </button>
+                      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+                        <button className="btn btn-secondary btn-sm" style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }} onClick={() => openDetails(item)}>
+                          {lang === "id" ? "Validasi" : "Validate"}
+                        </button>
+                        <button className="btn btn-danger btn-sm" style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }} onClick={() => handleDelete(item.id)}>
+                          {lang === "id" ? "Hapus" : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -210,8 +230,10 @@ export default function AdminValidasi() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "0.5rem" }}>
               <div>
-                <label className="form-label" style={{ textAlign: "center" }}>{t.signature}</label>
-                <img src={activeItem.tanda_tangan} alt="Full e-signature" className="signature-preview-large" />
+                <label className="form-label" style={{ textAlign: "center" }}>{lang === "id" ? "Foto Selfie Kehadiran" : "Attendance Selfie"}</label>
+                <div style={{ border: "1px solid var(--border-color)", borderRadius: "8px", overflow: "hidden", height: "150px" }}>
+                  <img src={activeItem.tanda_tangan} alt="Selfie" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }} />
+                </div>
               </div>
               <div>
                 <label className="form-label" style={{ textAlign: "center" }}>{t.proofPhoto}</label>
