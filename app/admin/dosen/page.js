@@ -85,8 +85,11 @@ export default function AdminDosen() {
     setIsModalOpen(true);
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleSave = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
 
     try {
       if (modalMode === "add") {
@@ -94,6 +97,7 @@ export default function AdminDosen() {
         // Validate unique email
         if (rawUsers.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
           alert(lang === "id" ? "Email sudah terdaftar!" : "Email already registered!");
+          setIsSaving(false);
           return;
         }
 
@@ -129,13 +133,19 @@ export default function AdminDosen() {
         await saveUser(updatedDosen);
       }
 
-      await syncData();
+      // Show alert quickly before waiting for table refresh
+      alert(lang === "id" ? "Data Dosen berhasil disimpan!" : "Lecturer data saved successfully!");
+      
       setIsModalOpen(false);
       resetForm();
-      alert(lang === "id" ? "Data Dosen berhasil disimpan!" : "Lecturer data saved successfully!");
+      setIsSaving(false);
+      
+      // Sync table silently in background
+      syncData();
     } catch (err) {
       console.error("Save Error:", err);
-      alert(lang === "id" ? "Gagal menyimpan data dosen!" : "Failed to save lecturer!");
+      alert(lang === "id" ? "Gagal menyimpan data dosen! Pastikan kolom no_wa sudah ada di Supabase." : "Failed to save lecturer!");
+      setIsSaving(false);
     }
   };
 
@@ -407,11 +417,11 @@ export default function AdminDosen() {
           </div>
 
           <div className="modal-footer" style={{ border: "none", padding: 0, marginTop: "2rem" }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>
+            <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)} disabled={isSaving}>
               {t.cancel}
             </button>
-            <button type="submit" className="btn btn-primary">
-              {t.saveChanges}
+            <button type="submit" className="btn btn-primary" disabled={isSaving}>
+              {isSaving ? (lang === "id" ? "Menyimpan..." : "Saving...") : t.saveChanges}
             </button>
           </div>
         </form>
