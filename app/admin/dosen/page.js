@@ -89,13 +89,19 @@ export default function AdminDosen() {
     setIsSaving(true);
 
     try {
-      // Generate default avatar based on gender if no photo uploaded or if it's the old default
-      const isOldDefault = fotoProfil === "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100";
+      // Check if photo is empty or is one of the auto-generated defaults
+      const isOldUnsplash = fotoProfil && fotoProfil.includes("1507003211169");
+      const isOldFemaleUnsplash = fotoProfil && fotoProfil.includes("1494790108377");
+      const isOldAvatarBoy = fotoProfil && fotoProfil.includes("avatar.iran.liara.run/public/boy");
+      const isOldAvatarGirl = fotoProfil && fotoProfil.includes("avatar.iran.liara.run/public/girl");
+
+      const isDefault = !fotoProfil || isOldUnsplash || isOldFemaleUnsplash || isOldAvatarBoy || isOldAvatarGirl;
+
       const defaultAvatar = jenisKelamin === "L" 
-        ? `https://avatar.iran.liara.run/public/boy?username=${encodeURIComponent(nama)}` 
-        : `https://avatar.iran.liara.run/public/girl?username=${encodeURIComponent(nama)}`;
+        ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150" 
+        : "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150";
         
-      const finalFotoProfil = (fotoProfil && !isOldDefault) ? fotoProfil : defaultAvatar;
+      const finalFotoProfil = isDefault ? defaultAvatar : fotoProfil;
 
       if (modalMode === "add") {
         const rawUsers = await getUsers();
