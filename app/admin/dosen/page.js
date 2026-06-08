@@ -56,6 +56,7 @@ export default function AdminDosen() {
     setNamaBank("BCA");
     setNamaPemilikRek("");
     setNoWa("");
+    setJenisKelamin("L");
     setSelectedDosen(null);
   };
 
@@ -75,17 +76,27 @@ export default function AdminDosen() {
     setNamaBank(dosen.nama_bank || "BCA");
     setNamaPemilikRek(dosen.nama_pemilik_rek || "");
     setNoWa(dosen.no_wa || "");
+    setJenisKelamin(dosen.jenis_kelamin || "L");
     setModalMode("edit");
     setIsModalOpen(true);
   };
 
   const [isSaving, setIsSaving] = useState(false);
+  const [jenisKelamin, setJenisKelamin] = useState("L"); // "L" or "P"
 
   const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
 
     try {
+      // Generate default avatar based on gender if no photo uploaded or if it's the old default
+      const isOldDefault = fotoProfil === "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100";
+      const defaultAvatar = jenisKelamin === "L" 
+        ? `https://avatar.iran.liara.run/public/boy?username=${encodeURIComponent(nama)}` 
+        : `https://avatar.iran.liara.run/public/girl?username=${encodeURIComponent(nama)}`;
+        
+      const finalFotoProfil = (fotoProfil && !isOldDefault) ? fotoProfil : defaultAvatar;
+
       if (modalMode === "add") {
         const rawUsers = await getUsers();
         // Validate unique email
@@ -102,11 +113,12 @@ export default function AdminDosen() {
           nama_lengkap: nama,
           nip: "-", // Default placeholder since NIP is removed
           role: "dosen",
-          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100", // Default profile
+          foto_profil: finalFotoProfil,
           no_rekening: noRekening,
           nama_bank: namaBank,
           nama_pemilik_rek: namaPemilikRek,
-          no_wa: noWa
+          no_wa: noWa,
+          jenis_kelamin: jenisKelamin
         };
 
         await saveUser(newUser);
@@ -117,12 +129,13 @@ export default function AdminDosen() {
           nama_lengkap: nama,
           email: email,
           password: password,
-          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100",
+          foto_profil: finalFotoProfil,
           nip: "-",
           no_rekening: noRekening,
           nama_bank: namaBank,
           nama_pemilik_rek: namaPemilikRek,
-          no_wa: noWa
+          no_wa: noWa,
+          jenis_kelamin: jenisKelamin
         };
         await saveUser(updatedDosen);
       }
@@ -326,6 +339,29 @@ export default function AdminDosen() {
                 )}
               </button>
             </div>
+          </div>
+
+          <div className="form-group" style={{ marginBottom: "1rem" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
+              Jenis Kelamin
+            </label>
+            <select
+              className="form-control"
+              value={jenisKelamin}
+              onChange={(e) => setJenisKelamin(e.target.value)}
+              required
+              style={{
+                width: "100%",
+                padding: "0.75rem 1rem",
+                borderRadius: "0.5rem",
+                border: "1px solid var(--border-color)",
+                backgroundColor: "var(--bg-secondary)",
+                color: "var(--text-primary)",
+              }}
+            >
+              <option value="L">Laki-laki</option>
+              <option value="P">Perempuan</option>
+            </select>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
