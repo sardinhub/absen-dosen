@@ -8,7 +8,7 @@ export default function AdminRegisterPage() {
   const [lang, setLang] = useState("id");
   
   // Form States
-  const [role, setRole] = useState("dosen");
+  const [role, setRole] = useState("admin");
   const [nama, setNama] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,17 +18,6 @@ export default function AdminRegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [dosenList, setDosenList] = useState([]);
-  const [selectedDosenId, setSelectedDosenId] = useState("");
-
-  const fetchDosen = async () => {
-    try {
-      const users = await getUsers();
-      setDosenList(users.filter((u) => u.role === "dosen"));
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const syncData = () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -36,27 +25,9 @@ export default function AdminRegisterPage() {
 
   useEffect(() => {
     syncData();
-    fetchDosen();
     window.addEventListener("storage", syncData);
     return () => window.removeEventListener("storage", syncData);
   }, []);
-
-  // Populate email and password from existing Dosen data
-  useEffect(() => {
-    if (role === "dosen" && selectedDosenId) {
-      const selected = dosenList.find((d) => d.id === selectedDosenId);
-      if (selected) {
-        setNama(selected.nama_lengkap);
-        setEmail(selected.email || "");
-        setPassword(selected.password || "");
-      }
-    } else if (role === "admin") {
-      setNama("");
-      setEmail("");
-      setPassword("");
-      setSelectedDosenId("");
-    }
-  }, [role, selectedDosenId, dosenList]);
 
   const t = translations[lang];
 
@@ -72,13 +43,10 @@ export default function AdminRegisterPage() {
   };
 
   const resetForm = () => {
-    if (role === "admin") {
-      setNama("");
-      setEmail("");
-      setPassword("");
-    }
+    setNama("");
+    setEmail("");
+    setPassword("");
     setFotoProfil(null);
-    setSelectedDosenId("");
     setError("");
   };
 
@@ -97,36 +65,28 @@ export default function AdminRegisterPage() {
     try {
       const users = await getUsers();
       
-      // Validate unique email (ignoring self if updating)
-      const userId = (role === "dosen" && selectedDosenId) 
-        ? selectedDosenId 
-        : (role === "admin" ? "admin_" : "u_") + Math.random().toString(36).substr(2, 9);
-        
-      const existingUser = users.find((u) => u.id === userId);
-
-      if (users.some((u) => u.email.toLowerCase() === email.toLowerCase() && u.id !== userId)) {
+      // Validate unique email
+      if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
         setError(lang === "id" ? "Email sudah terdaftar!" : "Email already registered!");
         setLoading(false);
         return;
       }
 
-      const userToSave = {
-        ...(existingUser || {}),
-        id: userId,
+      const newUserId = "admin_" + Math.random().toString(36).substr(2, 9);
+
+      const newUser = {
+        id: newUserId,
         email: email.toLowerCase(),
         password: password,
         nama_lengkap: nama,
-        role: role,
-        foto_profil: fotoProfil || (existingUser ? existingUser.foto_profil : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100")
+        nip: "-", // Admin doesn't need NIP
+        role: "admin",
+        foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
       };
-      
-      if (!existingUser) {
-         userToSave.nip = "-";
-      }
 
-      await saveUser(userToSave);
+      await saveUser(newUser);
 
-      setSuccess(lang === "id" ? `User baru (${role.toUpperCase()}) berhasil didaftarkan!` : `New user (${role.toUpperCase()}) registered successfully!`);
+      setSuccess(lang === "id" ? `Staff Akademik/Admin baru berhasil didaftarkan!` : `New Academic Staff/Admin registered successfully!`);
       resetForm();
       setLoading(false);
     } catch (err) {
@@ -156,56 +116,30 @@ export default function AdminRegisterPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Select Role */}
-          <div className="form-group">
+          {/* Fixed Role */}
+          <div className="form-group" style={{ marginBottom: "1.5rem" }}>
             <label className="form-label">
-              {lang === "id" ? "Peran / Tipe Akun" : "Role / Account Type"} <span style={{ color: "var(--danger)" }}>*</span>
+              {lang === "id" ? "Tipe Akun" : "Account Type"}
             </label>
-            <select
-              className="form-control"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              style={{ background: "#0b0f19" }}
-            >
-              <option value="dosen">{lang === "id" ? "Dosen (Lecturer)" : "Lecturer"}</option>
-              <option value="admin">{lang === "id" ? "Staff Akademik / Admin" : "Academic Staff / Admin"}</option>
-            </select>
+            <div style={{ padding: "0.75rem", background: "rgba(59, 130, 246, 0.1)", border: "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "0.5rem", color: "#60a5fa", fontWeight: "600", fontSize: "0.9rem" }}>
+              {lang === "id" ? "Staff Akademik / Admin" : "Academic Staff / Admin"}
+            </div>
           </div>
 
-          {/* Full Name / Dosen Selector */}
-          {role === "dosen" ? (
-            <div className="form-group">
-              <label className="form-label">
-                {lang === "id" ? "Pilih Data Dosen" : "Select Lecturer Data"} <span style={{ color: "var(--danger)" }}>*</span>
-              </label>
-              <select
-                className="form-control"
-                value={selectedDosenId}
-                onChange={(e) => setSelectedDosenId(e.target.value)}
-                style={{ background: "#0b0f19" }}
-                required
-              >
-                <option value="">{lang === "id" ? "-- Pilih Dosen --" : "-- Select Lecturer --"}</option>
-                {dosenList.map((d) => (
-                  <option key={d.id} value={d.id}>{d.nama_lengkap}</option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <div className="form-group">
-              <label className="form-label">
-                {lang === "id" ? "Nama Lengkap" : "Full Name"} <span style={{ color: "var(--danger)" }}>*</span>
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="e.g. John Doe"
-                value={nama}
-                onChange={(e) => setNama(e.target.value)}
-                required
-              />
-            </div>
-          )}
+          {/* Full Name */}
+          <div className="form-group">
+            <label className="form-label">
+              {lang === "id" ? "Nama Lengkap" : "Full Name"} <span style={{ color: "var(--danger)" }}>*</span>
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="e.g. John Doe"
+              value={nama}
+              onChange={(e) => setNama(e.target.value)}
+              required
+            />
+          </div>
 
           {/* Email */}
           <div className="form-group">
