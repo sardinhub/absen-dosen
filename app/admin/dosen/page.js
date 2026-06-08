@@ -20,6 +20,9 @@ export default function AdminDosen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [fotoProfil, setFotoProfil] = useState(null);
+  const [noRekening, setNoRekening] = useState("");
+  const [namaBank, setNamaBank] = useState("BCA");
+  const [namaPemilikRek, setNamaPemilikRek] = useState("");
 
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -54,6 +57,9 @@ export default function AdminDosen() {
     setPassword("");
     setShowPassword(false);
     setFotoProfil(null);
+    setNoRekening("");
+    setNamaBank("BCA");
+    setNamaPemilikRek("");
     setSelectedDosen(null);
   };
 
@@ -69,6 +75,9 @@ export default function AdminDosen() {
     setEmail(dosen.email);
     setPassword(dosen.password);
     setFotoProfil(dosen.foto_profil || null);
+    setNoRekening(dosen.no_rekening || "");
+    setNamaBank(dosen.nama_bank || "BCA");
+    setNamaPemilikRek(dosen.nama_pemilik_rek || "");
     setModalMode("edit");
     setIsModalOpen(true);
   };
@@ -92,7 +101,10 @@ export default function AdminDosen() {
           nama_lengkap: nama,
           nip: "-", // Default placeholder since NIP is removed
           role: "dosen",
-          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100" // Default profile
+          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100", // Default profile
+          no_rekening: noRekening,
+          nama_bank: namaBank,
+          nama_pemilik_rek: namaPemilikRek
         };
 
         await saveUser(newUser);
@@ -104,7 +116,10 @@ export default function AdminDosen() {
           email: email,
           password: password,
           foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100",
-          nip: "-"
+          nip: "-",
+          no_rekening: noRekening,
+          nama_bank: namaBank,
+          nama_pemilik_rek: namaPemilikRek
         };
         await saveUser(updatedDosen);
       }
@@ -255,6 +270,51 @@ export default function AdminDosen() {
                 )}
               </button>
             </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div className="form-group">
+              <label className="form-label">{lang === "id" ? "Nama Bank" : "Bank Name"}</label>
+              <select
+                className="form-control"
+                value={namaBank}
+                onChange={(e) => setNamaBank(e.target.value)}
+                style={{ background: "#0b0f19" }}
+              >
+                <option value="BCA">BCA</option>
+                <option value="Mandiri">Mandiri</option>
+                <option value="BNI">BNI</option>
+                <option value="BRI">BRI</option>
+                <option value="BSI">BSI</option>
+                <option value="CIMB Niaga">CIMB Niaga</option>
+                <option value="Danamon">Danamon</option>
+                <option value="Permata">Permata</option>
+                <option value="Bank Jago">Bank Jago</option>
+                <option value="SeaBank">SeaBank</option>
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">{lang === "id" ? "Nomor Rekening" : "Account Number"}</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="e.g. 1234567890"
+                value={noRekening}
+                onChange={(e) => setNoRekening(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">{lang === "id" ? "Nama Pemilik Rekening" : "Account Owner Name"}</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="e.g. ANDI WIJAYA"
+              value={namaPemilikRek}
+              onChange={(e) => setNamaPemilikRek(e.target.value)}
+            />
           </div>
 
           <div className="form-group">
