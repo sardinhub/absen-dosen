@@ -144,7 +144,8 @@ export default function AdminDosen() {
       syncData();
     } catch (err) {
       console.error("Save Error:", err);
-      alert(lang === "id" ? "Gagal menyimpan data dosen! Pastikan kolom no_wa sudah ada di Supabase." : "Failed to save lecturer!");
+      const errDetail = err?.message || JSON.stringify(err);
+      alert((lang === "id" ? "Gagal menyimpan data dosen! DETAIL ERROR DARI SUPABASE:\n\n" : "Failed to save lecturer! ERROR:\n\n") + errDetail);
       setIsSaving(false);
     }
   };
