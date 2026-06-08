@@ -302,7 +302,7 @@
 
 @media (min-width: 769px) {
   .modal-overlay {
-    left: 280px;
+    padding-left: calc(280px + 1.5rem);
   }
 }
 

@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function Modal({ isOpen, title, onClose, children, footer }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Listen for Escape key to close the modal
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -18,9 +25,9 @@ export default function Modal({ isOpen, title, onClose, children, footer }) {
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="glass-panel modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -29,11 +36,12 @@ export default function Modal({ isOpen, title, onClose, children, footer }) {
             &times;
           </button>
         </div>
-        <div className="modal-body" style={{ maxHeight: "70vh", overflowY: "auto", paddingRight: "0.5rem" }}>
+        <div className="modal-body" style={{ maxHeight: "65vh", overflowY: "auto", paddingRight: "0.5rem" }}>
           {children}
         </div>
         {footer && <div className="modal-footer">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
