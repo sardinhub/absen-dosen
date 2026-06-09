@@ -42,7 +42,8 @@ export default function DosenDashboard() {
         setSchedules(lecturerSchedules);
 
         // Filter today's attendance logs
-        const todayString = new Date().toISOString().split("T")[0];
+        const localDate = new Date();
+        const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
         const todayLogs = rawAttendance.filter(
           (k) => k.dosen_id === parsedUser.id && k.tanggal === todayString
         );
@@ -70,7 +71,8 @@ export default function DosenDashboard() {
 
   // Filter schedules matching today (by date if specified, otherwise by day of week)
   const todaySchedules = schedules.filter((j) => {
-    const todayString = new Date().toISOString().split("T")[0];
+    const localDate = new Date();
+    const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
     if (j.tanggal) {
       return j.tanggal === todayString;
     }
@@ -82,7 +84,8 @@ export default function DosenDashboard() {
   };
 
   const getAttendanceStatus = (scheduleId) => {
-    const todayString = new Date().toISOString().split("T")[0];
+    const localDate = new Date();
+    const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
     return attendanceToday.find(
       (k) => k.jadwal_id === scheduleId && k.tanggal === todayString
     );
@@ -92,7 +95,8 @@ export default function DosenDashboard() {
     const attRecord = getAttendanceStatus(schedule.id);
     const isCheckedIn = !!attRecord;
 
-    const todayString = new Date().toISOString().split("T")[0];
+    const localDate = new Date();
+    const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
     const isToday = schedule.tanggal
       ? schedule.tanggal === todayString
       : schedule.hari.toLowerCase() === currentDayId.toLowerCase();

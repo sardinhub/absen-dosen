@@ -149,7 +149,7 @@ export default function AbsenPage() {
         id: "kh_" + Math.random().toString(36).substr(2, 9),
         jadwal_id: scheduleId,
         dosen_id: loggedInUser.id,
-        tanggal: new Date().toISOString().split("T")[0],
+        tanggal: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
         pertemuan_ke: nextMeetingNo,
         materi: materi,
         foto_bukti: fotoBukti || "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&q=80&w=400", // Default aviation teaching mockup
