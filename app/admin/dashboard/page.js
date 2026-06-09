@@ -36,9 +36,12 @@ export default function AdminDashboard() {
       const todayIndex = new Date().getDay();
       const currentDay = dayNamesId[todayIndex];
 
-      const todaysSchedules = rawSchedules.filter(
-        (j) => j.hari.toLowerCase() === currentDay.toLowerCase()
-      );
+      const todaysSchedules = rawSchedules.filter((j) => {
+        if (j.tanggal) {
+          return j.tanggal === todayString;
+        }
+        return j.hari.toLowerCase() === currentDay.toLowerCase();
+      });
 
       const permittedTodayLogs = rawAttendance.filter(
         (k) => k.tanggal === todayString && k.status === "izin"

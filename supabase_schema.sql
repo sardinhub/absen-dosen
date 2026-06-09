@@ -39,7 +39,8 @@ CREATE TABLE tabel_jadwal (
     hari VARCHAR(20) NOT NULL,
     jam_mulai TIME NOT NULL,
     jam_selesai TIME NOT NULL,
-    ruangan VARCHAR(50) NOT NULL
+    ruangan VARCHAR(50) NOT NULL,
+    tanggal DATE
 );
 
 -- 4. Tabel Kehadiran

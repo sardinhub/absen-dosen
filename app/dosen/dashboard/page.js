@@ -68,10 +68,14 @@ export default function DosenDashboard() {
   const currentDayId = dayNamesId[todayIndex];
   const currentDayEn = dayNamesEn[todayIndex];
 
-  // Filter schedules matching today's day (e.g., "Kamis" / "Thursday")
-  const todaySchedules = schedules.filter(
-    (j) => j.hari.toLowerCase() === currentDayId.toLowerCase()
-  );
+  // Filter schedules matching today (by date if specified, otherwise by day of week)
+  const todaySchedules = schedules.filter((j) => {
+    const todayString = new Date().toISOString().split("T")[0];
+    if (j.tanggal) {
+      return j.tanggal === todayString;
+    }
+    return j.hari.toLowerCase() === currentDayId.toLowerCase();
+  });
 
   const formatTime = (timeStr) => {
     return timeStr;
@@ -88,7 +92,10 @@ export default function DosenDashboard() {
     const attRecord = getAttendanceStatus(schedule.id);
     const isCheckedIn = !!attRecord;
 
-    const isToday = schedule.hari.toLowerCase() === currentDayId.toLowerCase();
+    const todayString = new Date().toISOString().split("T")[0];
+    const isToday = schedule.tanggal
+      ? schedule.tanggal === todayString
+      : schedule.hari.toLowerCase() === currentDayId.toLowerCase();
 
     return (
       <div key={schedule.id} className="glass-panel schedule-card">
@@ -109,6 +116,11 @@ export default function DosenDashboard() {
               <span>
                 <strong>Code:</strong> {schedule.mk_kode}
               </span>
+              {schedule.tanggal && (
+                <span>
+                  <strong>{lang === "id" ? "Tanggal:" : "Date:"}</strong> {new Date(schedule.tanggal).toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'short', year: 'numeric' })}
+                </span>
+              )}
             </div>
           </div>
         </div>

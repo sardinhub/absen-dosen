@@ -24,6 +24,16 @@ export default function AdminJadwal() {
   const [jamMulai, setJamMulai] = useState("08:00");
   const [jamSelesai, setJamSelesai] = useState("10:00");
   const [ruangan, setRuangan] = useState("");
+  const [tanggal, setTanggal] = useState("");
+
+  const handleDateChange = (dateVal) => {
+    setTanggal(dateVal);
+    if (dateVal) {
+      const dayIndex = new Date(dateVal).getDay();
+      const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      setHari(days[dayIndex]);
+    }
+  };
 
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -69,6 +79,7 @@ export default function AdminJadwal() {
     setJamMulai("08:00");
     setJamSelesai("10:00");
     setRuangan("GA");
+    setTanggal("");
     setSelectedSchedule(null);
   };
 
@@ -89,6 +100,7 @@ export default function AdminJadwal() {
     setJamMulai(schedule.jam_mulai);
     setJamSelesai(schedule.jam_selesai);
     setRuangan(schedule.ruangan);
+    setTanggal(schedule.tanggal || "");
     setModalMode("edit");
     setIsModalOpen(true);
   };
@@ -107,14 +119,19 @@ export default function AdminJadwal() {
         // Skip checking against itself if in edit mode
         if (modalMode === "edit" && existing.id === selectedSchedule.id) return false;
         
-        const sameHari = existing.hari.toLowerCase() === hari.toLowerCase();
+        // If both have specific dates, they conflict if dates are the same.
+        // If either doesn't have a date (legacy schedule), check if the day matches.
+        const sameDateOrDay = (existing.tanggal && tanggal)
+          ? (existing.tanggal === tanggal)
+          : (existing.hari.toLowerCase() === hari.toLowerCase());
+
         // Time overlaps if NewStart < OldEnd AND NewEnd > OldStart
         const timeOverlaps = (jamMulai < existing.jam_selesai) && (jamSelesai > existing.jam_mulai);
         // It's a conflict if they share the same physical room or the same group of students (class)
         const sameKelasOrRuangan = (existing.kelas.toLowerCase() === kelas.toLowerCase()) || 
                                    (existing.ruangan.toLowerCase() === ruangan.toLowerCase());
         
-        return sameHari && timeOverlaps && sameKelasOrRuangan;
+        return sameDateOrDay && timeOverlaps && sameKelasOrRuangan;
       });
 
       if (isConflict) {
@@ -132,7 +149,8 @@ export default function AdminJadwal() {
           hari: hari,
           jam_mulai: jamMulai,
           jam_selesai: jamSelesai,
-          ruangan: ruangan
+          ruangan: ruangan,
+          tanggal: tanggal || null
         };
         await saveSchedule(newSchedule);
       } else {
@@ -144,7 +162,8 @@ export default function AdminJadwal() {
           hari: hari,
           jam_mulai: jamMulai,
           jam_selesai: jamSelesai,
-          ruangan: ruangan
+          ruangan: ruangan,
+          tanggal: tanggal || null
         };
         await saveSchedule(updatedSchedule);
       }
@@ -219,6 +238,11 @@ export default function AdminJadwal() {
                   <td>{schedule.kelas}</td>
                   <td>
                     <span style={{ fontWeight: "bold", color: "var(--primary)" }}>{schedule.hari}</span>
+                    {schedule.tanggal && (
+                      <div style={{ fontSize: "0.75rem", color: "#60a5fa", fontWeight: "600" }}>
+                        {new Date(schedule.tanggal).toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </div>
+                    )}
                     <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{schedule.jam_mulai} - {schedule.jam_selesai}</div>
                   </td>
                   <td>{schedule.ruangan}</td>
@@ -316,6 +340,22 @@ export default function AdminJadwal() {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">{lang === "id" ? "Tanggal (Opsional)" : "Date (Optional)"}</label>
+            <input
+              type="date"
+              className="form-control"
+              value={tanggal}
+              onChange={(e) => handleDateChange(e.target.value)}
+              style={{ background: "#0b0f19", color: "white" }}
+            />
+            <small style={{ color: "var(--text-secondary)", display: "block", marginTop: "0.25rem", fontSize: "0.75rem" }}>
+              {lang === "id" 
+                ? "Isi untuk jadwal pada tanggal tertentu. Mengubah tanggal akan menyesuaikan hari secara otomatis."
+                : "Fill this for specific-date schedules. Changing date will update the day of the week automatically."}
+            </small>
           </div>
 
           <div className="form-group">
