@@ -112,8 +112,8 @@ export default function AdminDosen() {
           return;
         }
 
-        const newUser = {
-          id: "u" + (rawUsers.length + 1),
+         const newUser = {
+          id: "u_" + Math.random().toString(36).substr(2, 9),
           email: email,
           password: password || "dosen", // Default password
           nama_lengkap: nama,

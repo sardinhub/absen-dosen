@@ -125,7 +125,7 @@ export default function AdminJadwal() {
 
       if (modalMode === "add") {
         const newSchedule = {
-          id: "j" + (rawSchedules.length + 1),
+          id: "j_" + Math.random().toString(36).substr(2, 9),
           dosen_id: dosenId,
           mk_id: mkId,
           kelas: kelas,

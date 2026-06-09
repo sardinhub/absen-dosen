@@ -72,7 +72,7 @@ export default function AdminMataKuliah() {
         }
 
         const newCourse = {
-          id: "mk" + (rawCourses.length + 1),
+          id: "mk_" + Math.random().toString(36).substr(2, 9),
           kode_mk: kode.toUpperCase(),
           nama_mk: nama,
           sks: 0, // Set to 0 since SKS is removed
