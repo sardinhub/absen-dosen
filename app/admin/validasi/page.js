@@ -11,6 +11,13 @@ export default function AdminValidasi() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
 
+  // Edit Modal States
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [editWaktuAbsen, setEditWaktuAbsen] = useState("");
+  const [editMateri, setEditMateri] = useState("");
+  const [editCatatan, setEditCatatan] = useState("");
+
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
     try {
@@ -103,6 +110,57 @@ export default function AdminValidasi() {
     setIsModalOpen(true);
   };
 
+  const openEdit = (item) => {
+    setEditItem(item);
+    // Convert ISO string to format required by datetime-local input: YYYY-MM-DDThh:mm
+    let localDatetime = "";
+    if (item.waktu_absen) {
+      const d = new Date(item.waktu_absen);
+      const tzoffset = d.getTimezoneOffset() * 60000; // offset in milliseconds
+      localDatetime = new Date(d - tzoffset).toISOString().slice(0, 16);
+    }
+    setEditWaktuAbsen(localDatetime);
+    setEditMateri(item.materi || "");
+    setEditCatatan(item.catatan || "");
+    setIsEditModalOpen(true);
+  };
+
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const handleEditSave = async (e) => {
+    e.preventDefault();
+    setIsSavingEdit(true);
+
+    try {
+      const rawAttendance = await getAttendance();
+      const itemToUpdate = rawAttendance.find((k) => k.id === editItem.id);
+      if (itemToUpdate) {
+        // Convert local datetime string back to UTC ISO string
+        let newWaktuAbsen = itemToUpdate.waktu_absen;
+        if (editWaktuAbsen) {
+          newWaktuAbsen = new Date(editWaktuAbsen).toISOString();
+        }
+
+        const updated = {
+          ...itemToUpdate,
+          waktu_absen: newWaktuAbsen,
+          materi: editMateri,
+          catatan: editCatatan
+        };
+        await saveAttendance(updated);
+      }
+
+      await syncData();
+      setIsEditModalOpen(false);
+      setIsSavingEdit(false);
+      alert(lang === "id" ? "Data kehadiran berhasil diperbarui!" : "Attendance record updated successfully!");
+    } catch (err) {
+      console.error("Edit error:", err);
+      setIsSavingEdit(false);
+      alert(lang === "id" ? "Gagal menyimpan perubahan!" : "Failed to save changes!");
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       <div className="glass-panel" style={{ padding: "1.5rem 2rem", background: "linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%)" }}>
@@ -162,6 +220,9 @@ export default function AdminValidasi() {
                       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                         <button className="btn btn-secondary btn-sm" style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }} onClick={() => openDetails(item)}>
                           {lang === "id" ? "Validasi" : "Validate"}
+                        </button>
+                        <button className="btn btn-warning btn-sm" style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }} onClick={() => openEdit(item)}>
+                          {lang === "id" ? "Edit" : "Edit"}
                         </button>
                         <button className="btn btn-danger btn-sm" style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }} onClick={() => handleDelete(item.id)}>
                           {lang === "id" ? "Hapus" : "Delete"}
@@ -268,6 +329,71 @@ export default function AdminValidasi() {
               </button>
             </div>
           </div>
+        </Modal>
+      )}
+
+      {/* Edit Attendance Modal */}
+      {editItem && (
+        <Modal
+          isOpen={isEditModalOpen}
+          title={lang === "id" ? "Edit Log Kehadiran" : "Edit Attendance Log"}
+          onClose={() => setIsEditModalOpen(false)}
+        >
+          <form onSubmit={handleEditSave} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div style={{ paddingBottom: "1rem", borderBottom: "1px solid var(--border-color)" }}>
+              <p style={{ fontWeight: "bold" }}>{editItem.dosen_nama}</p>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                {editItem.mk_nama} ({editItem.mk_kode}) - Kelas {editItem.kelas}
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">{lang === "id" ? "Jam Absen Masuk" : "Check-in Time"} <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="datetime-local"
+                className="form-control"
+                value={editWaktuAbsen}
+                onChange={(e) => setEditWaktuAbsen(e.target.value)}
+                style={{ background: "#0b0f19", color: "white" }}
+                required
+              />
+              <small style={{ color: "var(--text-secondary)", display: "block", marginTop: "0.25rem", fontSize: "0.75rem" }}>
+                {lang === "id" ? "Ubah jam ini jika dosen lupa menekan tombol absen tepat waktu." : "Change this time if the lecturer forgot to check-in on time."}
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">{t.subject} <span style={{ color: "var(--danger)" }}>*</span></label>
+              <input
+                type="text"
+                className="form-control"
+                value={editMateri}
+                onChange={(e) => setEditMateri(e.target.value)}
+                style={{ background: "#0b0f19", color: "white" }}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">{t.notes}</label>
+              <textarea
+                className="form-control"
+                rows={3}
+                value={editCatatan}
+                onChange={(e) => setEditCatatan(e.target.value)}
+                style={{ background: "#0b0f19", color: "white" }}
+              />
+            </div>
+
+            <div className="modal-footer" style={{ border: "none", padding: 0, marginTop: "1rem" }}>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsEditModalOpen(false)} disabled={isSavingEdit}>
+                {t.cancel}
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={isSavingEdit}>
+                {isSavingEdit ? (lang === "id" ? "Menyimpan..." : "Saving...") : t.saveChanges}
+              </button>
+            </div>
+          </form>
         </Modal>
       )}
     </div>
