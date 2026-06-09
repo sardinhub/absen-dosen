@@ -45,7 +45,7 @@ export default function DosenDashboard() {
         const localDate = new Date();
         const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
         const todayLogs = rawAttendance.filter(
-          (k) => k.dosen_id === parsedUser.id && k.tanggal === todayString
+          (k) => k.dosen_id === parsedUser.id && k.tanggal.startsWith(todayString)
         );
         setAttendanceToday(todayLogs);
       } catch (err) {
@@ -74,7 +74,7 @@ export default function DosenDashboard() {
     const localDate = new Date();
     const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
     if (j.tanggal) {
-      return j.tanggal === todayString;
+      return j.tanggal.startsWith(todayString);
     }
     return j.hari.toLowerCase() === currentDayId.toLowerCase();
   });
@@ -87,7 +87,7 @@ export default function DosenDashboard() {
     const localDate = new Date();
     const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
     return attendanceToday.find(
-      (k) => k.jadwal_id === scheduleId && k.tanggal === todayString
+      (k) => k.jadwal_id === scheduleId && k.tanggal.startsWith(todayString)
     );
   };
 
@@ -98,7 +98,7 @@ export default function DosenDashboard() {
     const localDate = new Date();
     const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
     const isToday = schedule.tanggal
-      ? schedule.tanggal === todayString
+      ? schedule.tanggal.startsWith(todayString)
       : schedule.hari.toLowerCase() === currentDayId.toLowerCase();
 
     return (
