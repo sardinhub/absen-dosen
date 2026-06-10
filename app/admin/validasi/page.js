@@ -21,10 +21,12 @@ export default function AdminValidasi() {
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
     try {
-      const rawAttendance = await getAttendance();
-      const rawUsers = await getUsers();
-      const rawSchedules = await getSchedules();
-      const rawCourses = await getCourses();
+      const [rawAttendance, rawUsers, rawSchedules, rawCourses] = await Promise.all([
+        getAttendance(),
+        getUsers(),
+        getSchedules(),
+        getCourses()
+      ]);
 
       // Map attendance with lecturer and schedule details
       const mapped = rawAttendance
