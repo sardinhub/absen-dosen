@@ -253,7 +253,12 @@ export default function AdminLaporan() {
               {filteredData.length > 0 ? (
                 filteredData.map((item, idx) => (
                   <tr key={idx}>
-                    <td>{item.tanggal}</td>
+                    <td>
+                      <div>{item.tanggal}</div>
+                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                        {new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </td>
                     <td>
                       <strong>{item.dosen_nama}</strong>
                     </td>
