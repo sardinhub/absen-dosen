@@ -30,20 +30,22 @@ export default function AdminLaporan() {
       setCourses(rawCourses);
 
       // Map all records
-      const mapped = rawAttendance.map((k) => {
-        const lecturer = rawUsers.find((u) => u.id === k.dosen_id);
-        const schedule = rawSchedules.find((j) => j.id === k.jadwal_id);
-        const course = rawCourses.find((m) => m.id === schedule?.mk_id);
-        return {
-          ...k,
-          dosen_nama: lecturer?.nama_lengkap,
-          dosen_nip: lecturer?.nip,
-          mk_nama: course?.nama_mk,
-          mk_kode: course?.kode_mk,
-          kelas: schedule?.kelas,
-          ruangan: schedule?.ruangan
-        };
-      }).sort((a, b) => new Date(b.waktu_absen) - new Date(a.waktu_absen));
+      const mapped = rawAttendance
+        .filter((k) => k.status !== 'pending')
+        .map((k) => {
+          const lecturer = rawUsers.find((u) => u.id === k.dosen_id);
+          const schedule = rawSchedules.find((j) => j.id === k.jadwal_id);
+          const course = rawCourses.find((m) => m.id === schedule?.mk_id);
+          return {
+            ...k,
+            dosen_nama: lecturer?.nama_lengkap,
+            dosen_nip: lecturer?.nip,
+            mk_nama: course?.nama_mk,
+            mk_kode: course?.kode_mk,
+            kelas: schedule?.kelas,
+            ruangan: schedule?.ruangan
+          };
+        }).sort((a, b) => new Date(b.waktu_absen) - new Date(a.waktu_absen));
 
       setAttendance(mapped);
     } catch (err) {
@@ -238,7 +240,7 @@ export default function AdminLaporan() {
                       ) : "-"}
                     </td>
                     <td>
-                      <span className={`badge ${item.status === 'hadir' ? 'badge-success' : item.status === 'izin' ? 'badge-warning' : 'badge-danger'}`}>
+                      <span className={`badge ${item.status === 'hadir' ? 'badge-success' : item.status === 'izin' ? 'badge-warning' : item.status === 'pending' ? 'badge-secondary' : 'badge-danger'}`}>
                         {item.status.toUpperCase()}
                       </span>
                     </td>

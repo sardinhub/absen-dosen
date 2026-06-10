@@ -154,7 +154,7 @@ export default function AbsenPage() {
         materi: materi,
         foto_bukti: fotoBukti || "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&q=80&w=400", // Default aviation teaching mockup
         tanda_tangan: tandaTangan,
-        status: "hadir",
+        status: "pending",
         waktu_absen: new Date().toISOString(),
         catatan: catatan
       };
