@@ -11,6 +11,11 @@ export default function AdminJadwal() {
   const [lecturers, setLecturers] = useState([]);
   const [courses, setCourses] = useState([]);
 
+  // Filter States
+  const [filterLecturer, setFilterLecturer] = useState("");
+  const [filterDay, setFilterDay] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // add | edit
@@ -212,6 +217,55 @@ export default function AdminJadwal() {
         </button>
       </div>
 
+      {/* Filter Section */}
+      <div className="glass-panel" style={{ padding: "1.5rem", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "flex-end" }}>
+        <div style={{ flex: 1, minWidth: "200px" }}>
+          <label className="form-label" style={{ marginBottom: "0.5rem", display: "block", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+            {lang === "id" ? "Cari Mata Kuliah / Dosen / Kelas" : "Search Course / Lecturer / Class"}
+          </label>
+          <input 
+            type="text" 
+            className="form-control" 
+            placeholder={lang === "id" ? "Ketik pencarian..." : "Type to search..."}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)" }}
+          />
+        </div>
+        <div style={{ flex: 1, minWidth: "150px" }}>
+          <label className="form-label" style={{ marginBottom: "0.5rem", display: "block", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+            {t.lecturerName}
+          </label>
+          <select 
+            className="form-control" 
+            value={filterLecturer} 
+            onChange={(e) => setFilterLecturer(e.target.value)}
+            style={{ background: "#0b0f19" }}
+          >
+            <option value="">{lang === "id" ? "Semua Dosen" : "All Lecturers"}</option>
+            {lecturers.map(l => (
+              <option key={l.id} value={l.id}>{l.nama_lengkap}</option>
+            ))}
+          </select>
+        </div>
+        <div style={{ flex: 1, minWidth: "150px" }}>
+          <label className="form-label" style={{ marginBottom: "0.5rem", display: "block", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+            {lang === "id" ? "Hari" : "Day"}
+          </label>
+          <select 
+            className="form-control" 
+            value={filterDay} 
+            onChange={(e) => setFilterDay(e.target.value)}
+            style={{ background: "#0b0f19" }}
+          >
+            <option value="">{lang === "id" ? "Semua Hari" : "All Days"}</option>
+            {dayOptions.map(d => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="glass-panel dashboard-panel">
         <div className="table-container">
           <table className="custom-table">
@@ -226,7 +280,20 @@ export default function AdminJadwal() {
               </tr>
             </thead>
             <tbody>
-              {schedules.map((schedule) => (
+              {schedules
+                .filter((schedule) => {
+                  const matchLecturer = filterLecturer === "" || schedule.dosen_id === filterLecturer;
+                  const matchDay = filterDay === "" || schedule.hari === filterDay;
+                  const searchLower = searchQuery.toLowerCase();
+                  const matchSearch = searchQuery === "" || 
+                    (schedule.mk_nama?.toLowerCase().includes(searchLower)) ||
+                    (schedule.mk_kode?.toLowerCase().includes(searchLower)) ||
+                    (schedule.dosen_nama?.toLowerCase().includes(searchLower)) ||
+                    (schedule.kelas?.toLowerCase().includes(searchLower));
+                  
+                  return matchLecturer && matchDay && matchSearch;
+                })
+                .map((schedule) => (
                 <tr key={schedule.id}>
                   <td>
                     <strong>{schedule.dosen_nama}</strong>
