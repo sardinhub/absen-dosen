@@ -19,6 +19,17 @@ export default function AdminLaporan() {
 
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
+
+    // SWR Pattern: Load from cache immediately for fast rendering
+    const cachedAttendance = localStorage.getItem("sikad_laporan_cache");
+    if (cachedAttendance) {
+      try {
+        setAttendance(JSON.parse(cachedAttendance));
+      } catch (e) {
+        // ignore parse error
+      }
+    }
+
     try {
       const [rawAttendance, rawUsers, rawSchedules, rawCourses] = await Promise.all([
         getAttendance(),
@@ -50,6 +61,8 @@ export default function AdminLaporan() {
         }).sort((a, b) => new Date(b.waktu_absen) - new Date(a.waktu_absen));
 
       setAttendance(mapped);
+      // Save mapped data to cache for next instant load
+      localStorage.setItem("sikad_laporan_cache", JSON.stringify(mapped));
     } catch (err) {
       console.error("Error loading reporting summary:", err);
     }
