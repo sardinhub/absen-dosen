@@ -195,7 +195,8 @@ export default function AbsenPage() {
       }, 500);
     } catch (err) {
       setSubmitting(false);
-      alert(lang === "id" ? "Gagal menyimpan absensi!" : "Failed to record attendance!");
+      console.error("Supabase Error:", err);
+      alert((lang === "id" ? "Gagal menyimpan absensi! " : "Failed to record attendance! ") + (err.message || JSON.stringify(err)));
     }
   };
 
