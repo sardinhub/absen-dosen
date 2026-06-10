@@ -63,7 +63,34 @@ export default function AbsenPage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFotoBukti(reader.result); // Base64 representation
+        const img = new window.Image();
+        img.src = reader.result;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_SIZE = 800; // Compress photo to 800px max width/height
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+          setFotoBukti(compressedBase64);
+        };
       };
       reader.readAsDataURL(file);
     }
