@@ -10,6 +10,7 @@ export default function AdminValidasi() {
   const [attendance, setAttendance] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   // Edit Modal States
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -225,7 +226,13 @@ export default function AdminValidasi() {
                     <td style={{ fontWeight: "bold" }}>#{item.pertemuan_ke}</td>
                     <td>
                       {item.tanda_tangan ? (
-                        <img src={item.tanda_tangan} alt="Selfie thumbnail" style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "50%", border: "2px solid var(--border-color)" }} />
+                        <img 
+                          src={item.tanda_tangan} 
+                          alt="Selfie thumbnail" 
+                          style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "50%", border: "2px solid var(--border-color)", cursor: "pointer" }} 
+                          onClick={() => setSelectedPhoto(item.tanda_tangan)}
+                          title={lang === "id" ? "Klik untuk memperbesar" : "Click to enlarge"}
+                        />
                       ) : "-"}
                     </td>
                     <td>
@@ -412,6 +419,44 @@ export default function AdminValidasi() {
             </div>
           </form>
         </Modal>
+      )}
+
+      {/* Photo Modal Overlay */}
+      {selectedPhoto && (
+        <div 
+          style={{ 
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, 
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            backdropFilter: 'blur(4px)'
+          }}
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+            <img 
+              src={selectedPhoto} 
+              alt="Zoomed Photo" 
+              style={{ 
+                maxWidth: '100%', maxHeight: '90vh', 
+                borderRadius: '12px', border: '2px solid var(--primary)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+              }} 
+            />
+            <button 
+              style={{
+                position: 'absolute', top: '-15px', right: '-15px',
+                background: 'var(--danger)', color: 'white',
+                border: 'none', borderRadius: '50%', width: '36px', height: '36px',
+                fontSize: '18px', cursor: 'pointer', display: 'flex', 
+                alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+              }}
+              onClick={(e) => { e.stopPropagation(); setSelectedPhoto(null); }}
+            >
+              &times;
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
