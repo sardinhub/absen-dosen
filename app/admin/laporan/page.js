@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getAttendance, getUsers, getSchedules, getCourses, deleteAttendance } from "../../../lib/db";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { getAttendanceReport, getUsers, getCourses, deleteAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import { exportToExcel, exportToPDF } from "../../../lib/exportUtils";
+
+const PAGE_SIZE = 25;
 
 export default function AdminLaporan() {
   const [lang, setLang] = useState("id");
   const [attendance, setAttendance] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Filter States
   const [filterLecturer, setFilterLecturer] = useState("");
@@ -20,92 +24,110 @@ export default function AdminLaporan() {
   // Modal State
   const [selectedPhoto, setSelectedPhoto] = useState(null);
 
-  const syncData = async () => {
-    setLang(localStorage.getItem("sikad_lang") || "id");
+  // Debounce timer for filter changes
+  const debounceRef = useRef(null);
 
-    // SWR Pattern: Load from cache immediately for fast rendering
-    const cachedAttendance = localStorage.getItem("sikad_laporan_cache");
-    if (cachedAttendance) {
-      try {
-        setAttendance(JSON.parse(cachedAttendance));
-      } catch (e) {
-        // ignore parse error
-      }
-    }
-
-    try {
-      const [rawAttendance, rawUsers, rawSchedules, rawCourses] = await Promise.all([
-        getAttendance(),
-        getUsers(),
-        getSchedules(),
-        getCourses()
-      ]);
-
-      const activeLecturers = rawUsers.filter((u) => u.role === "dosen");
-      setLecturers(activeLecturers);
-      setCourses(rawCourses);
-
-      // Map all records
-      const mapped = rawAttendance
-        .filter((k) => k.status !== 'pending')
-        .map((k) => {
-          const lecturer = rawUsers.find((u) => u.id === k.dosen_id);
-          const schedule = rawSchedules.find((j) => j.id === k.jadwal_id);
-          const course = rawCourses.find((m) => m.id === schedule?.mk_id);
-          return {
-            ...k,
-            dosen_nama: lecturer?.nama_lengkap,
-            dosen_nip: lecturer?.nip,
-            mk_nama: course?.nama_mk,
-            mk_kode: course?.kode_mk,
-            kelas: schedule?.kelas,
-            ruangan: schedule?.ruangan
-          };
-        }).sort((a, b) => new Date(b.waktu_absen) - new Date(a.waktu_absen));
-
-      setAttendance(mapped);
-      // Save mapped data to cache for next instant load
-      localStorage.setItem("sikad_laporan_cache", JSON.stringify(mapped));
-    } catch (err) {
-      console.error("Error loading reporting summary:", err);
-    }
-  };
-
+  // Load dropdown data (users & courses) once on mount
   useEffect(() => {
-    syncData();
-    window.addEventListener("storage", syncData);
-    return () => window.removeEventListener("storage", syncData);
+    setLang(localStorage.getItem("sikad_lang") || "id");
+    
+    Promise.all([getUsers(), getCourses()]).then(([rawUsers, rawCourses]) => {
+      setLecturers(rawUsers.filter(u => u.role === "dosen"));
+      setCourses(rawCourses);
+    }).catch(err => console.error("Error loading filter data:", err));
   }, []);
+
+  // Fetch report data with server-side filters
+  const fetchReport = useCallback(async (filters = {}) => {
+    setLoading(true);
+    try {
+      // Try cache first for instant display
+      const cacheKey = "sikad_laporan_cache";
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          setAttendance(JSON.parse(cached));
+          setLoading(false); // Show cached data immediately
+        } catch (e) { /* ignore */ }
+      }
+
+      const data = await getAttendanceReport({
+        dosenId: filters.dosenId || undefined,
+        mkId: filters.mkId || undefined,
+        startDate: filters.startDate || undefined,
+        endDate: filters.endDate || undefined,
+      });
+
+      setAttendance(data);
+      setCurrentPage(1);
+      // Update cache
+      localStorage.setItem(cacheKey, JSON.stringify(data));
+    } catch (err) {
+      console.error("Error loading report:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial load
+  useEffect(() => {
+    fetchReport();
+  }, [fetchReport]);
+
+  // Debounced filter change handler
+  const handleFilterChange = useCallback((newFilters) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchReport(newFilters);
+    }, 400);
+  }, [fetchReport]);
+
+  // Get current filters object
+  const getCurrentFilters = useCallback(() => ({
+    dosenId: filterLecturer,
+    mkId: filterCourse,
+    startDate,
+    endDate,
+  }), [filterLecturer, filterCourse, startDate, endDate]);
+
+  // Filter change handlers
+  const onFilterLecturerChange = (val) => {
+    setFilterLecturer(val);
+    handleFilterChange({ ...getCurrentFilters(), dosenId: val });
+  };
+  const onFilterCourseChange = (val) => {
+    setFilterCourse(val);
+    handleFilterChange({ ...getCurrentFilters(), mkId: val });
+  };
+  const onStartDateChange = (val) => {
+    setStartDate(val);
+    handleFilterChange({ ...getCurrentFilters(), startDate: val });
+  };
+  const onEndDateChange = (val) => {
+    setEndDate(val);
+    handleFilterChange({ ...getCurrentFilters(), endDate: val });
+  };
 
   const t = translations[lang];
 
-  // Filtering Logic
-  const filteredData = attendance.filter((item) => {
-    const matchesLecturer = filterLecturer ? item.dosen_id === filterLecturer : true;
-    const matchesCourse = filterCourse ? item.mk_id === filterCourse : true;
-    
-    let matchesDate = true;
-    if (startDate) {
-      matchesDate = matchesDate && new Date(item.tanggal) >= new Date(startDate);
-    }
-    if (endDate) {
-      matchesDate = matchesDate && new Date(item.tanggal) <= new Date(endDate);
-    }
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(attendance.length / PAGE_SIZE));
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return attendance.slice(start, start + PAGE_SIZE);
+  }, [attendance, currentPage]);
 
-    return matchesLecturer && matchesCourse && matchesDate;
-  });
-
-  // Export handlers
+  // Export handlers — export ALL filtered data, not just current page
   const handleExportExcel = () => {
-    if (filteredData.length === 0) {
+    if (attendance.length === 0) {
       alert(lang === "id" ? "Tidak ada data untuk diekspor!" : "No data available to export!");
       return;
     }
-    exportToExcel(filteredData, `rekap_kehadiran_${new Date().toISOString().split('T')[0]}.xlsx`);
+    exportToExcel(attendance, `rekap_kehadiran_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const handleExportPDF = async () => {
-    if (filteredData.length === 0) {
+    if (attendance.length === 0) {
       alert(lang === "id" ? "Tidak ada data untuk diekspor!" : "No data available to export!");
       return;
     }
@@ -121,15 +143,18 @@ export default function AdminLaporan() {
       dateRangeText = `${lang === "id" ? "Hingga" : "Until"}: ${endDate}`;
     }
 
-    await exportToPDF(filteredData, reportTitle, dateRangeText, lang);
+    await exportToPDF(attendance, reportTitle, dateRangeText, lang);
   };
 
   const handleDelete = async (id) => {
     if (confirm(lang === "id" ? "Yakin ingin menghapus data absen ini?" : "Are you sure you want to delete this record?")) {
       try {
         await deleteAttendance(id);
-        // refresh data
-        syncData();
+        // Remove from local state immediately (optimistic update)
+        setAttendance(prev => prev.filter(item => item.id !== id));
+        // Also update cache
+        const updated = attendance.filter(item => item.id !== id);
+        localStorage.setItem("sikad_laporan_cache", JSON.stringify(updated));
       } catch (err) {
         console.error("Delete failed:", err);
         alert("Gagal menghapus data!");
@@ -137,8 +162,63 @@ export default function AdminLaporan() {
     }
   };
 
+  // Skeleton loader rows
+  const SkeletonRows = () => (
+    <>
+      {[...Array(8)].map((_, i) => (
+        <tr key={i}>
+          {[...Array(9)].map((_, j) => (
+            <td key={j}>
+              <div
+                className="skeleton-pulse"
+                style={{
+                  height: "1rem",
+                  borderRadius: "4px",
+                  background: "linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)",
+                  backgroundSize: "200% 100%",
+                  animation: "shimmer 1.5s infinite",
+                  width: j === 5 ? "120px" : j === 6 ? "50px" : "80px",
+                }}
+              />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .pagination-btn {
+          padding: 0.4rem 0.75rem;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.05);
+          color: var(--text-primary, #fff);
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 0.85rem;
+          transition: all 0.2s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+          background: var(--primary);
+          border-color: var(--primary);
+        }
+        .pagination-btn:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+        .pagination-btn.active {
+          background: var(--primary);
+          border-color: var(--primary);
+          font-weight: 600;
+        }
+      `}</style>
+
       <div className="glass-panel" style={{ padding: "1.5rem" }}>
         <h3 className="panel-title" style={{ marginBottom: "1rem" }}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 20, height: 20, color: "var(--primary)" }}>
@@ -154,7 +234,7 @@ export default function AdminLaporan() {
             <select
               className="form-control"
               value={filterLecturer}
-              onChange={(e) => setFilterLecturer(e.target.value)}
+              onChange={(e) => onFilterLecturerChange(e.target.value)}
               style={{ background: "#0b0f19" }}
             >
               <option value="">{lang === "id" ? "Semua Dosen" : "All Lecturers"}</option>
@@ -172,7 +252,7 @@ export default function AdminLaporan() {
             <select
               className="form-control"
               value={filterCourse}
-              onChange={(e) => setFilterCourse(e.target.value)}
+              onChange={(e) => onFilterCourseChange(e.target.value)}
               style={{ background: "#0b0f19" }}
             >
               <option value="">{lang === "id" ? "Semua Mata Kuliah" : "All Courses"}</option>
@@ -191,7 +271,7 @@ export default function AdminLaporan() {
               type="date"
               className="form-control"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => onStartDateChange(e.target.value)}
             />
           </div>
 
@@ -202,7 +282,7 @@ export default function AdminLaporan() {
               type="date"
               className="form-control"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => onEndDateChange(e.target.value)}
             />
           </div>
         </div>
@@ -215,7 +295,10 @@ export default function AdminLaporan() {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 20, height: 20, color: "var(--accent)" }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
             </svg>
-            <span>{t.report} ({filteredData.length} records)</span>
+            <span>
+              {t.report} ({attendance.length} records)
+              {loading && <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "0.5rem" }}>⟳ {lang === "id" ? "Memuat..." : "Loading..."}</span>}
+            </span>
           </h3>
 
           <div style={{ display: "flex", gap: "0.75rem" }}>
@@ -250,9 +333,11 @@ export default function AdminLaporan() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map((item, idx) => (
-                  <tr key={idx}>
+              {loading && attendance.length === 0 ? (
+                <SkeletonRows />
+              ) : paginatedData.length > 0 ? (
+                paginatedData.map((item, idx) => (
+                  <tr key={item.id || idx} style={{ opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}>
                     <td>
                       <div>{item.tanggal}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
@@ -280,6 +365,7 @@ export default function AdminLaporan() {
                           onClick={() => setSelectedPhoto(item.tanda_tangan)}
                           style={{ cursor: "pointer", border: "1px solid rgba(255,255,255,0.1)" }}
                           title={lang === "id" ? "Klik untuk memperbesar" : "Click to enlarge"}
+                          loading="lazy"
                         />
                       ) : "-"}
                     </td>
@@ -307,6 +393,57 @@ export default function AdminLaporan() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div style={{ 
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "1rem 0.5rem 0", borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: "1rem"
+          }}>
+            <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+              {lang === "id" 
+                ? `Menampilkan ${((currentPage - 1) * PAGE_SIZE) + 1}–${Math.min(currentPage * PAGE_SIZE, attendance.length)} dari ${attendance.length}`
+                : `Showing ${((currentPage - 1) * PAGE_SIZE) + 1}–${Math.min(currentPage * PAGE_SIZE, attendance.length)} of ${attendance.length}`
+              }
+            </span>
+            <div style={{ display: "flex", gap: "0.35rem" }}>
+              <button className="pagination-btn" disabled={currentPage === 1} onClick={() => setCurrentPage(1)}>
+                «
+              </button>
+              <button className="pagination-btn" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>
+                ‹
+              </button>
+              {/* Show page numbers */}
+              {(() => {
+                const pages = [];
+                let start = Math.max(1, currentPage - 2);
+                let end = Math.min(totalPages, currentPage + 2);
+                if (end - start < 4) {
+                  if (start === 1) end = Math.min(totalPages, start + 4);
+                  else start = Math.max(1, end - 4);
+                }
+                for (let i = start; i <= end; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      className={`pagination-btn ${i === currentPage ? 'active' : ''}`}
+                      onClick={() => setCurrentPage(i)}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                return pages;
+              })()}
+              <button className="pagination-btn" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>
+                ›
+              </button>
+              <button className="pagination-btn" disabled={currentPage === totalPages} onClick={() => setCurrentPage(totalPages)}>
+                »
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Photo Modal Overlay */}
