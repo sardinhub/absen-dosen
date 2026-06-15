@@ -14,6 +14,10 @@ export default function AdminMataKuliah() {
   const [modalMode, setModalMode] = useState("add"); // add | edit
   const [selectedCourse, setSelectedCourse] = useState(null);
 
+  // Syllabus Modal State
+  const [isSyllabusModalOpen, setIsSyllabusModalOpen] = useState(false);
+  const [selectedSyllabusData, setSelectedSyllabusData] = useState([]);
+
   // Form Fields
   const [kode, setKode] = useState("");
   const [nama, setNama] = useState("");
@@ -60,6 +64,28 @@ export default function AdminMataKuliah() {
     setJumlahPertemuan(course.jumlah_pertemuan || "14");
     setModalMode("edit");
     setIsModalOpen(true);
+  };
+
+  const handleViewSyllabus = (course) => {
+    if (!course.silabus) return;
+    
+    let silabusArr = [];
+    try {
+      if (typeof course.silabus === 'string') {
+        silabusArr = JSON.parse(course.silabus);
+      } else if (Array.isArray(course.silabus)) {
+        silabusArr = course.silabus;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    
+    const hasData = silabusArr.some(s => s.materi_pokok || s.sub_materi);
+    if (hasData) {
+      setSelectedCourse(course);
+      setSelectedSyllabusData(silabusArr.filter(s => s.materi_pokok || s.sub_materi));
+      setIsSyllabusModalOpen(true);
+    }
   };
 
   const handleSave = async (e) => {
@@ -154,7 +180,13 @@ export default function AdminMataKuliah() {
                     <span className="badge badge-warning">{course.kode_mk}</span>
                   </td>
                   <td>
-                    <strong>{course.nama_mk}</strong>
+                    <span 
+                      style={{ fontWeight: "bold", cursor: "pointer", color: "var(--primary)", textDecoration: "underline" }}
+                      onClick={() => handleViewSyllabus(course)}
+                      title={lang === "id" ? "Lihat Silabus" : "View Syllabus"}
+                    >
+                      {course.nama_mk}
+                    </span>
                   </td>
                   <td>{course.semester}</td>
                   <td>{course.jumlah_pertemuan || "14"}</td>
@@ -247,6 +279,32 @@ export default function AdminMataKuliah() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Syllabus View Modal */}
+      <Modal
+        isOpen={isSyllabusModalOpen}
+        title={lang === "id" ? `Silabus: ${selectedCourse?.nama_mk}` : `Syllabus: ${selectedCourse?.nama_mk}`}
+        onClose={() => setIsSyllabusModalOpen(false)}
+      >
+        <div style={{ maxHeight: "60vh", overflowY: "auto", paddingRight: "0.5rem" }}>
+          {selectedSyllabusData.map((item, idx) => (
+            <div key={idx} style={{ background: "rgba(0,0,0,0.2)", padding: "1rem", borderRadius: "8px", border: "1px solid var(--border-color)", marginBottom: "1rem" }}>
+              <h4 style={{ margin: "0 0 0.5rem 0", color: "var(--primary)" }}>{lang === "id" ? "Pertemuan Ke-" : "Meeting "}{item.pertemuan}</h4>
+              {item.materi_pokok && <p style={{ margin: "0 0 0.5rem 0", fontWeight: "bold" }}>{item.materi_pokok}</p>}
+              {item.sub_materi && (
+                <pre style={{ margin: 0, whiteSpace: "pre-wrap", fontFamily: "inherit", color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                  {item.sub_materi}
+                </pre>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="modal-footer" style={{ border: "none", padding: 0, marginTop: "1rem" }}>
+          <button type="button" className="btn btn-secondary" onClick={() => setIsSyllabusModalOpen(false)}>
+            {lang === "id" ? "Tutup" : "Close"}
+          </button>
+        </div>
       </Modal>
     </div>
   );
