@@ -303,6 +303,7 @@ export default function AdminJadwal() {
                 <th>{t.lecturerName}</th>
                 <th>{t.course}</th>
                 <th>{t.class}</th>
+                <th>{lang === "id" ? "Pertemuan Ke" : "Meeting No"}</th>
                 <th>{lang === "id" ? "Hari / Waktu" : "Day / Time"}</th>
                 <th>{t.room}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
@@ -339,6 +340,7 @@ export default function AdminJadwal() {
                     {schedule.mk_nama}
                   </td>
                   <td>{schedule.kelas}</td>
+                  <td>{schedule.pertemuan_ke ? <span style={{ fontWeight: "bold", color: "var(--warning)" }}>{schedule.pertemuan_ke}</span> : <span style={{ color: "var(--text-muted)" }}>-</span>}</td>
                   <td>
                     <span style={{ fontWeight: "bold", color: "var(--primary)" }}>{schedule.hari}</span>
                     {schedule.tanggal && (
