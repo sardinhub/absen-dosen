@@ -165,9 +165,14 @@ export default function AbsenPage() {
       const loggedInUser = JSON.parse(localStorage.getItem("sikad_logged_in_user"));
       const rawAttendance = await getAttendance();
       
-      // Determine the next meeting number based on existing records
+      // Determine the next meeting number based on existing records for the same class and course
+      const rawSchedules = await getSchedules();
+      const matchingSchedules = rawSchedules
+        .filter(s => s.dosen_id === loggedInUser.id && s.mk_id === schedule.mk_id && s.kelas === schedule.kelas)
+        .map(s => s.id);
+
       const previousMeetings = rawAttendance.filter(
-        (k) => k.jadwal_id === scheduleId
+        (k) => matchingSchedules.includes(k.jadwal_id) && k.dosen_id === loggedInUser.id
       );
       const nextMeetingNo = previousMeetings.length + 1;
 
