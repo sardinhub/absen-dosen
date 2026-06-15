@@ -18,6 +18,7 @@ export default function AdminMataKuliah() {
   const [kode, setKode] = useState("");
   const [nama, setNama] = useState("");
   const [tahunAjaran, setTahunAjaran] = useState("");
+  const [jumlahPertemuan, setJumlahPertemuan] = useState("14");
 
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -41,6 +42,7 @@ export default function AdminMataKuliah() {
     setKode("");
     setNama("");
     setTahunAjaran(String(new Date().getFullYear()));
+    setJumlahPertemuan("14");
     setSelectedCourse(null);
   };
 
@@ -55,6 +57,7 @@ export default function AdminMataKuliah() {
     setKode(course.kode_mk);
     setNama(course.nama_mk);
     setTahunAjaran(course.semester || String(new Date().getFullYear()));
+    setJumlahPertemuan(course.jumlah_pertemuan || "14");
     setModalMode("edit");
     setIsModalOpen(true);
   };
@@ -76,7 +79,8 @@ export default function AdminMataKuliah() {
           kode_mk: kode.toUpperCase(),
           nama_mk: nama,
           sks: 0, // Set to 0 since SKS is removed
-          semester: tahunAjaran // We store Tahun Ajaran inside the semester column
+          semester: tahunAjaran, // We store Tahun Ajaran inside the semester column
+          jumlah_pertemuan: jumlahPertemuan
         };
 
         await saveCourse(newCourse);
@@ -87,7 +91,8 @@ export default function AdminMataKuliah() {
           kode_mk: kode.toUpperCase(),
           nama_mk: nama,
           sks: 0,
-          semester: tahunAjaran
+          semester: tahunAjaran,
+          jumlah_pertemuan: jumlahPertemuan
         };
         await saveCourse(updatedCourse);
       }
@@ -138,6 +143,7 @@ export default function AdminMataKuliah() {
                 <th>{lang === "id" ? "Kode" : "Code"}</th>
                 <th>{t.course}</th>
                 <th>{lang === "id" ? "Tahun Ajaran" : "Academic Year"}</th>
+                <th>{lang === "id" ? "Jml Pertemuan" : "Total Meetings"}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
               </tr>
             </thead>
@@ -151,6 +157,7 @@ export default function AdminMataKuliah() {
                     <strong>{course.nama_mk}</strong>
                   </td>
                   <td>{course.semester}</td>
+                  <td>{course.jumlah_pertemuan || "14"}</td>
                   <td style={{ textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                       <button
@@ -215,6 +222,18 @@ export default function AdminMataKuliah() {
               placeholder="e.g. 2026/2027"
               value={tahunAjaran}
               onChange={(e) => setTahunAjaran(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">{lang === "id" ? "Jumlah Pertemuan" : "Total Meetings"} <span style={{ color: "var(--danger)" }}>*</span></label>
+            <input
+              type="number"
+              className="form-control"
+              placeholder="14"
+              value={jumlahPertemuan}
+              onChange={(e) => setJumlahPertemuan(e.target.value)}
               required
             />
           </div>
