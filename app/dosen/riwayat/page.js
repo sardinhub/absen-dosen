@@ -38,6 +38,7 @@ export default function DosenRiwayat() {
               mk_kode: course?.kode_mk,
               kelas: schedule?.kelas,
               ruangan: schedule?.ruangan,
+              pertemuan_ke: schedule?.pertemuan_ke || k.pertemuan_ke,
               jam: schedule ? `${schedule.jam_mulai} - ${schedule.jam_selesai}` : ""
             };
           })

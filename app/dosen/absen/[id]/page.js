@@ -174,7 +174,7 @@ export default function AbsenPage() {
       const previousMeetings = rawAttendance.filter(
         (k) => matchingSchedules.includes(k.jadwal_id) && k.dosen_id === loggedInUser.id
       );
-      const nextMeetingNo = previousMeetings.length + 1;
+      const nextMeetingNo = schedule.pertemuan_ke || (previousMeetings.length + 1);
 
       // Create new attendance record
       const newRecord = {
