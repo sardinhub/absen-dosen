@@ -144,7 +144,6 @@ export default function AdminSilabus() {
                       placeholder={lang === "id" ? "Misal: Pengenalan Konsep Dasar" : "e.g. Introduction to Basic Concepts"}
                       value={item.materi_pokok}
                       onChange={(e) => handleSyllabusChange(idx, "materi_pokok", e.target.value)}
-                      required
                     />
                   </div>
                   
@@ -156,7 +155,6 @@ export default function AdminSilabus() {
                       placeholder={lang === "id" ? "Pisahkan dengan enter atau strip (-)" : "Separate with enter or dash (-)"}
                       value={item.sub_materi}
                       onChange={(e) => handleSyllabusChange(idx, "sub_materi", e.target.value)}
-                      required
                     ></textarea>
                   </div>
                 </div>
