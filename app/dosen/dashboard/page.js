@@ -39,9 +39,9 @@ export default function DosenDashboard() {
             sks: mk?.sks
           };
         }).sort((a, b) => {
-          const dateA = a.tanggal ? new Date(a.tanggal).getTime() : 0;
-          const dateB = b.tanggal ? new Date(b.tanggal).getTime() : 0;
-          return dateB - dateA;
+          const dateA = a.tanggal ? new Date(a.tanggal).getTime() : Infinity;
+          const dateB = b.tanggal ? new Date(b.tanggal).getTime() : Infinity;
+          return dateA - dateB;
         });
         setSchedules(lecturerSchedules);
 
@@ -188,12 +188,18 @@ export default function DosenDashboard() {
 
         <div className="schedule-list">
           {showAllSchedules ? (
-            schedules.map((schedule) => renderScheduleCard(schedule))
-          ) : todaySchedules.length > 0 ? (
-            todaySchedules.map((schedule) => renderScheduleCard(schedule))
+            schedules.filter(s => !getAttendanceStatus(s.id)).length > 0 ? (
+              schedules.filter(s => !getAttendanceStatus(s.id)).map((schedule) => renderScheduleCard(schedule))
+            ) : (
+              <div style={{ padding: "2rem 1rem", textAlign: "center", color: "var(--text-secondary)" }}>
+                <p>{lang === "id" ? "Semua jadwal telah diselesaikan." : "All schedules completed."}</p>
+              </div>
+            )
+          ) : todaySchedules.filter(s => !getAttendanceStatus(s.id)).length > 0 ? (
+            todaySchedules.filter(s => !getAttendanceStatus(s.id)).map((schedule) => renderScheduleCard(schedule))
           ) : (
             <div style={{ padding: "2rem 1rem", textAlign: "center", color: "var(--text-secondary)" }}>
-              <p>{t.noSchedule}</p>
+              <p>{lang === "id" ? "Tidak ada jadwal tersisa hari ini." : "No remaining schedules today."}</p>
             </div>
           )}
         </div>
