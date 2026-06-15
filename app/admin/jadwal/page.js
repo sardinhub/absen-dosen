@@ -14,6 +14,7 @@ export default function AdminJadwal() {
   // Filter States
   const [filterLecturer, setFilterLecturer] = useState("");
   const [filterDay, setFilterDay] = useState("");
+  const [filterTanggal, setFilterTanggal] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Modal State
@@ -264,6 +265,29 @@ export default function AdminJadwal() {
             ))}
           </select>
         </div>
+        <div style={{ flex: 1, minWidth: "160px" }}>
+          <label className="form-label" style={{ marginBottom: "0.5rem", display: "block", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+            {lang === "id" ? "Filter Tanggal" : "Filter by Date"}
+          </label>
+          <input
+            type="date"
+            className="form-control"
+            value={filterTanggal}
+            onChange={(e) => setFilterTanggal(e.target.value)}
+            style={{ background: "#0b0f19", color: filterTanggal ? "white" : "var(--text-secondary)" }}
+          />
+        </div>
+        {(filterLecturer || filterDay || filterTanggal || searchQuery) && (
+          <div style={{ display: "flex", alignItems: "flex-end" }}>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => { setFilterLecturer(""); setFilterDay(""); setFilterTanggal(""); setSearchQuery(""); }}
+              style={{ padding: "0.6rem 1rem", fontSize: "0.8rem", whiteSpace: "nowrap" }}
+            >
+              {lang === "id" ? "Reset Filter" : "Reset Filters"}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="glass-panel dashboard-panel">
@@ -280,10 +304,17 @@ export default function AdminJadwal() {
               </tr>
             </thead>
             <tbody>
-              {schedules
+              {[...schedules]
+                .sort((a, b) => {
+                  // Descending: data dengan tanggal terbaru di atas
+                  const dateA = a.tanggal ? new Date(a.tanggal).getTime() : 0;
+                  const dateB = b.tanggal ? new Date(b.tanggal).getTime() : 0;
+                  return dateB - dateA;
+                })
                 .filter((schedule) => {
                   const matchLecturer = filterLecturer === "" || schedule.dosen_id === filterLecturer;
                   const matchDay = filterDay === "" || schedule.hari === filterDay;
+                  const matchTanggal = filterTanggal === "" || schedule.tanggal === filterTanggal;
                   const searchLower = searchQuery.toLowerCase();
                   const matchSearch = searchQuery === "" || 
                     (schedule.mk_nama?.toLowerCase().includes(searchLower)) ||
@@ -291,7 +322,7 @@ export default function AdminJadwal() {
                     (schedule.dosen_nama?.toLowerCase().includes(searchLower)) ||
                     (schedule.kelas?.toLowerCase().includes(searchLower));
                   
-                  return matchLecturer && matchDay && matchSearch;
+                  return matchLecturer && matchDay && matchTanggal && matchSearch;
                 })
                 .map((schedule) => (
                 <tr key={schedule.id}>
