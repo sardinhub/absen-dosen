@@ -171,8 +171,13 @@ export default function AdminLaporan() {
         materi: editMateri
       };
       
-      // Update DB
-      await saveAttendance(updatedRecord);
+      // Update DB (Hanya kirim field yang ada di tabel_kehadiran)
+      const dbPayload = {
+        id: updatedRecord.id,
+        pertemuan_ke: updatedRecord.pertemuan_ke,
+        materi: updatedRecord.materi
+      };
+      await saveAttendance(dbPayload);
       
       // Optimistic update locally
       const newData = attendance.map(item => item.id === selectedRecord.id ? updatedRecord : item);
