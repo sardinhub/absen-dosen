@@ -38,6 +38,10 @@ export default function DosenDashboard() {
             mk_nama: mk?.nama_mk,
             sks: mk?.sks
           };
+        }).sort((a, b) => {
+          const dateA = a.tanggal ? new Date(a.tanggal).getTime() : 0;
+          const dateB = b.tanggal ? new Date(b.tanggal).getTime() : 0;
+          return dateB - dateA;
         });
         setSchedules(lecturerSchedules);
 
