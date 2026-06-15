@@ -39,6 +39,7 @@ export default function DosenRiwayat() {
               kelas: schedule?.kelas,
               ruangan: schedule?.ruangan,
               pertemuan_ke: schedule?.pertemuan_ke || k.pertemuan_ke,
+              jumlah_pertemuan: course?.jumlah_pertemuan || 14,
               jam: schedule ? `${schedule.jam_mulai} - ${schedule.jam_selesai}` : ""
             };
           })
@@ -154,7 +155,14 @@ export default function DosenRiwayat() {
                       <strong>{item.mk_nama}</strong>
                     </td>
                     <td>{item.kelas}</td>
-                    <td style={{ fontWeight: "bold", color: "var(--primary)" }}>#{item.pertemuan_ke}</td>
+                    <td style={{ fontWeight: "bold", color: "var(--primary)" }}>
+                      #{item.pertemuan_ke}
+                      {item.jumlah_pertemuan && (
+                        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginLeft: "6px", fontWeight: "normal" }}>
+                          {lang === "id" ? "dari" : "of"} {item.jumlah_pertemuan} ({Math.round((item.pertemuan_ke / item.jumlah_pertemuan) * 100)}%)
+                        </span>
+                      )}
+                    </td>
                     <td style={{ maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.materi}
                     </td>
