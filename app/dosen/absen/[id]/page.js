@@ -26,8 +26,12 @@ export default function AbsenPage() {
     try {
       const rawSchedules = await getSchedules();
       const rawCourses = await getCourses();
+      const rawAttendance = await getAttendance();
+      const loggedInUserStr = localStorage.getItem("sikad_logged_in_user");
+      const loggedInUser = loggedInUserStr ? JSON.parse(loggedInUserStr) : null;
+      
       const foundSchedule = rawSchedules.find((j) => j.id === scheduleId);
-      if (foundSchedule) {
+      if (foundSchedule && loggedInUser) {
         const mk = rawCourses.find((m) => m.id === foundSchedule.mk_id);
         setSchedule({
           ...foundSchedule,
@@ -35,6 +39,39 @@ export default function AbsenPage() {
           mk_nama: mk?.nama_mk,
           sks: mk?.sks
         });
+
+        // Determine meeting number
+        const matchingSchedules = rawSchedules
+          .filter(s => s.dosen_id === loggedInUser.id && s.mk_id === foundSchedule.mk_id && s.kelas === foundSchedule.kelas)
+          .map(s => s.id);
+
+        const previousMeetings = rawAttendance.filter(
+          (k) => matchingSchedules.includes(k.jadwal_id) && k.dosen_id === loggedInUser.id
+        );
+        const nextMeetingNo = foundSchedule.pertemuan_ke || (previousMeetings.length + 1);
+
+        // Fetch syllabus
+        if (mk && mk.silabus) {
+          let silabusArr = [];
+          try {
+            if (typeof mk.silabus === 'string') {
+              silabusArr = JSON.parse(mk.silabus);
+            } else if (Array.isArray(mk.silabus)) {
+              silabusArr = mk.silabus;
+            }
+          } catch (e) {
+            console.error("Failed to parse silabus", e);
+          }
+          
+          const currentSyllabus = silabusArr.find(s => parseInt(s.pertemuan) === nextMeetingNo);
+          if (currentSyllabus) {
+            let autoMateri = currentSyllabus.materi_pokok || "";
+            if (currentSyllabus.sub_materi) {
+              autoMateri += `\n\nSub Materi:\n${currentSyllabus.sub_materi}`;
+            }
+            setMateri(autoMateri);
+          }
+        }
       }
     } catch (err) {
       console.error("Error loading schedule data:", err);
