@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getSchedules, getCourses, getAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
+import Modal from "../../../components/Modal";
 
 export default function DosenDashboard() {
   const [user, setUser] = useState(null);
@@ -11,6 +12,7 @@ export default function DosenDashboard() {
   const [schedules, setSchedules] = useState([]);
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [showAllSchedules, setShowAllSchedules] = useState(false);
+  const [isTugasModalOpen, setIsTugasModalOpen] = useState(false);
 
   // Sync language and database records
   const syncData = async () => {
@@ -164,14 +166,36 @@ export default function DosenDashboard() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-      <div className="glass-panel" style={{ padding: "1.5rem 2rem", background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)" }}>
-        <h2 style={{ fontSize: "1.5rem", fontWeight: 800 }}>
-          {t.welcome}, <span className="gradient-text">{user.nama_lengkap}</span>
-        </h2>
-        <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-          {lang === "id" ? "Hari ini:" : "Today is:"} {lang === "id" ? currentDayId : currentDayEn}, {new Date().toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'long', year: 'numeric' })}
-        </p>
+      <div className="glass-panel" style={{ padding: "1.5rem 2rem", background: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 800 }}>
+            {t.welcome}, <span className="gradient-text">{user.nama_lengkap}</span>
+          </h2>
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
+            {lang === "id" ? "Hari ini:" : "Today is:"} {lang === "id" ? currentDayId : currentDayEn}, {new Date().toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+        </div>
+        <button className="btn btn-primary" onClick={() => setIsTugasModalOpen(true)}>
+          {lang === "id" ? "Tugas & Tanggung Jawab" : "Tasks & Responsibilities"}
+        </button>
       </div>
+
+      <Modal isOpen={isTugasModalOpen} onClose={() => setIsTugasModalOpen(false)} title={lang === "id" ? "Tugas & Tanggung Jawab Dosen" : "Lecturer Tasks & Responsibilities"}>
+        <div style={{ padding: "1rem 0" }}>
+          <ul style={{ listStyleType: "disc", paddingLeft: "1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem", color: "var(--text-secondary)" }}>
+            <li>{lang === "id" ? "Hadir tepat waktu dan mengisi presensi melalui sistem." : "Be present on time and fill out the attendance via the system."}</li>
+            <li>{lang === "id" ? "Menyampaikan materi perkuliahan sesuai dengan silabus." : "Deliver course materials according to the syllabus."}</li>
+            <li>{lang === "id" ? "Mengunggah bukti foto mengajar pada setiap sesi kehadiran." : "Upload teaching proof photos in every attendance session."}</li>
+            <li>{lang === "id" ? "Memastikan kelengkapan administrasi akademik kelas yang diampu." : "Ensure completeness of academic administration for the classes taught."}</li>
+            <li>{lang === "id" ? "Melakukan evaluasi dan penilaian mahasiswa secara objektif." : "Conduct objective student evaluations and grading."}</li>
+          </ul>
+        </div>
+        <div style={{ marginTop: "1.5rem", textAlign: "right" }}>
+          <button className="btn btn-secondary" onClick={() => setIsTugasModalOpen(false)}>
+            {lang === "id" ? "Tutup" : "Close"}
+          </button>
+        </div>
+      </Modal>
 
       <div className="glass-panel dashboard-panel">
         <div className="panel-header">
