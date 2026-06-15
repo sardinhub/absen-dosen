@@ -131,6 +131,11 @@ export default function DosenDashboard() {
                   <strong>{lang === "id" ? "Tanggal:" : "Date:"}</strong> {new Date(schedule.tanggal).toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               )}
+              {schedule.pertemuan_ke && (
+                <span className="badge badge-warning" style={{ color: "#000", fontWeight: "bold", marginLeft: "0.25rem" }}>
+                  {lang === "id" ? "Pertemuan Ke-" : "Meeting "}{schedule.pertemuan_ke}
+                </span>
+              )}
             </div>
           </div>
         </div>
