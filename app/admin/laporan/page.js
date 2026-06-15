@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { getAttendanceReport, getUsers, getCourses, deleteAttendance } from "../../../lib/db";
+import { getAttendanceReport, getUsers, getCourses, deleteAttendance, saveAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import { exportToExcel, exportToPDF } from "../../../lib/exportUtils";
+import Modal from "../../../components/Modal";
 
 const PAGE_SIZE = 25;
 
@@ -23,6 +24,12 @@ export default function AdminLaporan() {
   
   // Modal State
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  
+  // Edit State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [editPertemuan, setEditPertemuan] = useState("");
+  const [editMateri, setEditMateri] = useState("");
 
   // Debounce timer for filter changes
   const debounceRef = useRef(null);
@@ -144,6 +151,40 @@ export default function AdminLaporan() {
     }
 
     await exportToPDF(attendance, reportTitle, dateRangeText, lang);
+  };
+
+  const handleEditClick = (record) => {
+    setSelectedRecord(record);
+    setEditPertemuan(record.pertemuan_ke || "");
+    setEditMateri(record.materi || "");
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!selectedRecord) return;
+    
+    try {
+      const updatedRecord = {
+        ...selectedRecord,
+        pertemuan_ke: parseInt(editPertemuan, 10),
+        materi: editMateri
+      };
+      
+      // Update DB
+      await saveAttendance(updatedRecord);
+      
+      // Optimistic update locally
+      const newData = attendance.map(item => item.id === selectedRecord.id ? updatedRecord : item);
+      setAttendance(newData);
+      localStorage.setItem("sikad_laporan_cache", JSON.stringify(newData));
+      
+      setIsEditModalOpen(false);
+      alert(lang === "id" ? "Data pertemuan berhasil diperbarui!" : "Meeting data updated successfully!");
+    } catch (err) {
+      console.error("Save edit failed:", err);
+      alert(lang === "id" ? "Gagal menyimpan perubahan!" : "Failed to save changes!");
+    }
   };
 
   const handleDelete = async (id) => {
@@ -375,11 +416,18 @@ export default function AdminLaporan() {
                       </span>
                     </td>
                     <td>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(item.id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 14, height: 14 }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                      </button>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button className="btn btn-secondary btn-sm" onClick={() => handleEditClick(item)} title={lang === "id" ? "Edit" : "Edit"}>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 14, height: 14 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                          </svg>
+                        </button>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(item.id)} title={lang === "id" ? "Hapus" : "Delete"}>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 14, height: 14 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -445,6 +493,44 @@ export default function AdminLaporan() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        title={lang === "id" ? "Edit Data Pertemuan" : "Edit Meeting Data"}
+        onClose={() => setIsEditModalOpen(false)}
+      >
+        <form onSubmit={handleSaveEdit}>
+          <div className="form-group">
+            <label className="form-label">{lang === "id" ? "Pertemuan Ke" : "Meeting No"} <span style={{ color: "var(--danger)" }}>*</span></label>
+            <input
+              type="number"
+              className="form-control"
+              value={editPertemuan}
+              onChange={(e) => setEditPertemuan(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">{lang === "id" ? "Materi / Topik" : "Subject / Topic"} <span style={{ color: "var(--danger)" }}>*</span></label>
+            <textarea
+              className="form-control"
+              rows={4}
+              value={editMateri}
+              onChange={(e) => setEditMateri(e.target.value)}
+              required
+            />
+          </div>
+          <div className="modal-footer" style={{ border: "none", padding: 0, marginTop: "2rem" }}>
+            <button type="button" className="btn btn-secondary" onClick={() => setIsEditModalOpen(false)}>
+              {t.cancel}
+            </button>
+            <button type="submit" className="btn btn-primary">
+              {t.saveChanges}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Photo Modal Overlay */}
       {selectedPhoto && (
