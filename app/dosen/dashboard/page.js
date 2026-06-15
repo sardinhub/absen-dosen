@@ -9,7 +9,7 @@ export default function DosenDashboard() {
   const [user, setUser] = useState(null);
   const [lang, setLang] = useState("id");
   const [schedules, setSchedules] = useState([]);
-  const [attendanceToday, setAttendanceToday] = useState([]);
+  const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [showAllSchedules, setShowAllSchedules] = useState(false);
 
   // Sync language and database records
@@ -45,13 +45,9 @@ export default function DosenDashboard() {
         });
         setSchedules(lecturerSchedules);
 
-        // Filter today's attendance logs
-        const localDate = new Date();
-        const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
-        const todayLogs = rawAttendance.filter(
-          (k) => k.dosen_id === parsedUser.id && k.tanggal.startsWith(todayString)
-        );
-        setAttendanceToday(todayLogs);
+        // Store all user attendance history
+        const userAttendance = rawAttendance.filter((k) => k.dosen_id === parsedUser.id);
+        setAttendanceHistory(userAttendance);
       } catch (err) {
         console.error("Error loading dashboard data:", err);
       }
@@ -87,16 +83,22 @@ export default function DosenDashboard() {
     return timeStr;
   };
 
-  const getAttendanceStatus = (scheduleId) => {
-    const localDate = new Date();
-    const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
-    return attendanceToday.find(
-      (k) => k.jadwal_id === scheduleId && k.tanggal.startsWith(todayString)
-    );
+  const getAttendanceStatus = (schedule) => {
+    if (schedule.tanggal) {
+      return attendanceHistory.find(
+        (k) => k.jadwal_id === schedule.id && k.tanggal.startsWith(schedule.tanggal)
+      );
+    } else {
+      const localDate = new Date();
+      const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
+      return attendanceHistory.find(
+        (k) => k.jadwal_id === schedule.id && k.tanggal.startsWith(todayString)
+      );
+    }
   };
 
   const renderScheduleCard = (schedule) => {
-    const attRecord = getAttendanceStatus(schedule.id);
+    const attRecord = getAttendanceStatus(schedule);
     const isCheckedIn = !!attRecord;
 
     const localDate = new Date();
@@ -188,15 +190,15 @@ export default function DosenDashboard() {
 
         <div className="schedule-list">
           {showAllSchedules ? (
-            schedules.filter(s => !getAttendanceStatus(s.id)).length > 0 ? (
-              schedules.filter(s => !getAttendanceStatus(s.id)).map((schedule) => renderScheduleCard(schedule))
+            schedules.filter(s => !getAttendanceStatus(s)).length > 0 ? (
+              schedules.filter(s => !getAttendanceStatus(s)).map((schedule) => renderScheduleCard(schedule))
             ) : (
               <div style={{ padding: "2rem 1rem", textAlign: "center", color: "var(--text-secondary)" }}>
                 <p>{lang === "id" ? "Semua jadwal telah diselesaikan." : "All schedules completed."}</p>
               </div>
             )
-          ) : todaySchedules.filter(s => !getAttendanceStatus(s.id)).length > 0 ? (
-            todaySchedules.filter(s => !getAttendanceStatus(s.id)).map((schedule) => renderScheduleCard(schedule))
+          ) : todaySchedules.filter(s => !getAttendanceStatus(s)).length > 0 ? (
+            todaySchedules.filter(s => !getAttendanceStatus(s)).map((schedule) => renderScheduleCard(schedule))
           ) : (
             <div style={{ padding: "2rem 1rem", textAlign: "center", color: "var(--text-secondary)" }}>
               <p>{lang === "id" ? "Tidak ada jadwal tersisa hari ini." : "No remaining schedules today."}</p>
