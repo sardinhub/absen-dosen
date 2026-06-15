@@ -31,6 +31,7 @@ export default function AdminJadwal() {
   const [jamSelesai, setJamSelesai] = useState("10:00");
   const [ruangan, setRuangan] = useState("");
   const [tanggal, setTanggal] = useState("");
+  const [pertemuanKe, setPertemuanKe] = useState("");
 
   const handleDateChange = (dateVal) => {
     setTanggal(dateVal);
@@ -86,6 +87,7 @@ export default function AdminJadwal() {
     setJamSelesai("10:00");
     setRuangan("GA");
     setTanggal("");
+    setPertemuanKe("");
     setSelectedSchedule(null);
   };
 
@@ -107,6 +109,7 @@ export default function AdminJadwal() {
     setJamSelesai(schedule.jam_selesai);
     setRuangan(schedule.ruangan);
     setTanggal(schedule.tanggal || "");
+    setPertemuanKe(schedule.pertemuan_ke || "");
     setModalMode("edit");
     setIsModalOpen(true);
   };
@@ -156,7 +159,8 @@ export default function AdminJadwal() {
           jam_mulai: jamMulai,
           jam_selesai: jamSelesai,
           ruangan: ruangan,
-          tanggal: tanggal || null
+          tanggal: tanggal || null,
+          pertemuan_ke: pertemuanKe || null
         };
         await saveSchedule(newSchedule);
       } else {
@@ -169,7 +173,8 @@ export default function AdminJadwal() {
           jam_mulai: jamMulai,
           jam_selesai: jamSelesai,
           ruangan: ruangan,
-          tanggal: tanggal || null
+          tanggal: tanggal || null,
+          pertemuan_ke: pertemuanKe || null
         };
         await saveSchedule(updatedSchedule);
       }
@@ -454,6 +459,18 @@ export default function AdminJadwal() {
                 ? "Isi untuk jadwal pada tanggal tertentu. Mengubah tanggal akan menyesuaikan hari secara otomatis."
                 : "Fill this for specific-date schedules. Changing date will update the day of the week automatically."}
             </small>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">{lang === "id" ? "Pertemuan Ke" : "Meeting No"} (Opsional)</label>
+            <input
+              type="number"
+              className="form-control"
+              value={pertemuanKe}
+              onChange={(e) => setPertemuanKe(e.target.value)}
+              placeholder={lang === "id" ? "Contoh: 1, 2, dst" : "e.g. 1, 2, etc"}
+              style={{ background: "#0b0f19", color: "white" }}
+            />
           </div>
 
           <div className="form-group">
