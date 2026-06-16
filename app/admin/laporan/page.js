@@ -385,7 +385,7 @@ export default function AdminLaporan() {
                 paginatedData.map((item, idx) => (
                   <tr key={item.id || idx} style={{ opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}>
                     <td>
-                      <div>{item.tanggal ? item.tanggal.split('-').reverse().join('-') : item.tanggal}</div>
+                      <div>{item.tanggal ? item.tanggal.split('T')[0].split('-').reverse().join('-') : item.tanggal}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
                         {item.waktu_absen ? new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </div>
