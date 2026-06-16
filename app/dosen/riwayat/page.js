@@ -70,8 +70,8 @@ export default function DosenRiwayat() {
   const filteredHistory = history.filter((item) => {
     const matchesCourse = selectedCourse ? item.mk_nama === selectedCourse : true;
     const matchesSearch = searchQuery
-      ? item.materi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.mk_kode.toLowerCase().includes(searchQuery.toLowerCase())
+      ? (item.materi || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.mk_kode || '').toLowerCase().includes(searchQuery.toLowerCase())
       : true;
     return matchesCourse && matchesSearch;
   });
@@ -147,7 +147,7 @@ export default function DosenRiwayat() {
                     <td>
                       <div>{item.tanggal}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                        {new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {item.waktu_absen ? new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </div>
                     </td>
                     <td>
@@ -213,7 +213,7 @@ export default function DosenRiwayat() {
               </div>
               <div>
                 <label className="form-label">{t.status}</label>
-                <span className="badge badge-success">{activeItem.status.toUpperCase()}</span>
+                <span className="badge badge-success">{(activeItem.status || '').toUpperCase()}</span>
               </div>
             </div>
 

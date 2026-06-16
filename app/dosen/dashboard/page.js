@@ -78,7 +78,7 @@ export default function DosenDashboard() {
     if (j.tanggal) {
       return j.tanggal.startsWith(todayString);
     }
-    return j.hari.toLowerCase() === currentDayId.toLowerCase();
+    return (j.hari || '').toLowerCase() === currentDayId.toLowerCase();
   });
 
   const formatTime = (timeStr) => {
@@ -88,13 +88,13 @@ export default function DosenDashboard() {
   const getAttendanceStatus = (schedule) => {
     if (schedule.tanggal) {
       return attendanceHistory.find(
-        (k) => k.jadwal_id === schedule.id && k.tanggal.startsWith(schedule.tanggal)
+        (k) => k.jadwal_id === schedule.id && (k.tanggal || '').startsWith(schedule.tanggal)
       );
     } else {
       const localDate = new Date();
       const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
       return attendanceHistory.find(
-        (k) => k.jadwal_id === schedule.id && k.tanggal.startsWith(todayString)
+        (k) => k.jadwal_id === schedule.id && (k.tanggal || '').startsWith(todayString)
       );
     }
   };
@@ -107,7 +107,7 @@ export default function DosenDashboard() {
     const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
     const isToday = schedule.tanggal
       ? schedule.tanggal.startsWith(todayString)
-      : schedule.hari.toLowerCase() === currentDayId.toLowerCase();
+      : (schedule.hari || '').toLowerCase() === currentDayId.toLowerCase();
 
     return (
       <div key={schedule.id} className="glass-panel schedule-card">
@@ -147,7 +147,7 @@ export default function DosenDashboard() {
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.25rem" }}>
               <span className="badge badge-success">{t.checkedIn}</span>
               <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
-                {new Date(attRecord.waktu_absen).toLocaleTimeString()}
+              {attRecord.waktu_absen ? new Date(attRecord.waktu_absen).toLocaleTimeString() : '-'}
               </span>
             </div>
           ) : isToday ? (

@@ -387,7 +387,7 @@ export default function AdminLaporan() {
                     <td>
                       <div>{item.tanggal}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                        {new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {item.waktu_absen ? new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </div>
                     </td>
                     <td>
@@ -417,7 +417,7 @@ export default function AdminLaporan() {
                     </td>
                     <td>
                       <span className={`badge ${item.status === 'hadir' ? 'badge-success' : item.status === 'izin' ? 'badge-warning' : item.status === 'pending' ? 'badge-secondary' : 'badge-danger'}`}>
-                        {item.status.toUpperCase()}
+                        {(item.status || '').toUpperCase()}
                       </span>
                     </td>
                     <td>
