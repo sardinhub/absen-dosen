@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getUsers } from "../../lib/db";
+import { getUserByEmail } from "../../lib/db";
 import { translations } from "../../lib/translations";
 
 export default function LoginPage() {
@@ -37,17 +37,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Get latest database from abstraction layer
-      const users = await getUsers();
-      
-      // Find matching user, robust against accidental spaces
-      const matchedUser = users.find(
-        (u) => 
-          (u.email || "").trim().toLowerCase() === email.trim().toLowerCase() && 
-          (u.password || "").trim() === password.trim()
-      );
+      // Query user by email directly (faster than loading all users)
+      const matchedUser = await getUserByEmail(email);
 
-      if (matchedUser) {
+      if (matchedUser && (matchedUser.password || "").trim() === password.trim()) {
         localStorage.setItem("sikad_logged_in_user", JSON.stringify(matchedUser));
         setTimeout(() => {
           if (matchedUser.role === "admin") {
@@ -55,12 +48,13 @@ export default function LoginPage() {
           } else {
             router.replace("/dosen/dashboard");
           }
-        }, 500);
+        }, 300);
       } else {
         setLoading(false);
         setError(lang === "id" ? "Email atau password salah!" : "Incorrect email or password!");
       }
     } catch (err) {
+      console.error("Login error:", err);
       setLoading(false);
       setError(lang === "id" ? "Gagal terhubung ke database!" : "Failed to connect to database!");
     }
