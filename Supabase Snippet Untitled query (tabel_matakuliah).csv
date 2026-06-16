@@ -1,0 +1,24 @@
+id,kode_mk,nama_mk,sks,semester,jumlah_pertemuan,silabus
+mk1,AK,Aviation Knowledge,0,2026,null,null
+mk2,UUP,Undang-Undang Penerbangan,0,2026,null,null
+mk3,HF,Human Factor,0,2026,null,null
+mk4,PBH,Pax & Baggage Handling,0,2026,null,null
+mk5,RH,Ramp Handling,0,2026,null,null
+mk6,WB,Weight & Balance,0,2026,null,null
+mk7,DG,Dangerous Goods,0,2026,null,null
+mk8,CH,Cargo Handling,0,2026,null,null
+mk9,SSA,Safety & Security Awareness,0,2026,null,null
+mk10,CSA,Customer Service Airlines,0,2026,null,null
+mk11,FT,Fare & Ticketing,0,2026,null,null
+mk12,SE,Service Excellence,0,2026,null,null
+mk13,EFA,English for Aviation,0,2026,null,null
+mk16,CSF,Cabin Safety,0,2026,null,null
+mk17,CSV,Cabin Service,0,2026,null,null
+mk18,DPH,Disruptive Pax Handling,0,2026,null,null
+mk19,IA,Inflight Announcements,0,2026,null,null
+mk20,ELP,Emergency Landing Procedures,0,2026,null,null
+mk21,EIP,English Intensive Program,0,2026,null,null
+mk_6xlldv6ur,GE,General English,0,2026,null,null
+mk14,CSK,Communication Skills,0,2026,5,"[{""pertemuan"":1,""sub_materi"":""Pengertian Komunikasi; Jenis-Jenis Komunikasi; Unsur-Unsur Dalam Komunikasi"",""materi_pokok"":""Pengantar Komunikasi Efektif""},{""pertemuan"":2,""sub_materi"":"""",""materi_pokok"":""""},{""pertemuan"":3,""sub_materi"":"""",""materi_pokok"":""""},{""pertemuan"":4,""sub_materi"":"""",""materi_pokok"":""""},{""pertemuan"":5,""sub_materi"":"""",""materi_pokok"":""""}]"
+mk15,GR,Grooming,0,2026,10,null
+mk22,CRB,Character Building,0,2026,4,null
