@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { getAttendanceReport, getUsers, getCourses, deleteAttendance, saveAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import { exportToExcel, exportToPDF } from "../../../lib/exportUtils";
+import { formatTanggalStr } from "../../../lib/dateUtils";
 import Modal from "../../../components/Modal";
 
 const PAGE_SIZE = 25;
@@ -385,7 +386,7 @@ export default function AdminLaporan() {
                 paginatedData.map((item, idx) => (
                   <tr key={item.id || idx} style={{ opacity: loading ? 0.5 : 1, transition: "opacity 0.2s" }}>
                     <td>
-                      <div>{item.tanggal ? item.tanggal.split('T')[0].split('-').reverse().join('-') : item.tanggal}</div>
+                      <div>{formatTanggalStr(item.tanggal, lang)}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
                         {item.waktu_absen ? new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </div>

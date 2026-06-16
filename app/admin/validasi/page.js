@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getAttendance, getUsers, getSchedules, getCourses, saveAttendance, deleteAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
+import { formatTanggalStr } from "../../../lib/dateUtils";
 import Modal from "../../../components/Modal";
 
 export default function AdminValidasi() {
@@ -210,7 +211,7 @@ export default function AdminValidasi() {
                 attendance.map((item, idx) => (
                   <tr key={idx}>
                     <td>
-                      <div>{item.tanggal ? item.tanggal.split('T')[0].split('-').reverse().join('-') : item.tanggal}</div>
+                      <div>{formatTanggalStr(item.tanggal, lang)}</div>
                       <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
                         {new Date(item.waktu_absen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
@@ -287,7 +288,7 @@ export default function AdminValidasi() {
               </div>
               <div>
                 <label className="form-label">{t.date} / {t.time}</label>
-                <p>{activeItem.tanggal ? activeItem.tanggal.split('T')[0].split('-').reverse().join('-') : activeItem.tanggal} ({activeItem.jam})</p>
+                <p>{formatTanggalStr(activeItem.tanggal, lang)} ({activeItem.jam})</p>
               </div>
               <div>
                 <label className="form-label">{lang === "id" ? "Status Verifikasi" : "Verification Status"}</label>
