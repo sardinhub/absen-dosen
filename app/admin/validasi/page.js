@@ -433,14 +433,16 @@ export default function AdminValidasi() {
           }}
           onClick={() => setSelectedPhoto(null)}
         >
-          <div style={{ position: 'relative', maxWidth: '90%', maxHeight: '90%' }}>
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '90vw', maxHeight: '90vh' }}>
             <img 
               src={selectedPhoto} 
               alt="Zoomed Photo" 
               style={{ 
                 maxWidth: '100%', maxHeight: '90vh', 
+                objectFit: 'contain',
                 borderRadius: '12px', border: '2px solid var(--primary)',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                display: 'block', margin: 'auto'
               }} 
             />
             <button 
