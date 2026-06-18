@@ -20,6 +20,7 @@ export default function AdminLaporan() {
   // Filter States
   const [filterLecturer, setFilterLecturer] = useState("");
   const [filterCourse, setFilterCourse] = useState("");
+  const [filterKelas, setFilterKelas] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   
@@ -62,6 +63,7 @@ export default function AdminLaporan() {
       const data = await getAttendanceReport({
         dosenId: filters.dosenId || undefined,
         mkId: filters.mkId || undefined,
+        kelas: filters.kelas || undefined,
         startDate: filters.startDate || undefined,
         endDate: filters.endDate || undefined,
       });
@@ -90,13 +92,13 @@ export default function AdminLaporan() {
     }, 400);
   }, [fetchReport]);
 
-  // Get current filters object
   const getCurrentFilters = useCallback(() => ({
     dosenId: filterLecturer,
     mkId: filterCourse,
+    kelas: filterKelas,
     startDate,
     endDate,
-  }), [filterLecturer, filterCourse, startDate, endDate]);
+  }), [filterLecturer, filterCourse, filterKelas, startDate, endDate]);
 
   // Filter change handlers
   const onFilterLecturerChange = (val) => {
@@ -106,6 +108,10 @@ export default function AdminLaporan() {
   const onFilterCourseChange = (val) => {
     setFilterCourse(val);
     handleFilterChange({ ...getCurrentFilters(), mkId: val });
+  };
+  const onFilterKelasChange = (val) => {
+    setFilterKelas(val);
+    handleFilterChange({ ...getCurrentFilters(), kelas: val });
   };
   const onStartDateChange = (val) => {
     setStartDate(val);
@@ -311,6 +317,19 @@ export default function AdminLaporan() {
             </select>
           </div>
 
+          {/* Kelas filter */}
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">{lang === "id" ? "Kelas" : "Class"}</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder={lang === "id" ? "Semua Kelas" : "All Classes"}
+              value={filterKelas}
+              onChange={(e) => onFilterKelasChange(e.target.value)}
+              style={{ background: "#0b0f19" }}
+            />
+          </div>
+
           {/* Start date */}
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">{t.startDate}</label>
@@ -374,7 +393,7 @@ export default function AdminLaporan() {
                 <th>{t.class}</th>
                 <th>{t.meetingNo}</th>
                 <th>{t.subject}</th>
-                <th>{t.signature}</th>
+                <th>{lang === "id" ? "Sub Materi" : "Sub Topic"}</th>
                 <th>{t.status}</th>
                 <th>{lang === "id" ? "Aksi" : "Action"}</th>
               </tr>
@@ -403,18 +422,8 @@ export default function AdminLaporan() {
                     <td style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.materi}
                     </td>
-                    <td>
-                      {item.tanda_tangan ? (
-                        <img 
-                          src={item.tanda_tangan} 
-                          alt="TTD" 
-                          className="signature-preview-thumbnail" 
-                          onClick={() => setSelectedPhoto(item.tanda_tangan)}
-                          style={{ cursor: "pointer", border: "1px solid rgba(255,255,255,0.1)" }}
-                          title={lang === "id" ? "Klik untuk memperbesar" : "Click to enlarge"}
-                          loading="lazy"
-                        />
-                      ) : "-"}
+                    <td style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {item.sub_materi || '-'}
                     </td>
                     <td>
                       <span className={`badge ${item.status === 'hadir' ? 'badge-success' : item.status === 'izin' ? 'badge-warning' : item.status === 'pending' ? 'badge-secondary' : 'badge-danger'}`}>
