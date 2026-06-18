@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { getAttendanceReport, getUsers, getCourses, deleteAttendance, saveAttendance } from "../../../lib/db";
+import { getAttendanceReport, getUsers, getCourses, getSchedules, deleteAttendance, saveAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import { exportToExcel, exportToPDF } from "../../../lib/exportUtils";
 import { formatTanggalStr } from "../../../lib/dateUtils";
@@ -14,6 +14,7 @@ export default function AdminLaporan() {
   const [attendance, setAttendance] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [availableClasses, setAvailableClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -40,9 +41,12 @@ export default function AdminLaporan() {
   useEffect(() => {
     setLang(localStorage.getItem("sikad_lang") || "id");
     
-    Promise.all([getUsers(), getCourses()]).then(([rawUsers, rawCourses]) => {
+    Promise.all([getUsers(), getCourses(), getSchedules()]).then(([rawUsers, rawCourses, rawSchedules]) => {
       setLecturers(rawUsers.filter(u => u.role === "dosen"));
       setCourses(rawCourses);
+      
+      const uniqueClasses = Array.from(new Set(rawSchedules.map(s => s.kelas).filter(Boolean))).sort();
+      setAvailableClasses(uniqueClasses);
     }).catch(err => console.error("Error loading filter data:", err));
   }, []);
 
@@ -320,14 +324,19 @@ export default function AdminLaporan() {
           {/* Kelas filter */}
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">{lang === "id" ? "Kelas" : "Class"}</label>
-            <input
-              type="text"
+            <select
               className="form-control"
-              placeholder={lang === "id" ? "Semua Kelas" : "All Classes"}
               value={filterKelas}
               onChange={(e) => onFilterKelasChange(e.target.value)}
               style={{ background: "#0b0f19" }}
-            />
+            >
+              <option value="">{lang === "id" ? "Semua Kelas" : "All Classes"}</option>
+              {availableClasses.map((kls) => (
+                <option key={kls} value={kls}>
+                  {kls}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Start date */}
