@@ -9,6 +9,15 @@ import Modal from "../../../components/Modal";
 
 const PAGE_SIZE = 25;
 
+// Increment this version whenever a breaking cache change is made.
+// All devices with old cache keys will automatically fetch fresh data.
+const CACHE_VERSION = "v2";
+const CACHE_KEY = `sikad_laporan_cache_${CACHE_VERSION}`;
+
+// List of old cache keys from previous versions to purge on startup
+const OLD_CACHE_KEYS = ["sikad_laporan_cache"];
+
+
 export default function AdminLaporan() {
   const [lang, setLang] = useState("id");
   const [attendance, setAttendance] = useState([]);
@@ -40,6 +49,9 @@ export default function AdminLaporan() {
   // Load dropdown data (users & courses) once on mount
   useEffect(() => {
     setLang(localStorage.getItem("sikad_lang") || "id");
+
+    // Purge stale cache keys from old versions so all devices get fresh data
+    OLD_CACHE_KEYS.forEach(key => localStorage.removeItem(key));
     
     Promise.all([getUsers(), getCourses(), getSchedules()]).then(([rawUsers, rawCourses, rawSchedules]) => {
       setLecturers(rawUsers.filter(u => u.role === "dosen"));
@@ -58,8 +70,7 @@ export default function AdminLaporan() {
       // This prevents stale/mismatched data from showing across different devices
       const hasActiveFilter = filters.dosenId || filters.mkId || filters.kelas || filters.startDate || filters.endDate;
       if (!hasActiveFilter) {
-        const cacheKey = "sikad_laporan_cache";
-        const cached = localStorage.getItem(cacheKey);
+        const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
           try {
             setAttendance(JSON.parse(cached));
@@ -80,7 +91,7 @@ export default function AdminLaporan() {
       setCurrentPage(1);
       // Only cache the unfiltered result so it's safe to reuse across sessions
       if (!hasActiveFilter) {
-        localStorage.setItem("sikad_laporan_cache", JSON.stringify(data));
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
       }
     } catch (err) {
       console.error("Error loading report:", err);
@@ -199,7 +210,8 @@ export default function AdminLaporan() {
       // Optimistic update locally
       const newData = attendance.map(item => item.id === selectedRecord.id ? updatedRecord : item);
       setAttendance(newData);
-      localStorage.setItem("sikad_laporan_cache", JSON.stringify(newData));
+      // Invalidate cache so other devices fetch fresh data on next load
+      localStorage.removeItem("sikad_laporan_cache");
       
       setIsEditModalOpen(false);
       alert(lang === "id" ? "Data pertemuan berhasil diperbarui!" : "Meeting data updated successfully!");
@@ -215,9 +227,8 @@ export default function AdminLaporan() {
         await deleteAttendance(id);
         // Remove from local state immediately (optimistic update)
         setAttendance(prev => prev.filter(item => item.id !== id));
-        // Also update cache
-        const updated = attendance.filter(item => item.id !== id);
-        localStorage.setItem("sikad_laporan_cache", JSON.stringify(updated));
+        // Invalidate cache so other devices fetch fresh data on next load
+        localStorage.removeItem("sikad_laporan_cache");
       } catch (err) {
         console.error("Delete failed:", err);
         alert("Gagal menghapus data!");
