@@ -40,12 +40,14 @@ export default function AdminSilabus() {
       let existingSyllabus = [];
       try {
         if (typeof course.silabus === 'string') {
-          existingSyllabus = JSON.parse(course.silabus);
+          const parsed = JSON.parse(course.silabus);
+          existingSyllabus = Array.isArray(parsed) ? parsed : [];
         } else if (Array.isArray(course.silabus)) {
           existingSyllabus = course.silabus;
         }
       } catch (err) {
         console.error("Failed to parse existing syllabus:", err);
+        existingSyllabus = [];
       }
 
       const initialSyllabus = Array.from({ length: totalMeetings }).map((_, idx) => {
