@@ -54,14 +54,18 @@ export default function AdminLaporan() {
   const fetchReport = useCallback(async (filters = {}) => {
     setLoading(true);
     try {
-      // Try cache first for instant display
-      const cacheKey = "sikad_laporan_cache";
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          setAttendance(JSON.parse(cached));
-          setLoading(false); // Show cached data immediately
-        } catch (e) { /* ignore */ }
+      // Only use cache when there are no active filters (initial load)
+      // This prevents stale/mismatched data from showing across different devices
+      const hasActiveFilter = filters.dosenId || filters.mkId || filters.kelas || filters.startDate || filters.endDate;
+      if (!hasActiveFilter) {
+        const cacheKey = "sikad_laporan_cache";
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            setAttendance(JSON.parse(cached));
+            setLoading(false); // Show cached data immediately while fetching
+          } catch (e) { /* ignore */ }
+        }
       }
 
       const data = await getAttendanceReport({
@@ -74,8 +78,10 @@ export default function AdminLaporan() {
 
       setAttendance(data);
       setCurrentPage(1);
-      // Update cache
-      localStorage.setItem(cacheKey, JSON.stringify(data));
+      // Only cache the unfiltered result so it's safe to reuse across sessions
+      if (!hasActiveFilter) {
+        localStorage.setItem("sikad_laporan_cache", JSON.stringify(data));
+      }
     } catch (err) {
       console.error("Error loading report:", err);
     } finally {
@@ -224,7 +230,7 @@ export default function AdminLaporan() {
     <>
       {[...Array(8)].map((_, i) => (
         <tr key={i}>
-          {[...Array(9)].map((_, j) => (
+          {[...Array(8)].map((_, j) => (
             <td key={j}>
               <div
                 className="skeleton-pulse"
@@ -234,7 +240,7 @@ export default function AdminLaporan() {
                   background: "linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)",
                   backgroundSize: "200% 100%",
                   animation: "shimmer 1.5s infinite",
-                  width: j === 5 ? "120px" : j === 6 ? "50px" : "80px",
+                  width: j === 5 ? "160px" : j === 6 ? "50px" : "80px",
                 }}
               />
             </td>
@@ -401,8 +407,7 @@ export default function AdminLaporan() {
                 <th>{t.course}</th>
                 <th>{t.class}</th>
                 <th>{t.meetingNo}</th>
-                <th>{t.subject}</th>
-                <th>{lang === "id" ? "Sub Materi" : "Sub Topic"}</th>
+                <th style={{ minWidth: "220px" }}>{t.subject}</th>
                 <th>{t.status}</th>
                 <th>{lang === "id" ? "Aksi" : "Action"}</th>
               </tr>
@@ -428,11 +433,8 @@ export default function AdminLaporan() {
                     </td>
                     <td>{item.kelas}</td>
                     <td style={{ fontWeight: "bold" }}>#{item.pertemuan_ke}</td>
-                    <td style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <td style={{ minWidth: "220px", wordBreak: "break-word", whiteSpace: "normal", lineHeight: "1.5" }}>
                       {item.materi}
-                    </td>
-                    <td style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {item.sub_materi || '-'}
                     </td>
                     <td>
                       <span className={`badge ${item.status === 'hadir' ? 'badge-success' : item.status === 'izin' ? 'badge-warning' : item.status === 'pending' ? 'badge-secondary' : 'badge-danger'}`}>
@@ -457,7 +459,7 @@ export default function AdminLaporan() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} style={{ textAlign: "center", color: "var(--text-muted)", padding: "3rem" }}>
+                  <td colSpan={8} style={{ textAlign: "center", color: "var(--text-muted)", padding: "3rem" }}>
                     {lang === "id" ? "Tidak ada data rekapitulasi." : "No summary records found."}
                   </td>
                 </tr>
