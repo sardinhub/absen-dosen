@@ -25,6 +25,7 @@ export default function AdminLaporan() {
   const [courses, setCourses] = useState([]);
   const [availableClasses, setAvailableClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Filter States
@@ -65,6 +66,7 @@ export default function AdminLaporan() {
   // Fetch report data with server-side filters
   const fetchReport = useCallback(async (filters = {}) => {
     setLoading(true);
+    setFetchError(null);
     try {
       // Only use cache when there are no active filters (initial load)
       // This prevents stale/mismatched data from showing across different devices
@@ -95,6 +97,7 @@ export default function AdminLaporan() {
       }
     } catch (err) {
       console.error("Error loading report:", err);
+      setFetchError(err?.message || String(err));
     } finally {
       setLoading(false);
     }
@@ -391,6 +394,11 @@ export default function AdminLaporan() {
               {t.report} ({attendance.length} records)
               {loading && <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "0.5rem" }}>⟳ {lang === "id" ? "Memuat..." : "Loading..."}</span>}
             </span>
+            {fetchError && (
+              <div style={{ marginTop: "0.5rem", padding: "0.6rem 1rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "8px", color: "#f87171", fontSize: "0.8rem", wordBreak: "break-all" }}>
+                ⚠️ {lang === "id" ? "Gagal memuat data:" : "Failed to load data:"} <code>{fetchError}</code>
+              </div>
+            )}
           </h3>
 
           <div style={{ display: "flex", gap: "0.75rem" }}>
