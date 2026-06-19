@@ -35,7 +35,7 @@ export default function AdminSilabus() {
     
     if (courseId) {
       const course = courses.find(c => c.id === courseId);
-      const totalMeetings = parseInt(course.jumlah_pertemuan || "14", 10);
+      const totalMeetings = Math.max(parseInt(course.jumlah_pertemuan || "14", 10) || 14, 1);
       
       let existingSyllabus = [];
       try {
