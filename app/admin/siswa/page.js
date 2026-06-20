@@ -258,7 +258,11 @@ export default function AdminSiswa() {
 
   // ─── FILTER ───────────────────────────────────────────────────
   const filteredStudents = students.filter((s) => {
-    const matchKelas = filterKelas === "" || s.kelas === filterKelas;
+    let matchKelas = filterKelas === "" || s.kelas === filterKelas;
+    if (filterKelas === "AV08-FA10") {
+      matchKelas = s.kelas === "AV08" || s.kelas === "FA10" || s.kelas === "AV08-FA10";
+    }
+    
     const q = searchQuery.toLowerCase();
     const matchSearch =
       searchQuery === "" ||
@@ -269,7 +273,11 @@ export default function AdminSiswa() {
   });
 
   const countByKelas = KELAS_OPTIONS.reduce((acc, k) => {
-    acc[k] = students.filter((s) => s.kelas === k).length;
+    if (k === "AV08-FA10") {
+      acc[k] = students.filter((s) => s.kelas === "AV08" || s.kelas === "FA10" || s.kelas === "AV08-FA10").length;
+    } else {
+      acc[k] = students.filter((s) => s.kelas === k).length;
+    }
     return acc;
   }, {});
 
