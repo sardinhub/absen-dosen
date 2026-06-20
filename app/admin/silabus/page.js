@@ -88,6 +88,7 @@ export default function AdminSilabus() {
       await syncData();
       
       alert(lang === "id" ? "Silabus berhasil disimpan!" : "Syllabus saved successfully!");
+      window.location.reload();
     } catch (err) {
       alert(lang === "id" ? "Gagal menyimpan silabus!" : "Failed to save syllabus!");
       console.error(err);
