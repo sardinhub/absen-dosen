@@ -30,7 +30,7 @@ export default function EvaluasiPenilaianDosen() {
 
   const loadData = useCallback(async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
-    const userStr = localStorage.getItem("sikad_user");
+    const userStr = localStorage.getItem("sikad_logged_in_user");
     if (!userStr) {
       window.location.href = "/login";
       return;
