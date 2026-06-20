@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getSchedules, getCourses, getAttendance } from "../../../lib/db";
+import { getSchedules, getCourses, getAttendance, getStudentAttendanceByJadwal } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import Modal from "../../../components/Modal";
 
@@ -12,6 +12,7 @@ export default function DosenDashboard() {
   const [schedules, setSchedules] = useState([]);
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [showAllSchedules, setShowAllSchedules] = useState(false);
+  const [studentAttendanceMap, setStudentAttendanceMap] = useState({});
   const [isTugasModalOpen, setIsTugasModalOpen] = useState(false);
 
   // Sync language and database records
@@ -50,6 +51,20 @@ export default function DosenDashboard() {
         // Store all user attendance history
         const userAttendance = rawAttendance.filter((k) => k.dosen_id === parsedUser.id);
         setAttendanceHistory(userAttendance);
+
+        // Load student attendance for today's schedules
+        const localDate = new Date();
+        const todayString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
+        const studentAttMap = {};
+        await Promise.all(
+          lecturerSchedules.map(async (j) => {
+            const records = await getStudentAttendanceByJadwal(j.id, todayString);
+            if (records.length > 0) {
+              studentAttMap[j.id] = records[0];
+            }
+          })
+        );
+        setStudentAttendanceMap(studentAttMap);
       } catch (err) {
         console.error("Error loading dashboard data:", err);
       }
@@ -142,12 +157,13 @@ export default function DosenDashboard() {
           </div>
         </div>
 
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem" }}>
+          {/* Dosen check-in button */}
           {isCheckedIn ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.25rem" }}>
               <span className="badge badge-success">{t.checkedIn}</span>
               <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
-              {attRecord.waktu_absen ? new Date(attRecord.waktu_absen).toLocaleTimeString() : '-'}
+                {attRecord.waktu_absen ? new Date(attRecord.waktu_absen).toLocaleTimeString() : '-'}
               </span>
             </div>
           ) : isToday ? (
@@ -159,6 +175,49 @@ export default function DosenDashboard() {
               {t.checkIn}
             </button>
           )}
+
+          {/* Student attendance button — only visible on today's schedule */}
+          {isToday && (() => {
+            const studentAtt = studentAttendanceMap[schedule.id];
+            if (studentAtt) {
+              return (
+                <Link
+                  href={`/dosen/absen-siswa/${schedule.id}`}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                    padding: "0.4rem 0.8rem", fontSize: "0.75rem", borderRadius: "8px",
+                    background: "rgba(16, 185, 129, 0.1)", color: "#10b981",
+                    border: "1px solid rgba(16, 185, 129, 0.3)", textDecoration: "none",
+                    fontWeight: 600, transition: "all 0.2s",
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" style={{ width: 13, height: 13 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  {t.viewStudentAttendance}
+                </Link>
+              );
+            }
+            return (
+              <Link
+                href={`/dosen/absen-siswa/${schedule.id}`}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                  padding: "0.4rem 0.8rem", fontSize: "0.75rem", borderRadius: "8px",
+                  background: "rgba(139, 92, 246, 0.1)", color: "#a78bfa",
+                  border: "1px solid rgba(139, 92, 246, 0.3)", textDecoration: "none",
+                  fontWeight: 600, transition: "all 0.2s",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" style={{ width: 13, height: 13 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A2.25 2.25 0 0 1 12.75 21.5h-1.5a2.25 2.25 0 0 1-2.25-2.263V19.13m4.13-3.07c-.6-.414-1.27-.676-1.996-.77A4.125 4.125 0 0 0 3.788 15.67a9.3 9.3 0 0 0 4.121.952 9.38 9.38 0 0 0 2.625-.372M15 13.5A3 3 0 1 0 15 7.5a3 3 0 0 0 0 6ZM8.25 12.5A2.25 2.25 0 1 1 8.25 8a2.25 2.25 0 0 1 0 4.5Z" />
+                </svg>
+                {t.attendStudent}
+              </Link>
+            );
+          })()}
         </div>
       </div>
     );

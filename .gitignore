@@ -31,3 +31,11 @@ yarn-error.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+# Firebase / Google credentials (JANGAN COMMIT!)
+kunci.json
+**/kunci.json
+
+# Backup data folder (data sensitif, jangan commit)
+Backup Database/
+backup_semua_data.sql
