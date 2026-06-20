@@ -122,8 +122,8 @@ export default function DaftarHadirSiswa() {
     return (j.hari || "").toLowerCase() === selectedDayId.toLowerCase();
   });
 
-  // Pilihan kelas statis sesuai permintaan (4 kelas)
-  const allMyKelas = ["AV08", "FA10", "GS38", "GS39"];
+  // Pilihan kelas dinamis (hanya kelas yang ada jadwal di hari yang dipilih)
+  const allMyKelas = [...new Set(schedulesOnDate.map((j) => j.kelas).filter(Boolean))].sort();
 
   // ─── When user proceeds to fill attendance ──────────────────────────────────
   const handleProceed = async () => {
