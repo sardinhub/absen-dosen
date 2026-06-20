@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getCourses, saveCourse } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
+import { exportSyllabusToPDF } from "../../../lib/exportUtils";
 
 export default function AdminSilabus() {
   const [lang, setLang] = useState("id");
@@ -96,6 +97,26 @@ export default function AdminSilabus() {
     setIsSaving(false);
   };
 
+  const handleExportPDF = async () => {
+    if (!selectedCourseId) return;
+    const course = courses.find(c => c.id === selectedCourseId);
+    if (!course) return;
+    
+    // Gunakan syllabusData terkini dari state agar data yang diekspor adalah yang tampil di layar
+    // termasuk yang belum di-save (atau update course dengan data tersebut)
+    const exportCourse = {
+      ...course,
+      silabus: syllabusData
+    };
+    
+    try {
+      await exportSyllabusToPDF(exportCourse, lang);
+    } catch (e) {
+      console.error(e);
+      alert("Gagal mengekspor PDF");
+    }
+  };
+
   const selectedCourse = courses.find(c => c.id === selectedCourseId);
 
   return (
@@ -165,7 +186,13 @@ export default function AdminSilabus() {
             ))}
           </div>
 
-          <div style={{ marginTop: "2rem", display: "flex", justifyContent: "flex-end", position: "sticky", bottom: "1rem", zIndex: 10 }}>
+          <div style={{ marginTop: "2rem", display: "flex", justifyContent: "flex-end", gap: "1rem", position: "sticky", bottom: "1rem", zIndex: 10 }}>
+            <button type="button" onClick={handleExportPDF} className="btn btn-secondary" style={{ padding: "0.75rem 1.5rem", fontSize: "1rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3)", display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#dc2626", borderColor: "#dc2626", color: "white" }}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: "20px", height: "20px" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              Export PDF
+            </button>
             <button type="button" onClick={handleSave} className="btn btn-primary" style={{ padding: "0.75rem 2rem", fontSize: "1rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3)" }} disabled={isSaving}>
               {isSaving ? (lang === "id" ? "Menyimpan..." : "Saving...") : (lang === "id" ? "Simpan Silabus" : "Save Syllabus")}
             </button>
