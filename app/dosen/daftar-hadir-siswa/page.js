@@ -28,6 +28,18 @@ function todayStr() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function isStudentInKelas(student, kelasName) {
+  if (kelasName === "AV08-FA10") {
+    return student.kelas === "AV08" || student.kelas === "FA10" || student.kelas === "AV08-FA10";
+  }
+  return student.kelas === kelasName;
+}
+
+function isStudentInAnySelectedKelas(student, selectedKelasArray) {
+  return selectedKelasArray.some(k => isStudentInKelas(student, k));
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function DaftarHadirSiswa() {
   const [lang, setLang] = useState("id");
@@ -126,7 +138,7 @@ export default function DaftarHadirSiswa() {
     setJadwalForKelas(jfk);
 
     // Load students for selected classes and init statusMap
-    const studentsInKelas = allStudents.filter((s) => selectedKelas.includes(s.kelas));
+    const studentsInKelas = allStudents.filter((s) => isStudentInAnySelectedKelas(s, selectedKelas));
     const initMap = {};
     studentsInKelas.forEach((s) => { initMap[s.id] = "hadir"; });
 
@@ -153,7 +165,7 @@ export default function DaftarHadirSiswa() {
   // ─── Set all status ─────────────────────────────────────────────────────────
   const handleSetAll = (status, kelasFilter = null) => {
     const studentsInKelas = allStudents.filter((s) =>
-      kelasFilter ? s.kelas === kelasFilter : selectedKelas.includes(s.kelas)
+      kelasFilter ? isStudentInKelas(s, kelasFilter) : isStudentInAnySelectedKelas(s, selectedKelas)
     );
     setStatusMap((prev) => {
       const next = { ...prev };
@@ -171,7 +183,7 @@ export default function DaftarHadirSiswa() {
 
       for (const kelas of selectedKelas) {
         const jadwal = jadwalForKelas[kelas];
-        const studentsInKelas = allStudents.filter((s) => s.kelas === kelas);
+        const studentsInKelas = allStudents.filter((s) => isStudentInKelas(s, kelas));
         const siswaList = studentsInKelas.map((s) => ({
           siswa_id: s.id,
           nim: s.nim,
@@ -224,7 +236,7 @@ export default function DaftarHadirSiswa() {
   const t = translations[lang];
 
   // Students currently selected
-  const studentsShown = allStudents.filter((s) => selectedKelas.includes(s.kelas));
+  const studentsShown = allStudents.filter((s) => isStudentInAnySelectedKelas(s, selectedKelas));
 
   // Summary counts for shown students
   const summary = STATUS_OPTIONS.reduce((acc, s) => {
@@ -336,7 +348,7 @@ export default function DaftarHadirSiswa() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.75rem" }}>
                 {allMyKelas.map((k) => {
                   const isChecked = selectedKelas.includes(k);
-                  const studentCount = allStudents.filter((s) => s.kelas === k).length;
+                  const studentCount = allStudents.filter((s) => isStudentInKelas(s, k)).length;
                   const hasScheduleToday = schedulesOnDate.some((j) => j.kelas === k);
                   const jadwal = schedulesOnDate.find((j) => j.kelas === k);
 
@@ -492,7 +504,7 @@ export default function DaftarHadirSiswa() {
 
           {/* Per-kelas section */}
           {selectedKelas.map((k) => {
-            const studentsInK = allStudents.filter((s) => s.kelas === k);
+            const studentsInK = allStudents.filter((s) => isStudentInKelas(s, k));
             const jadwal = jadwalForKelas[k];
             const hasExisting = jadwal ? !!existingRecords[jadwal.id] : false;
 
