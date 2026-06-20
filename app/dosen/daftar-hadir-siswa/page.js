@@ -122,8 +122,8 @@ export default function DaftarHadirSiswa() {
     return (j.hari || "").toLowerCase() === selectedDayId.toLowerCase();
   });
 
-  // Unique kelas from dosen's ALL schedules (for checklist, not only today)
-  const allMyKelas = [...new Set(allSchedules.map((j) => j.kelas).filter(Boolean))].sort();
+  // Pilihan kelas statis sesuai permintaan (3 kelas)
+  const allMyKelas = ["AV08-FA10", "GS38", "GS39"];
 
   // ─── When user proceeds to fill attendance ──────────────────────────────────
   const handleProceed = async () => {
