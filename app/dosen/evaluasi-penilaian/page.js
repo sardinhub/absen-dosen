@@ -86,7 +86,7 @@ export default function EvaluasiPenilaianDosen() {
 
   const studentsInClass = useMemo(() => {
     if (!selectedMkId || !selectedKelas) return [];
-    return allStudents.filter(s => isStudentInKelas(s, selectedKelas)).sort((a, b) => a.nama.localeCompare(b.nama));
+    return allStudents.filter(s => isStudentInKelas(s, selectedKelas)).sort((a, b) => (a.nama || "").localeCompare(b.nama || ""));
   }, [allStudents, selectedMkId, selectedKelas]);
 
   // Fetch existing evaluation when class changes
@@ -170,7 +170,7 @@ export default function EvaluasiPenilaianDosen() {
     );
   }
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.id;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem", maxWidth: "900px", margin: "0 auto" }}>

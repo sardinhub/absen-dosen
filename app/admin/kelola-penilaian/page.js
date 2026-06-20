@@ -100,7 +100,7 @@ export default function KelolaPenilaianAdmin() {
     );
   }
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.id;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem", maxWidth: "1200px", margin: "0 auto" }}>
