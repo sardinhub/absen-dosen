@@ -127,7 +127,7 @@ export default function AdminSilabus() {
       </div>
 
       {selectedCourseId && syllabusData.length > 0 && (
-        <form onSubmit={handleSave} className="glass-panel dashboard-panel" style={{ padding: "1.5rem" }}>
+        <div className="glass-panel dashboard-panel" style={{ padding: "1.5rem" }}>
           <h3 style={{ fontSize: "1.1rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-color)", paddingBottom: "0.5rem" }}>
             {lang === "id" ? "Rincian Materi Per Pertemuan" : "Meeting Details"}
           </h3>
@@ -165,11 +165,11 @@ export default function AdminSilabus() {
           </div>
 
           <div style={{ marginTop: "2rem", display: "flex", justifyContent: "flex-end", position: "sticky", bottom: "1rem", zIndex: 10 }}>
-            <button type="submit" className="btn btn-primary" style={{ padding: "0.75rem 2rem", fontSize: "1rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3)" }} disabled={isSaving}>
+            <button type="button" onClick={handleSave} className="btn btn-primary" style={{ padding: "0.75rem 2rem", fontSize: "1rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3)" }} disabled={isSaving}>
               {isSaving ? (lang === "id" ? "Menyimpan..." : "Saving...") : (lang === "id" ? "Simpan Silabus" : "Save Syllabus")}
             </button>
           </div>
-        </form>
+        </div>
       )}
     </div>
   );
