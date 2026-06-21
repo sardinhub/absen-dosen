@@ -30,10 +30,24 @@ function todayStr() {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function isStudentInKelas(student, kelasName) {
-  if (kelasName === "AV08-FA10") {
-    return student.kelas === "AV08" || student.kelas === "FA10" || student.kelas === "AV08-FA10";
+  if (!kelasName) return false;
+  const sKelas = (student.kelas || "").toString().trim().toUpperCase();
+  const kName = (kelasName || "").toString().trim().toUpperCase();
+
+  if (sKelas === kName) return true;
+
+  // Handle generic merged classes like "AV08-FA10" or "AV08 - FA10"
+  if (kName.includes("-")) {
+    const parts = kName.split("-").map(p => p.trim());
+    if (parts.includes(sKelas)) return true;
   }
-  return student.kelas === kelasName;
+
+  // Also support specific exact match fallback for AV08-FA10 if needed
+  if (kName.replace(/\s+/g, "") === "AV08-FA10") {
+    return sKelas === "AV08" || sKelas === "FA10" || sKelas === "AV08-FA10";
+  }
+
+  return false;
 }
 
 function isStudentInAnySelectedKelas(student, selectedKelasArray) {

@@ -77,11 +77,23 @@ export default function EvaluasiPenilaianDosen() {
   // Helper to check if a student belongs to a class (handling combined classes like AV08-FA10)
   const isStudentInKelas = (student, kelasName) => {
     if (!kelasName) return false;
-    const parts = kelasName.split("-");
-    if (parts.length > 1) {
-      return parts.includes(student.kelas) || student.kelas === kelasName;
+    const sKelas = (student.kelas || "").toString().trim().toUpperCase();
+    const kName = (kelasName || "").toString().trim().toUpperCase();
+
+    if (sKelas === kName) return true;
+
+    // Handle generic merged classes like "AV08-FA10" or "AV08 - FA10"
+    if (kName.includes("-")) {
+      const parts = kName.split("-").map(p => p.trim());
+      if (parts.includes(sKelas)) return true;
     }
-    return student.kelas === kelasName;
+
+    // Also support specific exact match fallback for AV08-FA10 if needed
+    if (kName.replace(/\s+/g, "") === "AV08-FA10") {
+      return sKelas === "AV08" || sKelas === "FA10" || sKelas === "AV08-FA10";
+    }
+
+    return false;
   };
 
   const studentsInClass = useMemo(() => {
