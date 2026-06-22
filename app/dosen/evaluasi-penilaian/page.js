@@ -219,10 +219,11 @@ export default function EvaluasiPenilaianDosen() {
               setSelectedMkId(e.target.value);
               setSelectedKelas("");
             }}
+            style={{ color: "#000" }}
           >
             <option value="">-- {lang === "id" ? "Pilih Mata Kuliah" : "Select Course"} --</option>
             {myCoursesOptions.map(c => (
-              <option key={c.id} value={c.id}>{c.nama_mk}</option>
+              <option key={c.id} value={c.id} style={{ color: "#000" }}>{c.nama_mk}</option>
             ))}
           </select>
         </div>
@@ -236,10 +237,11 @@ export default function EvaluasiPenilaianDosen() {
             value={selectedKelas}
             onChange={(e) => setSelectedKelas(e.target.value)}
             disabled={!selectedMkId}
+            style={{ color: "#000" }}
           >
             <option value="">-- {lang === "id" ? "Pilih Kelas" : "Select Class"} --</option>
             {kelasOptions.map(k => (
-              <option key={k} value={k}>{k}</option>
+              <option key={k} value={k} style={{ color: "#000" }}>{k}</option>
             ))}
           </select>
         </div>
