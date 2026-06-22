@@ -2,10 +2,26 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Sidebar({ user, lang, setLang, translations, isOpen, setIsOpen }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [isKelolaDataOpen, setIsKelolaDataOpen] = useState(false);
+
+  useEffect(() => {
+    // Keep the sub-menu open if we are in one of the nested routes
+    if (
+      pathname.startsWith("/admin/dosen") ||
+      pathname.startsWith("/admin/siswa") ||
+      pathname.startsWith("/admin/kelola-penilaian") ||
+      pathname.startsWith("/admin/matakuliah") ||
+      pathname.startsWith("/admin/jadwal")
+    ) {
+      setIsKelolaDataOpen(true);
+    }
+  }, [pathname]);
 
   if (!user) return null;
 
@@ -67,13 +83,59 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
       )
     },
     {
-      name: translations.lecturerList,
-      path: "/admin/dosen",
+      name: lang === "id" ? "Kelola Data" : "Manage Data",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A2.25 2.25 0 0 1 12.75 21.5h-1.5a2.25 2.25 0 0 1-2.25-2.263V19.13m4.13-3.07c-.6-.414-1.27-.676-1.996-.77A4.125 4.125 0 0 0 3.788 15.67a9.3 9.3 0 0 0 4.121.952 9.38 9.38 0 0 0 2.625-.372M15 13.5A3 3 0 1 0 15 7.5a3 3 0 0 0 0 6ZM8.25 12.5A2.25 2.25 0 1 1 8.25 8a2.25 2.25 0 0 1 0 4.5Z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
         </svg>
-      )
+      ),
+      subMenus: [
+        {
+          name: translations.lecturerList,
+          path: "/admin/dosen",
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A2.25 2.25 0 0 1 12.75 21.5h-1.5a2.25 2.25 0 0 1-2.25-2.263V19.13m4.13-3.07c-.6-.414-1.27-.676-1.996-.77A4.125 4.125 0 0 0 3.788 15.67a9.3 9.3 0 0 0 4.121.952 9.38 9.38 0 0 0 2.625-.372M15 13.5A3 3 0 1 0 15 7.5a3 3 0 0 0 0 6ZM8.25 12.5A2.25 2.25 0 1 1 8.25 8a2.25 2.25 0 0 1 0 4.5Z" />
+            </svg>
+          )
+        },
+        {
+          name: translations.studentList,
+          path: "/admin/siswa",
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+            </svg>
+          )
+        },
+        {
+          name: translations.kelolaPenilaian || (lang === "id" ? "Kelola Penilaian Siswa" : "Manage Student Grades"),
+          path: "/admin/kelola-penilaian",
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+            </svg>
+          )
+        },
+        {
+          name: translations.courseList,
+          path: "/admin/matakuliah",
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+            </svg>
+          )
+        },
+        {
+          name: translations.scheduleList,
+          path: "/admin/jadwal",
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          )
+        }
+      ]
     },
     {
       name: lang === "id" ? "Registrasi Akun" : "Register Account",
@@ -94,15 +156,6 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
       )
     },
     {
-      name: translations.studentList,
-      path: "/admin/siswa",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 3.741-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-        </svg>
-      )
-    },
-    {
       name: translations.studentAttendanceRecap || (lang === "id" ? "Rekap Absen Siswa" : "Student Attendance Recap"),
       path: "/admin/rekap-absen-siswa",
       icon: (
@@ -112,38 +165,11 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
       )
     },
     {
-      name: translations.kelolaPenilaian || (lang === "id" ? "Kelola Penilaian Siswa" : "Manage Student Grades"),
-      path: "/admin/kelola-penilaian",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-        </svg>
-      )
-    },
-    {
-      name: translations.courseList,
-      path: "/admin/matakuliah",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-        </svg>
-      )
-    },
-    {
       name: translations.syllabus,
       path: "/admin/silabus",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-        </svg>
-      )
-    },
-    {
-      name: translations.scheduleList,
-      path: "/admin/jadwal",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
         </svg>
       )
     },
@@ -190,9 +216,62 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
 
         <ul className="sidebar-menu">
           {currentMenu.map((item, idx) => {
+            if (item.subMenus) {
+              const isChildActive = item.subMenus.some(sub => pathname === sub.path);
+              return (
+                <li key={idx} style={{ marginBottom: "0.25rem" }}>
+                  <div
+                    className={`sidebar-link ${isChildActive && !isKelolaDataOpen ? "active" : ""}`}
+                    onClick={() => setIsKelolaDataOpen(!isKelolaDataOpen)}
+                    style={{ 
+                      cursor: "pointer", 
+                      display: "flex", 
+                      justifyContent: "space-between", 
+                      alignItems: "center",
+                      background: isKelolaDataOpen ? "rgba(255,255,255,0.05)" : undefined,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      {item.icon}
+                      <span>{item.name}</span>
+                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"
+                      style={{ width: 14, height: 14, transform: isKelolaDataOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </div>
+                  {isKelolaDataOpen && (
+                    <ul style={{ listStyle: "none", padding: "0", margin: "0.25rem 0 0 0", borderLeft: "2px solid rgba(255,255,255,0.1)", marginLeft: "1.5rem" }}>
+                      {item.subMenus.map((sub, subIdx) => {
+                        const isActive = pathname === sub.path;
+                        return (
+                          <li key={subIdx} style={{ margin: "0.25rem 0" }}>
+                            <Link 
+                              href={sub.path} 
+                              prefetch={true}
+                              className={`sidebar-link ${isActive ? "active" : ""}`}
+                              onClick={() => setIsOpen(false)}
+                              style={{ padding: "0.6rem 1rem", fontSize: "0.85rem" }}
+                            >
+                              <div style={{ transform: "scale(0.85)", opacity: 0.8, display: "flex", alignItems: "center" }}>
+                                {sub.icon}
+                              </div>
+                              <span>{sub.name}</span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </li>
+              );
+            }
+
             const isActive = pathname === item.path;
             return (
-              <li key={idx}>
+              <li key={idx} style={{ marginBottom: "0.25rem" }}>
                 <Link 
                   href={item.path} 
                   prefetch={true}
