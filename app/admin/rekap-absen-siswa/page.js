@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { getStudentAttendance, getCourses, getUsers } from "../../../lib/db";
+import { getStudentAttendance, getCourses, getUsers, deleteStudentAttendance } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 
 const STATUS_MAP = {
@@ -53,6 +53,20 @@ export default function RekapAbsenSiswa() {
   useEffect(() => {
     syncData();
   }, [syncData]);
+
+  const handleDelete = async (id) => {
+    const confirmMsg = lang === "id" ? "Apakah Anda yakin ingin menghapus data absen ini?" : "Are you sure you want to delete this attendance record?";
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      await deleteStudentAttendance(id);
+      syncData();
+      alert(lang === "id" ? "Data berhasil dihapus." : "Data deleted successfully.");
+    } catch (err) {
+      console.error(err);
+      alert(lang === "id" ? "Gagal menghapus data." : "Failed to delete data.");
+    }
+  };
 
   // Derived options for filters
   const mkOptions = useMemo(() => {
@@ -221,6 +235,22 @@ export default function RekapAbsenSiswa() {
                     <div style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--border-color)", padding: "0.25rem 0.6rem", borderRadius: "20px", fontSize: "0.75rem", fontWeight: 700 }}>
                       Total: {siswaList.length}
                     </div>
+                    <button 
+                      onClick={() => handleDelete(rec.id)}
+                      className="btn"
+                      style={{ 
+                        padding: "0.25rem 0.6rem", 
+                        borderRadius: "20px", 
+                        fontSize: "0.75rem", 
+                        fontWeight: 700,
+                        background: "rgba(239, 68, 68, 0.15)",
+                        color: "#ef4444",
+                        border: "1px solid rgba(239, 68, 68, 0.3)"
+                      }}
+                      title={lang === "id" ? "Hapus Rekap" : "Delete Recap"}
+                    >
+                      {lang === "id" ? "Hapus" : "Delete"}
+                    </button>
                   </div>
                 </div>
 
