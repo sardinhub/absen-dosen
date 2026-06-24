@@ -44,6 +44,9 @@ export default function AdminLaporan() {
   const [editPertemuan, setEditPertemuan] = useState("");
   const [editMateri, setEditMateri] = useState("");
 
+  // Preview State
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+
   // Debounce timer for filter changes
   const debounceRef = useRef(null);
 
@@ -182,6 +185,14 @@ export default function AdminLaporan() {
     }
 
     await exportToPDF(attendance, reportTitle, dateRangeText, lang);
+  };
+
+  const handlePreviewClick = () => {
+    if (attendance.length === 0) {
+      alert(lang === "id" ? "Tidak ada data untuk dipratinjau!" : "No data available to preview!");
+      return;
+    }
+    setIsPreviewModalOpen(true);
   };
 
   const handleEditClick = (record) => {
@@ -402,17 +413,12 @@ export default function AdminLaporan() {
           </h3>
 
           <div style={{ display: "flex", gap: "0.75rem" }}>
-            <button className="btn btn-success btn-sm" onClick={handleExportExcel}>
+            <button className="btn btn-primary btn-sm" onClick={handlePreviewClick}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 16, height: 16 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
               </svg>
-              <span>{t.exportExcel}</span>
-            </button>
-            <button className="btn btn-primary btn-sm" onClick={handleExportPDF}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 16, height: 16 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-              </svg>
-              <span>{t.exportPdf}</span>
+              <span>{lang === "id" ? "Pratinjau & Cetak" : "Preview & Print"}</span>
             </button>
           </div>
         </div>
@@ -575,6 +581,70 @@ export default function AdminLaporan() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Preview Modal */}
+      <Modal
+        isOpen={isPreviewModalOpen}
+        title={lang === "id" ? "Pratinjau Ekspor Laporan" : "Export Report Preview"}
+        onClose={() => setIsPreviewModalOpen(false)}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", background: "rgba(255,255,255,0.03)", padding: "1rem", borderRadius: "8px" }}>
+            <div>
+              <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "0.2rem" }}>{lang === "id" ? "Total Pertemuan" : "Total Meetings"}</p>
+              <h4 style={{ fontSize: "1.2rem", margin: 0 }}>{attendance.length}</h4>
+            </div>
+            <div>
+              <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "0.2rem" }}>{lang === "id" ? "Tingkat Kehadiran" : "Attendance Rate"}</p>
+              <h4 style={{ fontSize: "1.2rem", margin: 0, color: "var(--success)" }}>
+                {attendance.length > 0 ? Math.round((attendance.filter(d => d.status === 'hadir').length / attendance.length) * 100) : 0}%
+              </h4>
+            </div>
+          </div>
+
+          <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid var(--border-color)", borderRadius: "8px" }}>
+            <table className="custom-table" style={{ margin: 0 }}>
+              <thead style={{ position: "sticky", top: 0, background: "var(--bg-card)", zIndex: 1 }}>
+                <tr>
+                  <th style={{ fontSize: "0.75rem", padding: "0.5rem" }}>{t.date}</th>
+                  <th style={{ fontSize: "0.75rem", padding: "0.5rem" }}>{t.course}</th>
+                  <th style={{ fontSize: "0.75rem", padding: "0.5rem" }}>{t.lecturerName}</th>
+                  <th style={{ fontSize: "0.75rem", padding: "0.5rem", textAlign: "center" }}>{t.status}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendance.map((item, idx) => (
+                  <tr key={idx}>
+                    <td style={{ fontSize: "0.8rem", padding: "0.5rem" }}>{formatTanggalStr(item.tanggal, lang)}</td>
+                    <td style={{ fontSize: "0.8rem", padding: "0.5rem" }}>{item.mk_kode} - {item.kelas}</td>
+                    <td style={{ fontSize: "0.8rem", padding: "0.5rem" }}>{item.dosen_nama}</td>
+                    <td style={{ fontSize: "0.8rem", padding: "0.5rem", textAlign: "center" }}>
+                      <span className={`badge ${item.status === 'hadir' ? 'badge-success' : item.status === 'izin' ? 'badge-warning' : item.status === 'pending' ? 'badge-secondary' : 'badge-danger'}`} style={{ padding: "0.2rem 0.4rem", fontSize: "0.6rem" }}>
+                        {(item.status || '').toUpperCase()}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end", marginTop: "1rem" }}>
+            <button className="btn btn-success" onClick={() => { handleExportExcel(); setIsPreviewModalOpen(false); }}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 16, height: 16 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              <span>{t.exportExcel}</span>
+            </button>
+            <button className="btn btn-primary" onClick={() => { handleExportPDF(); setIsPreviewModalOpen(false); }}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 16, height: 16 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              <span>{t.exportPdf}</span>
+            </button>
+          </div>
+        </div>
       </Modal>
 
       {/* Photo Modal Overlay */}
