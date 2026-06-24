@@ -135,10 +135,10 @@ export default function RekapAbsenSiswa() {
             className="form-control"
             value={filterMk}
             onChange={(e) => setFilterMk(e.target.value)}
-            style={{ color: "#000" }}
+            style={{ background: "#0b0f19", color: "#fff" }}
           >
             <option value="">{lang === "id" ? "Semua Mata Kuliah" : "All Courses"}</option>
-            {mkOptions.map(mk => <option key={mk} value={mk} style={{ color: "#000" }}>{mk}</option>)}
+            {mkOptions.map(mk => <option key={mk} value={mk}>{mk}</option>)}
           </select>
         </div>
 
@@ -150,10 +150,10 @@ export default function RekapAbsenSiswa() {
             className="form-control"
             value={filterKelas}
             onChange={(e) => setFilterKelas(e.target.value)}
-            style={{ color: "#000" }}
+            style={{ background: "#0b0f19", color: "#fff" }}
           >
             <option value="">{lang === "id" ? "Semua Kelas" : "All Classes"}</option>
-            {kelasOptions.map(k => <option key={k} value={k} style={{ color: "#000" }}>{k}</option>)}
+            {kelasOptions.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
         </div>
 
@@ -166,7 +166,7 @@ export default function RekapAbsenSiswa() {
             className="form-control"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
-            style={{ color: "#000" }}
+            style={{ background: "#0b0f19", color: "#fff" }}
           />
         </div>
 
