@@ -37,7 +37,7 @@ export default function RekapAbsenSiswa() {
 
       const dosenMap = {};
       rawUsers.filter(u => u.role === "dosen").forEach(u => {
-        dosenMap[u.id] = u.name;
+        dosenMap[u.id] = u.nama_lengkap || u.name || "Dosen (No Name)";
       });
 
       setAttendances(rawAttendances);
