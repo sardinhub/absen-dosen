@@ -199,7 +199,7 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
     <>
       <div className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">T</div>
+          <img src="/logo-triesakti.png" alt="Logo" style={{ width: "2.5rem", height: "2.5rem", objectFit: "contain", borderRadius: "8px" }} />
           <div className="sidebar-logo-text">
             Triesakti
             <div className="sidebar-logo-sub">Makassar - Aviation</div>
