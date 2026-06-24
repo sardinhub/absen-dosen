@@ -98,7 +98,7 @@ export default function EvaluasiPenilaianDosen() {
 
   const studentsInClass = useMemo(() => {
     if (!selectedMkId || !selectedKelas) return [];
-    return allStudents.filter(s => isStudentInKelas(s, selectedKelas)).sort((a, b) => (a.nama || "").localeCompare(b.nama || ""));
+    return allStudents.filter(s => isStudentInKelas(s, selectedKelas)).sort((a, b) => (a.nama_lengkap || a.nama || "").localeCompare(b.nama_lengkap || b.nama || ""));
   }, [allStudents, selectedMkId, selectedKelas]);
 
   // Fetch existing evaluation when class changes
@@ -156,7 +156,7 @@ export default function EvaluasiPenilaianDosen() {
       students: studentsInClass.map(s => ({
         siswa_id: s.id,
         nim: s.nim,
-        nama: s.nama,
+        nama: s.nama_lengkap || s.nama,
         score: studentScores[s.id] !== undefined && studentScores[s.id] !== "" ? parseInt(studentScores[s.id], 10) : 0
       })),
       updated_at: new Date().toISOString()
@@ -281,7 +281,7 @@ export default function EvaluasiPenilaianDosen() {
                     <tr key={siswa.id}>
                       <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", paddingLeft: "1.5rem" }}>{idx + 1}</td>
                       <td><span className="badge badge-warning" style={{ fontSize: "0.7rem" }}>{siswa.nim}</span></td>
-                      <td style={{ fontWeight: 600 }}>{siswa.nama}</td>
+                      <td style={{ fontWeight: 600 }}>{siswa.nama_lengkap || siswa.nama}</td>
                       <td style={{ textAlign: "center" }}>
                         <input
                           type="number"
