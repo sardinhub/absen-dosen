@@ -1,12 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
 import { translations } from "../../lib/translations";
 
+// Maps route prefixes to permission keys
+const ROUTE_PERMISSION_MAP = [
+  { prefix: "/admin/dosen",            key: "kelola-data" },
+  { prefix: "/admin/siswa",            key: "kelola-data" },
+  { prefix: "/admin/matakuliah",       key: "kelola-data" },
+  { prefix: "/admin/jadwal",           key: "kelola-data" },
+  { prefix: "/admin/kelola-penilaian", key: "kelola-data" },
+  { prefix: "/admin/register",         key: "register" },
+  { prefix: "/admin/rekap-absen-siswa",key: "rekap-absen-siswa" },
+  { prefix: "/admin/silabus",          key: "silabus" },
+  { prefix: "/admin/validasi",         key: "validasi" },
+  { prefix: "/admin/laporan",          key: "laporan" },
+  { prefix: "/dosen/evaluasi-penilaian", key: "evaluasi-penilaian" },
+];
+
 export default function AdminLayout({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState(null);
   const [lang, setLang] = useState("id");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -47,6 +63,18 @@ export default function AdminLayout({ children }) {
     // Dispatch storage event to trigger pages sync
     window.dispatchEvent(new Event("storage"));
   };
+
+  // ── Route Protection: redirect if user lacks menu_permissions for current path ──
+  useEffect(() => {
+    if (!user) return;
+    const perms = user.menu_permissions;
+    if (!Array.isArray(perms)) return; // Legacy user → allow all routes
+
+    const match = ROUTE_PERMISSION_MAP.find(r => pathname.startsWith(r.prefix));
+    if (match && !perms.includes(match.key)) {
+      router.replace("/admin/dashboard");
+    }
+  }, [user, pathname, router]);
 
   if (loading) {
     return (

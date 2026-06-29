@@ -4,6 +4,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
+// All possible admin menu permission keys (must match register/page.js)
+const ALL_ADMIN_MENU_KEYS = [
+  "kelola-data", "register", "rekap-absen-siswa",
+  "silabus", "validasi", "laporan", "evaluasi-penilaian"
+];
+
 export default function Sidebar({ user, lang, setLang, translations, isOpen, setIsOpen }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -31,6 +37,13 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
   };
 
   const isDosen = user.role === "dosen";
+
+  // ── Hak Akses: determine which admin menus this user can see ──
+  // If menu_permissions is absent (legacy/existing users) → show all menus
+  const perms = user.menu_permissions;
+  const hasPermsField = Array.isArray(perms);
+  const canAccess = (key) => !hasPermsField || perms.includes(key);
+  const isSuperAdmin = hasPermsField && ALL_ADMIN_MENU_KEYS.every(k => perms.includes(k));
 
   // Menu lists
   const dosenMenu = [
@@ -82,7 +95,7 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
         </svg>
       )
     },
-    {
+    ...(canAccess("kelola-data") ? [{
       name: lang === "id" ? "Kelola Data" : "Manage Data",
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -137,7 +150,7 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
         }
       ]
     },
-    {
+    ...(canAccess("register") ? [{
       name: lang === "id" ? "Registrasi Akun" : "Register Account",
       path: "/admin/register",
       icon: (
@@ -145,8 +158,8 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
         </svg>
       )
-    },
-    {
+    }] : []),
+    ...(canAccess("evaluasi-penilaian") ? [{
       name: translations.evaluasiPenilaian || (lang === "id" ? "Evaluasi & Penilaian" : "Evaluation & Grading"),
       path: "/dosen/evaluasi-penilaian",
       icon: (
@@ -154,8 +167,8 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
           <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
         </svg>
       )
-    },
-    {
+    }] : []),
+    ...(canAccess("rekap-absen-siswa") ? [{
       name: translations.studentAttendanceRecap || (lang === "id" ? "Rekap Absen Siswa" : "Student Attendance Recap"),
       path: "/admin/rekap-absen-siswa",
       icon: (
@@ -163,8 +176,8 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
         </svg>
       )
-    },
-    {
+    }] : []),
+    ...(canAccess("silabus") ? [{
       name: translations.syllabus,
       path: "/admin/silabus",
       icon: (
@@ -172,8 +185,8 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
         </svg>
       )
-    },
-    {
+    }] : []),
+    ...(canAccess("validasi") ? [{
       name: translations.validationList,
       path: "/admin/validasi",
       icon: (
@@ -181,8 +194,8 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
         </svg>
       )
-    },
-    {
+    }] : []),
+    ...(canAccess("laporan") ? [{
       name: translations.report,
       path: "/admin/laporan",
       icon: (
@@ -190,7 +203,7 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
         </svg>
       )
-    }
+    }] : [])
   ];
 
   const currentMenu = isDosen ? dosenMenu : adminMenu;
@@ -310,7 +323,21 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
             <img src={user.foto_profil || "https://via.placeholder.com/100"} alt="User profile" className="user-avatar" />
             <div className="user-info">
               <span className="user-name" title={user.nama_lengkap}>{user.nama_lengkap}</span>
-              <span className="user-role">{isDosen ? translations.dosen : translations.admin}</span>
+              <span className="user-role" style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexWrap: "wrap" }}>
+                {!isDosen && isSuperAdmin && (
+                  <span style={{
+                    display: "inline-flex", alignItems: "center",
+                    padding: "0.1rem 0.4rem", borderRadius: "999px",
+                    background: "linear-gradient(135deg, rgba(234,179,8,0.25), rgba(245,158,11,0.18))",
+                    border: "1px solid rgba(234,179,8,0.4)", color: "#fbbf24",
+                    fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.02em"
+                  }}>⭐ Super Admin</span>
+                )}
+                {!isDosen && !isSuperAdmin && (
+                  <span>{translations.admin}</span>
+                )}
+                {isDosen && <span>{translations.dosen}</span>}
+              </span>
             </div>
           </div>
 
