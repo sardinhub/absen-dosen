@@ -258,9 +258,32 @@ body {
   background: rgba(255, 255, 255, 0.05);
 }
 
+
 .form-control::placeholder {
   color: var(--text-muted);
 }
+
+/* Dark-mode select dropdown option visibility */
+.select-dark {
+  background: #1a1f2e;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.select-dark option,
+.select-option {
+  background: #1a1f2e;
+  color: #e2e8f0;
+  padding: 0.5rem 1rem;
+}
+
+.select-dark option:hover,
+.select-dark option:focus,
+.select-dark option:checked {
+  background: #2d3a5e;
+  color: #ffffff;
+}
+
 
 /* Password Toggle Visibility */
 .password-wrapper {

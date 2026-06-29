@@ -44,7 +44,7 @@ export default function KelolaPenilaianAdmin() {
 
       const dosenMap = {};
       rawUsers.filter(u => u.role === "dosen").forEach(u => {
-        dosenMap[u.id] = u.name;
+        dosenMap[u.id] = u.nama_lengkap || u.name || u.id;
       });
 
       setEvaluations(rawEvaluations);
@@ -131,12 +131,12 @@ export default function KelolaPenilaianAdmin() {
             {lang === "id" ? "Mata Kuliah" : "Course"}
           </label>
           <select
-            className="form-control"
+            className="form-control select-dark"
             value={filterMk}
             onChange={(e) => setFilterMk(e.target.value)}
           >
-            <option value="">{lang === "id" ? "Semua Mata Kuliah" : "All Courses"}</option>
-            {mkOptions.map(mk => <option key={mk} value={mk}>{mk}</option>)}
+            <option className="select-option" value="">{lang === "id" ? "Semua Mata Kuliah" : "All Courses"}</option>
+            {mkOptions.map(mk => <option className="select-option" key={mk} value={mk}>{mk}</option>)}
           </select>
         </div>
 
@@ -145,12 +145,12 @@ export default function KelolaPenilaianAdmin() {
             {lang === "id" ? "Kelas" : "Class"}
           </label>
           <select
-            className="form-control"
+            className="form-control select-dark"
             value={filterKelas}
             onChange={(e) => setFilterKelas(e.target.value)}
           >
-            <option value="">{lang === "id" ? "Semua Kelas" : "All Classes"}</option>
-            {kelasOptions.map(k => <option key={k} value={k}>{k}</option>)}
+            <option className="select-option" value="">{lang === "id" ? "Semua Kelas" : "All Classes"}</option>
+            {kelasOptions.map(k => <option className="select-option" key={k} value={k}>{k}</option>)}
           </select>
         </div>
         
@@ -159,12 +159,12 @@ export default function KelolaPenilaianAdmin() {
             Dosen
           </label>
           <select
-            className="form-control"
+            className="form-control select-dark"
             value={filterDosen}
             onChange={(e) => setFilterDosen(e.target.value)}
           >
-            <option value="">{lang === "id" ? "Semua Dosen" : "All Lecturers"}</option>
-            {dosenOptions.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+            <option className="select-option" value="">{lang === "id" ? "Semua Dosen" : "All Lecturers"}</option>
+            {dosenOptions.map(d => <option className="select-option" key={d.id} value={d.id}>{d.name}</option>)}
           </select>
         </div>
 
