@@ -213,17 +213,16 @@ export default function EvaluasiPenilaianDosen() {
             {lang === "id" ? "Pilih Mata Kuliah" : "Select Course"}
           </label>
           <select
-            className="form-control"
+            className="form-control select-dark"
             value={selectedMkId}
             onChange={(e) => {
               setSelectedMkId(e.target.value);
               setSelectedKelas("");
             }}
-            style={{ color: "#000" }}
           >
-            <option value="">-- {lang === "id" ? "Pilih Mata Kuliah" : "Select Course"} --</option>
+            <option className="select-option" value="">-- {lang === "id" ? "Pilih Mata Kuliah" : "Select Course"} --</option>
             {myCoursesOptions.map(c => (
-              <option key={c.id} value={c.id} style={{ color: "#000" }}>{c.nama_mk}</option>
+              <option className="select-option" key={c.id} value={c.id}>{c.nama_mk}</option>
             ))}
           </select>
         </div>
@@ -233,15 +232,14 @@ export default function EvaluasiPenilaianDosen() {
             {lang === "id" ? "Pilih Kelas" : "Select Class"}
           </label>
           <select
-            className="form-control"
+            className="form-control select-dark"
             value={selectedKelas}
             onChange={(e) => setSelectedKelas(e.target.value)}
             disabled={!selectedMkId}
-            style={{ color: "#000" }}
           >
-            <option value="">-- {lang === "id" ? "Pilih Kelas" : "Select Class"} --</option>
+            <option className="select-option" value="">-- {lang === "id" ? "Pilih Kelas" : "Select Class"} --</option>
             {kelasOptions.map(k => (
-              <option key={k} value={k} style={{ color: "#000" }}>{k}</option>
+              <option className="select-option" key={k} value={k}>{k}</option>
             ))}
           </select>
         </div>
