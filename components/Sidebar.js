@@ -149,7 +149,7 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
           )
         }
       ]
-    },
+    }] : []),
     ...(canAccess("register") ? [{
       name: lang === "id" ? "Registrasi Akun" : "Register Account",
       path: "/admin/register",
