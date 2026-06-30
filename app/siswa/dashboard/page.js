@@ -145,7 +145,9 @@ export default function SiswaDashboard() {
         const mats = await getMateri(null, cid);
         materialsList.push(...mats);
       }
-      setMaterials(materialsList);
+      // Filter out private materials
+      const visibleMaterials = materialsList.filter(m => !m.is_private);
+      setMaterials(visibleMaterials);
     } catch (err) {
       console.error("Gagal memuat data portal siswa:", err);
     } finally {

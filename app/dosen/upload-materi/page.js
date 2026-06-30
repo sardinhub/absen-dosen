@@ -18,6 +18,7 @@ export default function DosenUploadMateri() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const loadData = async (parsedUser) => {
     try {
@@ -108,7 +109,8 @@ export default function DosenUploadMateri() {
         judul: judulMateri,
         file_name: fileName,
         raw_file: selectedFile,
-        uploaded_at: new Date().toISOString()
+        uploaded_at: new Date().toISOString(),
+        is_private: isPrivate
       };
 
       setUploadProgress(0);
@@ -120,6 +122,7 @@ export default function DosenUploadMateri() {
       setJudulMateri("");
       setFileName("");
       setSelectedFile(null);
+      setIsPrivate(false);
       document.getElementById("pdfInput").value = null;
       
       // Reload list
@@ -142,6 +145,20 @@ export default function DosenUploadMateri() {
       } catch (err) {
         console.error("Delete failed:", err);
       }
+    }
+  };
+
+  const togglePrivacy = async (materi) => {
+    try {
+      const updated = {
+        id: materi.id,
+        is_private: !materi.is_private
+      };
+      await saveMateri(updated);
+      setMateriList(prev => prev.map(m => m.id === materi.id ? { ...m, is_private: !m.is_private } : m));
+    } catch (err) {
+      console.error("Error toggling access status:", err);
+      alert(lang === "id" ? "Gagal memperbarui status akses." : "Failed to update access status.");
     }
   };
 
@@ -202,6 +219,19 @@ export default function DosenUploadMateri() {
               required
               style={{ paddingTop: "0.5rem" }}
             />
+          </div>
+
+          <div className="form-group" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem" }}>
+            <input
+              id="isPrivateInput"
+              type="checkbox"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              style={{ width: "auto", cursor: "pointer", margin: 0 }}
+            />
+            <label htmlFor="isPrivateInput" className="form-label" style={{ marginBottom: 0, cursor: "pointer", fontSize: "0.9rem" }}>
+              {lang === "id" ? "Batasi Akses (Hanya Dosen Pengunggah & Admin yang bisa melihat)" : "Restrict Access (Only uploading lecturer & admin can access)"}
+            </label>
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "1rem", flexDirection: "column", gap: "1rem" }}>
@@ -267,12 +297,25 @@ export default function DosenUploadMateri() {
                       </a>
                     </td>
                     <td>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(materi.id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 14, height: 14 }}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>
-                        {lang === "id" ? "Hapus" : "Delete"}
-                      </button>
+                      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.8rem", margin: 0, cursor: "pointer" }} title={lang === "id" ? "Centang untuk menyembunyikan file ini dari siswa" : "Check to hide this file from students"}>
+                          <input 
+                            type="checkbox" 
+                            checked={materi.is_private || false} 
+                            onChange={() => togglePrivacy(materi)} 
+                            style={{ cursor: "pointer", width: "auto", margin: 0 }}
+                          />
+                          <span style={{ color: materi.is_private ? "var(--warning)" : "var(--text-secondary)", fontWeight: materi.is_private ? "bold" : "normal" }}>
+                            {lang === "id" ? "Batasi" : "Restrict"}
+                          </span>
+                        </label>
+                        <button className="btn btn-danger btn-sm" style={{ padding: "0.25rem 0.5rem", display: "inline-flex", alignItems: "center", gap: "0.25rem" }} onClick={() => handleDelete(materi.id)}>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 14, height: 14 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                          </svg>
+                          {lang === "id" ? "Hapus" : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
