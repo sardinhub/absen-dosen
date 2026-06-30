@@ -147,9 +147,9 @@ export default function LoginPage() {
         </form>
 
         <div className="auth-footer">
-          <p>© {new Date().getFullYear()} Triesakti Makassar. All rights reserved.</p>
-          <p style={{ marginTop: "0.5rem", opacity: 0.5 }}>
-            Demo: admin@triesakti.ac.id / admin | dosen1@triesakti.ac.id / dosen
+          <p>© {new Date().getFullYear()} Triesakti Institute of Airlines Makassar. All rights reserved.</p>
+          <p style={{ marginTop: "0.5rem", opacity: 0.6, fontSize: "0.75rem", lineHeight: "1.4" }}>
+            Jl. Arung Teko, Building Corner Griya Angkasa No. 1A Sudiang - Makassar | <a href="https://www.triesaktigroup.id" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>www.triesaktigroup.id</a>
           </p>
         </div>
       </div>
