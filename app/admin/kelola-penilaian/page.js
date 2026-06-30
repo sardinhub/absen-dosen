@@ -261,7 +261,6 @@ export default function KelolaPenilaianAdmin() {
                         <th style={{ width: 40, paddingLeft: "1.5rem" }}>#</th>
                         <th>{t.nim}</th>
                         <th>{lang === "id" ? "Nama Lengkap" : "Full Name"}</th>
-                        <th style={{ textAlign: "center" }}>Skor Dosen</th>
                         <th style={{ textAlign: "center" }}>Bobot</th>
                         <th style={{ textAlign: "center" }}>Grade</th>
                         <th style={{ textAlign: "center" }}>Kriteria</th>
@@ -275,7 +274,6 @@ export default function KelolaPenilaianAdmin() {
                             <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", paddingLeft: "1.5rem" }}>{idx + 1}</td>
                             <td><span className="badge badge-warning" style={{ fontSize: "0.7rem" }}>{siswa.nim}</span></td>
                             <td style={{ fontWeight: 600 }}>{siswa.nama}</td>
-                            <td style={{ textAlign: "center", fontWeight: 800 }}>{siswa.score}</td>
                             <td style={{ textAlign: "center", fontWeight: 800, color: "var(--primary)" }}>{bobot}</td>
                             <td style={{ textAlign: "center" }}>
                               <span style={{
