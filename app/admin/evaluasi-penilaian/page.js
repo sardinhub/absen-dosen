@@ -203,10 +203,10 @@ export default function AdminKHSPreview() {
         }
 
         @media print {
-          /* Enforce single page limits */
+          /* Enforce single page limits relative to page height */
           html, body {
-            width: 210mm !important;
-            height: 297mm !important;
+            width: 100% !important;
+            height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
@@ -234,12 +234,12 @@ export default function AdminKHSPreview() {
             position: fixed !important;
             left: 0 !important;
             top: 0 !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 100% !important;
             background: transparent !important;
             color: black !important;
-            padding: 38mm 15mm 25mm 15mm !important;
+            padding: 35mm 15mm 20mm 15mm !important;
             box-shadow: none !important;
             border: none !important;
             box-sizing: border-box !important;
