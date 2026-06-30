@@ -116,8 +116,24 @@ export default function SiswaDashboard() {
       const localToday = new Date(today.getTime() - (offset * 60 * 1000));
       const todayStr = localToday.toISOString().split("T")[0];
 
+      const isClassMatch = (schKelas, studentKelas) => {
+        if (!schKelas || !studentKelas) return false;
+        const sK = schKelas.trim().toUpperCase();
+        const stdK = studentKelas.trim().toUpperCase();
+        if (sK === stdK) return true;
+        if (sK.includes("-")) {
+          const parts = sK.split("-").map(p => p.trim());
+          if (parts.includes(stdK)) return true;
+        }
+        if (stdK.includes("-")) {
+          const parts = stdK.split("-").map(p => p.trim());
+          if (parts.includes(sK)) return true;
+        }
+        return false;
+      };
+
       const filteredSchedules = rawSchedules.filter(
-        s => (s.kelas || "").trim().toUpperCase() === (user?.kelas || "").trim().toUpperCase()
+        s => isClassMatch(s.kelas, user?.kelas)
       );
 
       // Filter out past schedules (strictly before today)
