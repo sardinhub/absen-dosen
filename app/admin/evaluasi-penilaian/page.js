@@ -193,7 +193,7 @@ export default function AdminKHSPreview() {
       {/* Dynamic printer css block */}
       <style>{`
         /* Hide print area on screen display */
-        .print-area {
+        .print-area, .print-bg {
           display: none;
         }
 
@@ -222,11 +222,21 @@ export default function AdminKHSPreview() {
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            background: white !important;
+            background: transparent !important;
             color: black !important;
-            padding: 0 !important;
+            padding: 45mm 12mm 12mm 12mm !important;
             box-shadow: none !important;
             border: none !important;
+            box-sizing: border-box !important;
+          }
+          .print-bg {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: -1 !important;
           }
           .custom-table {
             border-collapse: collapse !important;
@@ -419,10 +429,11 @@ export default function AdminKHSPreview() {
 
       {activeStudent && (
         <div className="print-area">
-          {/* Print Letterhead Header */}
-          <div className="print-header" style={{ display: "flex", flexDirection: "column", alignItems: "center", border: "none", paddingBottom: 0, marginBottom: "1rem" }}>
-            <img src="/kop_surat.png" alt="Kop Surat" style={{ width: "100%", height: "auto", display: "block" }} />
-            <div style={{ fontSize: "1.25rem", fontWeight: "bold", marginTop: "1rem", textDecoration: "underline", textTransform: "uppercase" }}>KARTU HASIL STUDI (KHS) SISWA</div>
+          {/* Background Kop Surat Template */}
+          <img src="/kop_surat.png" alt="Kop Surat Background" className="print-bg" />
+          
+          <div style={{ fontSize: "1.25rem", fontWeight: "bold", textAlign: "center", textDecoration: "underline", textTransform: "uppercase", marginBottom: "1.5rem" }}>
+            KARTU HASIL STUDI (KHS) SISWA
           </div>
 
           {/* Student Profile Info Grid */}
@@ -502,18 +513,17 @@ export default function AdminKHSPreview() {
           {/* Signature Footer */}
           <div className="print-footer">
             <div className="signature-box">
-              <div>Siswa Bersangkutan,</div>
+              <div>Mengetahui,</div>
+              <div>Manager Akademik</div>
               <div style={{ height: "60px" }}></div>
-              <div style={{ borderBottom: "1px solid #111", fontWeight: "bold" }}>{activeStudent.nama_lengkap || activeStudent.nama}</div>
-              <div>NIM: {activeStudent.nim}</div>
+              <div style={{ borderBottom: "1px solid #111", fontWeight: "bold" }}>Darwin</div>
             </div>
             
             <div className="signature-box">
               <div>Makassar, {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</div>
-              <div>Direktur Akademik,</div>
+              <div>Direktur</div>
               <div style={{ height: "60px" }}></div>
-              <div style={{ borderBottom: "1px solid #111", fontWeight: "bold" }}>Triesakti Academic Dept.</div>
-              <div>NIP. 199201012018011001</div>
+              <div style={{ borderBottom: "1px solid #111", fontWeight: "bold" }}>Sugeng Rianto</div>
             </div>
           </div>
         </div>
