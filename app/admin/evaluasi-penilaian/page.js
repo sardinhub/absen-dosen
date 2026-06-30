@@ -203,10 +203,10 @@ export default function AdminKHSPreview() {
         }
 
         @media print {
-          /* Enforce single page limits relative to page height */
+          /* Enforce single A4 page limits */
           html, body {
-            width: 100% !important;
-            height: 100% !important;
+            width: 210mm !important;
+            height: 297mm !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
@@ -231,15 +231,15 @@ export default function AdminKHSPreview() {
           /* Position fixed on A4 layout to clear any parent relative offsets */
           .print-area {
             display: block !important;
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            max-height: 100% !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             background: transparent !important;
             color: black !important;
-            padding: 35mm 15mm 20mm 15mm !important;
+            padding: 38mm 15mm 25mm 15mm !important;
             box-shadow: none !important;
             border: none !important;
             box-sizing: border-box !important;
@@ -250,8 +250,8 @@ export default function AdminKHSPreview() {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+            width: 210mm !important;
+            height: 297mm !important;
             z-index: -1 !important;
           }
           .custom-table {
