@@ -192,17 +192,32 @@ export default function AdminKHSPreview() {
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {/* Dynamic printer css block */}
       <style>{`
+        /* Hide print area on screen display */
+        .print-area {
+          display: none;
+        }
+
         @media print {
           /* Hide main UI layout elements */
           body {
             background: white !important;
             color: black !important;
           }
-          nav, header, aside, .no-print, button, input, select, .sidebar, .navbar-container {
+          nav, header, aside, .no-print, button, input, select, .sidebar, .navbar, .navbar-container {
             display: none !important;
+          }
+          /* Reset layouts for clean print */
+          .app-layout, .main-content, .animate-fade-in {
+            background: white !important;
+            color: black !important;
+            min-height: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
           }
           /* Stylize print page layout */
           .print-area {
+            display: block !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
@@ -404,7 +419,7 @@ export default function AdminKHSPreview() {
 
       {/* Hidden Print Container - Only renders when printing */}
       {activeStudent && (
-        <div className="print-area" style={{ display: "none" }}>
+        <div className="print-area">
           {/* Print Letterhead Header */}
           <div className="print-header">
             <h2 className="print-title">Triesakti Institute of Airlines Makassar</h2>
