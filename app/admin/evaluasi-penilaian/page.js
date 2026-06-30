@@ -198,8 +198,10 @@ export default function AdminKHSPreview() {
         }
 
         @media print {
-          /* Hide main UI layout elements */
-          body {
+          /* Enforce single page limits */
+          html, body {
+            height: 297mm !important;
+            overflow: hidden !important;
             background: white !important;
             color: black !important;
           }
@@ -214,20 +216,24 @@ export default function AdminKHSPreview() {
             padding: 0 !important;
             margin: 0 !important;
             box-shadow: none !important;
+            display: block !important;
           }
-          /* Stylize print page layout */
+          /* Stylize print page layout to match A4 dimensions */
           .print-area {
             display: block !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
             background: transparent !important;
             color: black !important;
-            padding: 38mm 12mm 12mm 12mm !important;
+            padding: 38mm 15mm 25mm 15mm !important;
             box-shadow: none !important;
             border: none !important;
             box-sizing: border-box !important;
+            overflow: hidden !important;
           }
           .print-bg {
             display: block !important;
