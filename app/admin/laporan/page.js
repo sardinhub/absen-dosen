@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { getAttendanceReport, getUsers, getCourses, getSchedules, deleteAttendance, saveAttendance } from "../../../lib/db";
+import { getAttendanceReport, getUsers, getCourses, getSchedules, deleteAttendance, saveAttendance, getMateri } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import { exportToExcel, exportToPDF } from "../../../lib/exportUtils";
 import { formatTanggalStr } from "../../../lib/dateUtils";
@@ -43,6 +43,9 @@ export default function AdminLaporan() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [editPertemuan, setEditPertemuan] = useState("");
   const [editMateri, setEditMateri] = useState("");
+
+  // Materi State
+  const [materiList, setMateriList] = useState([]);
 
   // Preview State
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -97,6 +100,14 @@ export default function AdminLaporan() {
       // Only cache the unfiltered result so it's safe to reuse across sessions
       if (!hasActiveFilter) {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      }
+      
+      // Fetch materi list if both lecturer and course filters are active
+      if (filters.dosenId && filters.mkId) {
+        const materiData = await getMateri(filters.dosenId, filters.mkId);
+        setMateriList(materiData);
+      } else {
+        setMateriList([]);
       }
     } catch (err) {
       console.error("Error loading report:", err);
@@ -544,6 +555,64 @@ export default function AdminLaporan() {
           </div>
         )}
       </div>
+
+      {/* Materi Perkuliahan Dosen Section */}
+      {filterLecturer && filterCourse && (
+        <div className="glass-panel dashboard-panel">
+          <div className="panel-header" style={{ marginBottom: "1.5rem" }}>
+            <h3 className="panel-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 20, height: 20, color: "var(--primary)" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              <span>{t.materiPerkuliahanDosen} ({materiList.length} records)</span>
+            </h3>
+          </div>
+          <div className="table-container">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>{t.date}</th>
+                  <th>{t.materiTitle}</th>
+                  <th>File</th>
+                  <th>{lang === "id" ? "Aksi" : "Action"}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {materiList.length > 0 ? (
+                  materiList.map(materi => (
+                    <tr key={materi.id}>
+                      <td>{new Date(materi.uploaded_at).toLocaleDateString(lang === "id" ? "id-ID" : "en-US", { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td>{materi.judul}</td>
+                      <td>
+                        <span style={{ display: "flex", alignItems: "center", gap: "0.25rem", color: "var(--text-secondary)" }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 16, height: 16 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                          </svg>
+                          {materi.file_name}
+                        </span>
+                      </td>
+                      <td>
+                        <a href={materi.file_data} download={materi.file_name} className="btn btn-primary btn-sm" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 14, height: 14 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                          </svg>
+                          {t.printMateri}
+                        </a>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: "center", color: "var(--text-muted)", padding: "2rem" }}>
+                      {lang === "id" ? "Tidak ada materi perkuliahan untuk dosen dan mata kuliah ini." : "No lecture materials for this lecturer and course."}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       <Modal
