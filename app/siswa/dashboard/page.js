@@ -51,6 +51,7 @@ export default function SiswaDashboard() {
 
   // Data states
   const [schedules, setSchedules] = useState([]);
+  const [allClassSchedules, setAllClassSchedules] = useState([]);
   const [courses, setCourses] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
   const [lecturers, setLecturers] = useState([]);
@@ -135,6 +136,7 @@ export default function SiswaDashboard() {
       const filteredSchedules = rawSchedules.filter(
         s => isClassMatch(s.kelas, user?.kelas)
       );
+      setAllClassSchedules(filteredSchedules);
 
       // Filter out past schedules (strictly before today)
       const upcomingSchedules = filteredSchedules.filter(s => {
@@ -248,10 +250,15 @@ export default function SiswaDashboard() {
 
   // KHS Records calculation
   const khsRecords = useMemo(() => {
-    if (!schedules.length || !courses.length) return [];
+    if (!courses.length) return [];
     
-    // Get unique course IDs from class schedule
-    const uniqueCourseIds = Array.from(new Set(schedules.map(s => s.mk_id)));
+    // Get unique course IDs from all schedules of this class OR evaluations
+    const scheduleMkIds = allClassSchedules.map(s => s.mk_id);
+    const evalMkIds = evaluations.filter(ev => 
+      (ev.students || []).some(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
+    ).map(ev => ev.mk_id);
+    
+    const uniqueCourseIds = Array.from(new Set([...scheduleMkIds, ...evalMkIds]));
     
     return uniqueCourseIds.map(mkId => {
       const course = courses.find(c => c.id === mkId);
