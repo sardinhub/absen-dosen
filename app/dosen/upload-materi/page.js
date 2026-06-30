@@ -14,7 +14,6 @@ export default function DosenUploadMateri() {
   // Form State
   const [selectedMkId, setSelectedMkId] = useState("");
   const [judulMateri, setJudulMateri] = useState("");
-  const [pdfBase64, setPdfBase64] = useState("");
   const [fileName, setFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,7 +77,6 @@ export default function DosenUploadMateri() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) {
-      setPdfBase64("");
       setFileName("");
       setSelectedFile(null);
       return;
@@ -92,16 +90,11 @@ export default function DosenUploadMateri() {
 
     setFileName(file.name);
     setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setPdfBase64(event.target.result);
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedMkId || !judulMateri || !pdfBase64) {
+    if (!selectedMkId || !judulMateri || !selectedFile) {
       alert(lang === "id" ? "Mohon lengkapi semua field." : "Please fill all fields.");
       return;
     }
@@ -114,7 +107,6 @@ export default function DosenUploadMateri() {
         mk_id: selectedMkId,
         judul: judulMateri,
         file_name: fileName,
-        file_data: pdfBase64,
         raw_file: selectedFile,
         uploaded_at: new Date().toISOString()
       };
@@ -126,7 +118,6 @@ export default function DosenUploadMateri() {
       
       // Reset form
       setJudulMateri("");
-      setPdfBase64("");
       setFileName("");
       setSelectedFile(null);
       document.getElementById("pdfInput").value = null;
