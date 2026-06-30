@@ -107,7 +107,7 @@ export default function AdminLayout({ children }) {
               </svg>
             </button>
             <div className="navbar-title">
-              <h1 className="gradient-text">{t.appName}</h1>
+              <h1 className="gradient-text">{t.appTitleAdmin}</h1>
               <p>{t.institution}</p>
             </div>
           </div>

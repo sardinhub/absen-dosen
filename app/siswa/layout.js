@@ -76,7 +76,7 @@ export default function SiswaLayout({ children }) {
               </svg>
             </button>
             <div className="navbar-title">
-              <h1 className="gradient-text">{t.appName}</h1>
+              <h1 className="gradient-text">{t.appTitleSiswa}</h1>
               <p>{t.institution}</p>
             </div>
           </div>
