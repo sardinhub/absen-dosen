@@ -189,7 +189,7 @@ export default function AdminKHSPreview() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+    <div className="print-parent" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
       {/* Dynamic printer css block */}
       <style>{`
         /* Hide print area on screen display */
@@ -216,20 +216,22 @@ export default function AdminKHSPreview() {
           nav, header, aside, .no-print, button, input, select, .sidebar, .navbar, .navbar-container {
             display: none !important;
           }
-          /* Reset layouts for clean print */
-          .app-layout, .main-content, .animate-fade-in {
-            background: white !important;
-            color: black !important;
-            min-height: auto !important;
+          /* Reset layouts for clean print - collapse heights to prevent overflow pages */
+          .app-layout, .main-content, .animate-fade-in, .print-parent {
+            background: transparent !important;
+            height: 0 !important;
+            min-height: 0 !important;
             padding: 0 !important;
             margin: 0 !important;
+            border: none !important;
             box-shadow: none !important;
+            overflow: visible !important;
             display: block !important;
           }
-          /* Stylize print page layout to match A4 dimensions */
+          /* Position fixed on A4 layout to clear any parent relative offsets */
           .print-area {
             display: block !important;
-            position: absolute !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
             width: 210mm !important;
