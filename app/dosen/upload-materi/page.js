@@ -17,6 +17,7 @@ export default function DosenUploadMateri() {
   const [pdfBase64, setPdfBase64] = useState("");
   const [fileName, setFileName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const loadData = async (parsedUser) => {
     try {
@@ -114,7 +115,10 @@ export default function DosenUploadMateri() {
         uploaded_at: new Date().toISOString()
       };
 
-      await saveMateri(newMateri);
+      setUploadProgress(0);
+      await saveMateri(newMateri, (progress) => {
+        setUploadProgress(Math.round(progress));
+      });
       
       // Reset form
       setJudulMateri("");
@@ -204,10 +208,28 @@ export default function DosenUploadMateri() {
             />
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "1rem" }}>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? (lang === "id" ? "Menyimpan..." : "Saving...") : t.upload}
-            </button>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "1rem", flexDirection: "column", gap: "1rem" }}>
+            {isSubmitting && (
+              <div style={{ width: "100%" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--text-secondary)" }}>
+                  <span>{lang === "id" ? "Mengunggah..." : "Uploading..."}</span>
+                  <span>{uploadProgress}%</span>
+                </div>
+                <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+                  <div style={{ 
+                    height: "100%", 
+                    background: "var(--primary)", 
+                    width: `${uploadProgress}%`,
+                    transition: "width 0.2s ease-out"
+                  }}></div>
+                </div>
+              </div>
+            )}
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                {isSubmitting ? (lang === "id" ? "Menyimpan..." : "Saving...") : t.upload}
+              </button>
+            </div>
           </div>
         </form>
       </div>
