@@ -16,6 +16,7 @@ export default function DosenUploadMateri() {
   const [judulMateri, setJudulMateri] = useState("");
   const [pdfBase64, setPdfBase64] = useState("");
   const [fileName, setFileName] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -79,6 +80,7 @@ export default function DosenUploadMateri() {
     if (!file) {
       setPdfBase64("");
       setFileName("");
+      setSelectedFile(null);
       return;
     }
     
@@ -89,6 +91,7 @@ export default function DosenUploadMateri() {
     }
 
     setFileName(file.name);
+    setSelectedFile(file);
     const reader = new FileReader();
     reader.onload = (event) => {
       setPdfBase64(event.target.result);
@@ -112,6 +115,7 @@ export default function DosenUploadMateri() {
         judul: judulMateri,
         file_name: fileName,
         file_data: pdfBase64,
+        raw_file: selectedFile,
         uploaded_at: new Date().toISOString()
       };
 
@@ -124,6 +128,7 @@ export default function DosenUploadMateri() {
       setJudulMateri("");
       setPdfBase64("");
       setFileName("");
+      setSelectedFile(null);
       document.getElementById("pdfInput").value = null;
       
       // Reload list
