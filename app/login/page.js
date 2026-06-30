@@ -24,6 +24,7 @@ export default function LoginPage() {
       try {
         const user = JSON.parse(loggedInUser);
         if (user.role === "admin") router.replace("/admin/dashboard");
+        else if (user.role === "siswa") router.replace("/siswa/dashboard");
         else router.replace("/dosen/dashboard");
       } catch (err) {
         localStorage.removeItem("sikad_logged_in_user");
@@ -45,6 +46,8 @@ export default function LoginPage() {
         setTimeout(() => {
           if (matchedUser.role === "admin") {
             router.replace("/admin/dashboard");
+          } else if (matchedUser.role === "siswa") {
+            router.replace("/siswa/dashboard");
           } else {
             router.replace("/dosen/dashboard");
           }
