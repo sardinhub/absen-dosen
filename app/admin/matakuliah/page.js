@@ -22,7 +22,6 @@ export default function AdminMataKuliah() {
   const [kode, setKode] = useState("");
   const [nama, setNama] = useState("");
   const [tahunAjaran, setTahunAjaran] = useState("");
-  const [sks, setSks] = useState("3");
   const [semesterNo, setSemesterNo] = useState("1");
   const [jumlahPertemuan, setJumlahPertemuan] = useState("14");
 
@@ -48,7 +47,6 @@ export default function AdminMataKuliah() {
     setKode("");
     setNama("");
     setTahunAjaran(String(new Date().getFullYear()));
-    setSks("3");
     setSemesterNo("1");
     setJumlahPertemuan("14");
     setSelectedCourse(null);
@@ -65,7 +63,6 @@ export default function AdminMataKuliah() {
     setKode(course.kode_mk);
     setNama(course.nama_mk);
     setTahunAjaran(course.semester || String(new Date().getFullYear()));
-    setSks(course.sks !== undefined ? String(course.sks) : "3");
     setSemesterNo(course.semesterNo !== undefined ? String(course.semesterNo) : "1");
     setJumlahPertemuan(course.jumlah_pertemuan || "14");
     setModalMode("edit");
@@ -110,7 +107,6 @@ export default function AdminMataKuliah() {
           id: "mk_" + Math.random().toString(36).substr(2, 9),
           kode_mk: kode.toUpperCase(),
           nama_mk: nama,
-          sks: parseInt(sks, 10) || 3,
           semester: tahunAjaran,
           semesterNo: parseInt(semesterNo, 10) || 1,
           jumlah_pertemuan: jumlahPertemuan
@@ -123,7 +119,6 @@ export default function AdminMataKuliah() {
           ...selectedCourse,
           kode_mk: kode.toUpperCase(),
           nama_mk: nama,
-          sks: parseInt(sks, 10) || 3,
           semester: tahunAjaran,
           semesterNo: parseInt(semesterNo, 10) || 1,
           jumlah_pertemuan: jumlahPertemuan
@@ -176,7 +171,6 @@ export default function AdminMataKuliah() {
               <tr>
                 <th>{lang === "id" ? "Kode" : "Code"}</th>
                 <th>{t.course}</th>
-                <th>SKS</th>
                 <th>Semester</th>
                 <th>{lang === "id" ? "Tahun Ajaran" : "Academic Year"}</th>
                 <th>{lang === "id" ? "Jml Pertemuan" : "Total Meetings"}</th>
@@ -198,7 +192,6 @@ export default function AdminMataKuliah() {
                       {course.nama_mk}
                     </span>
                   </td>
-                  <td>{course.sks !== undefined ? course.sks : "3"}</td>
                   <td>Semester {course.semesterNo || "1"}</td>
                   <td>{course.semester}</td>
                   <td>{course.jumlah_pertemuan || "14"}</td>
@@ -266,20 +259,6 @@ export default function AdminMataKuliah() {
               placeholder="e.g. 2026/2027"
               value={tahunAjaran}
               onChange={(e) => setTahunAjaran(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">SKS <span style={{ color: "var(--danger)" }}>*</span></label>
-            <input
-              type="number"
-              className="form-control"
-              placeholder="e.g. 3"
-              value={sks}
-              onChange={(e) => setSks(e.target.value)}
-              min="1"
-              max="6"
               required
             />
           </div>

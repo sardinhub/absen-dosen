@@ -160,13 +160,13 @@ export default function SiswaDashboard() {
   // IPS & IPK Calculation Memo
   const academicCalculations = useMemo(() => {
     if (!studentInfo || !evaluations.length || !courses.length) {
-      return { transcript: [], totalSks: 0, ipk: "0.00", semesterGpa: {} };
+      return { transcript: [], totalPertemuan: 0, ipk: "0.00", semesterGpa: {} };
     }
 
     const transcript = [];
     let totalWeightedPoints = 0;
-    let totalSks = 0;
-    const semSks = {};
+    let totalPertemuan = 0;
+    const semPertemuan = {};
     const semPoints = {};
 
     evaluations.forEach(ev => {
@@ -176,49 +176,49 @@ export default function SiswaDashboard() {
 
       if (studentEval) {
         const course = courses.find(c => c.id === ev.mk_id);
-        const sksVal = course ? (course.sks !== undefined ? course.sks : 3) : 3;
+        const meetingsVal = course ? (parseInt(course.jumlah_pertemuan, 10) || 14) : 14;
         const semVal = course ? (course.semesterNo !== undefined ? course.semesterNo : 1) : 1;
         const { grade, bobot, predicate, color } = getGradeCriteria(studentEval.score);
 
         const record = {
           courseCode: course?.kode_mk || "-",
           courseName: ev.mk_nama || course?.nama_mk || "-",
-          sks: sksVal,
+          pertemuan: meetingsVal,
           semester: semVal,
           score: studentEval.score,
           grade,
           bobot,
           predicate,
           color,
-          weightedScore: sksVal * bobot
+          weightedScore: meetingsVal * bobot
         };
 
         transcript.push(record);
 
-        totalSks += sksVal;
-        totalWeightedPoints += sksVal * bobot;
+        totalPertemuan += meetingsVal;
+        totalWeightedPoints += meetingsVal * bobot;
 
         // Grouping per semester for IPS
-        if (!semSks[semVal]) {
-          semSks[semVal] = 0;
+        if (!semPertemuan[semVal]) {
+          semPertemuan[semVal] = 0;
           semPoints[semVal] = 0;
         }
-        semSks[semVal] += sksVal;
-        semPoints[semVal] += sksVal * bobot;
+        semPertemuan[semVal] += meetingsVal;
+        semPoints[semVal] += meetingsVal * bobot;
       }
     });
 
-    const ipk = totalSks > 0 ? (totalWeightedPoints / totalSks).toFixed(2) : "0.00";
+    const ipk = totalPertemuan > 0 ? (totalWeightedPoints / totalPertemuan).toFixed(2) : "0.00";
 
     const semesterGpa = {};
-    Object.keys(semSks).forEach(sem => {
+    Object.keys(semPertemuan).forEach(sem => {
       semesterGpa[sem] = {
-        sks: semSks[sem],
-        gpa: (semPoints[sem] / semSks[sem]).toFixed(2)
+        pertemuan: semPertemuan[sem],
+        gpa: (semPoints[sem] / semPertemuan[sem]).toFixed(2)
       };
     });
 
-    return { transcript, totalSks, ipk, semesterGpa };
+    return { transcript, totalPertemuan, ipk, semesterGpa };
   }, [studentInfo, evaluations, courses]);
 
   // Today's schedule filtering
@@ -258,8 +258,8 @@ export default function SiswaDashboard() {
               <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#10b981" }}>{academicCalculations.ipk}</div>
             </div>
             <div style={{ textAlign: "center", background: "rgba(0,0,0,0.3)", padding: "0.5rem 1rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <div style={{ fontSize: "0.75rem", color: "#9ca3af" }}>TOTAL SKS</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#60a5fa" }}>{academicCalculations.totalSks}</div>
+              <div style={{ fontSize: "0.75rem", color: "#9ca3af" }}>TOTAL PERTEMUAN</div>
+              <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#60a5fa" }}>{academicCalculations.totalPertemuan}</div>
             </div>
           </div>
         </div>
@@ -433,8 +433,8 @@ export default function SiswaDashboard() {
               <div style={{ fontSize: "2rem", fontWeight: 800, color: "#10b981", marginTop: "0.25rem" }}>{academicCalculations.ipk}</div>
             </div>
             <div className="glass-panel" style={{ padding: "1.25rem", textAlign: "center", borderLeft: "4px solid #3b82f6" }}>
-              <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600 }}>TOTAL KREDIT SKS</div>
-              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#3b82f6", marginTop: "0.25rem" }}>{academicCalculations.totalSks} SKS</div>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600 }}>TOTAL PERTEMUAN</div>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#3b82f6", marginTop: "0.25rem" }}>{academicCalculations.totalPertemuan} Pertemuan</div>
             </div>
             <div className="glass-panel" style={{ padding: "1.25rem", textAlign: "center", borderLeft: "4px solid #f59e0b" }}>
               <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 600 }}>MATA KULIAH DITEMPUH</div>
@@ -452,14 +452,14 @@ export default function SiswaDashboard() {
               const semRecords = academicCalculations.transcript.filter(r => r.semester === sem);
               if (semRecords.length === 0) return null;
 
-              const semStats = academicCalculations.semesterGpa[sem] || { sks: 0, gpa: "0.00" };
+              const semStats = academicCalculations.semesterGpa[sem] || { pertemuan: 0, gpa: "0.00" };
 
               return (
                 <div key={sem} className="glass-panel" style={{ padding: 0, overflow: "hidden" }}>
                   <div style={{ padding: "1.25rem 1.5rem", background: "rgba(255,255,255,0.02)", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <h4 style={{ margin: 0, fontWeight: 700, fontSize: "1.05rem" }}>📖 Semester {sem}</h4>
                     <div style={{ display: "flex", gap: "1rem", fontSize: "0.85rem" }}>
-                      <span>SKS: <strong style={{ color: "var(--primary)" }}>{semStats.sks}</strong></span>
+                      <span>Pertemuan: <strong style={{ color: "var(--primary)" }}>{semStats.pertemuan}</strong></span>
                       <span>IPS: <strong style={{ color: "#10b981" }}>{semStats.gpa}</strong></span>
                     </div>
                   </div>
@@ -470,7 +470,7 @@ export default function SiswaDashboard() {
                         <tr>
                           <th>Kode</th>
                           <th>Mata Kuliah</th>
-                          <th style={{ textAlign: "center" }}>SKS</th>
+                          <th style={{ textAlign: "center" }}>Jml Pertemuan</th>
                           <th style={{ textAlign: "center" }}>Bobot</th>
                           <th style={{ textAlign: "center" }}>Grade</th>
                           <th>Keterangan</th>
@@ -481,7 +481,7 @@ export default function SiswaDashboard() {
                           <tr key={idx}>
                             <td><span className="badge badge-secondary" style={{ fontSize: "0.75rem" }}>{rec.courseCode}</span></td>
                             <td style={{ fontWeight: "bold" }}>{rec.courseName}</td>
-                            <td style={{ textAlign: "center" }}>{rec.sks}</td>
+                            <td style={{ textAlign: "center" }}>{rec.pertemuan}</td>
                             <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary)" }}>{rec.bobot.toFixed(2)}</td>
                             <td style={{ textAlign: "center" }}>
                               <span style={{ 
