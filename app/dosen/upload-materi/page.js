@@ -241,7 +241,7 @@ export default function DosenUploadMateri() {
                     <td><span className="badge badge-warning" style={{ marginRight: "0.5rem", fontSize: "0.7rem" }}>{materi.mk_kode}</span> {materi.mk_nama}</td>
                     <td>{materi.judul}</td>
                     <td>
-                      <a href={materi.file_data} download={materi.file_name} style={{ color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                      <a href={materi.file_url || materi.file_data} target="_blank" rel="noopener noreferrer" download={materi.file_name} style={{ color: "var(--primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.25rem" }}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 16, height: 16 }}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>
