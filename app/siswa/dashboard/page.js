@@ -28,6 +28,21 @@ function getGradeCriteria(score) {
   return { grade: "-", bobot: 0, predicate: "-", color: "#9ca3af" };
 }
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const months = [
+      "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  } catch (e) {
+    return dateStr;
+  }
+};
+
 export default function SiswaDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [lang, setLang] = useState("id");
@@ -289,7 +304,7 @@ export default function SiswaDashboard() {
       {/* ── TAB CONTENT: JADWAL & DOSEN ── */}
       {activeTab === "jadwal" && (
         <div className="glass-panel">
-          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.25rem" }}>📅 Jadwal Perkuliahan & Kontak Dosen</h3>
+          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.25rem" }}>📅 Jadwal Perkuliahan 1 Minggu</h3>
           {schedules.length === 0 ? (
             <div style={{ padding: "3rem", textAlign: "center", color: "var(--text-secondary)" }}>
               Tidak ada jadwal mata kuliah yang terdaftar untuk kelas Anda.
@@ -298,20 +313,24 @@ export default function SiswaDashboard() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
               {schedules.map(sch => {
                 const lecturer = lecturers.find(l => l.id === sch.dosen_id);
-                const waUrl = lecturer?.no_wa 
-                  ? `https://wa.me/${String(lecturer.no_wa).replace(/[^0-9]/g, "")}?text=Halo%20dosen%20${encodeURIComponent(lecturer?.nama_lengkap || "")}%2C%20saya%20${encodeURIComponent(studentInfo?.nama_lengkap || "")}%20dari%20kelas%20${encodeURIComponent(studentInfo?.kelas || "")}` 
-                  : null;
-
                 return (
                   <div key={sch.id} className="glass-panel" style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", display: "flex", flexDirection: "column", gap: "0.75rem", border: "1px solid rgba(255,255,255,0.05)" }}>
                     <div>
-                      <span className="badge badge-warning" style={{ fontSize: "0.7rem", marginBottom: "0.5rem" }}>{sch.hari}</span>
-                      <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 700 }}>{sch.mk_nama}</h4>
+                      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+                        <span className="badge badge-warning" style={{ fontSize: "0.7rem" }}>{sch.hari}</span>
+                        {sch.tanggal && (
+                          <span className="badge badge-secondary" style={{ fontSize: "0.7rem", background: "rgba(59,130,246,0.1)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.2)" }}>
+                            📅 {formatDate(sch.tanggal)}
+                          </span>
+                        )}
+                      </div>
+                      <h4 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "var(--primary)" }}>{sch.mk_nama}</h4>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Kode: {courses.find(c => c.id === sch.mk_id)?.kode_mk || "-"}</span>
                     </div>
                     
                     <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-                      <div>🕒 {sch.jam_mulai} - {sch.jam_selesai}</div>
-                      <div>🏛️ Ruangan: {sch.ruangan || "-"}</div>
+                      <div>🕒 Jam: <strong>{sch.jam_mulai} - {sch.jam_selesai}</strong></div>
+                      <div>🏛️ Ruangan: <strong>{sch.ruangan || "-"}</strong></div>
                     </div>
                     
                     <hr style={{ border: "none", borderTop: "1px solid var(--border-color)", margin: "0.5rem 0" }} />
@@ -326,15 +345,11 @@ export default function SiswaDashboard() {
                         <div style={{ fontSize: "0.85rem", fontWeight: "bold", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
                           {lecturer?.nama_lengkap || sch.dosen_nama}
                         </div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Dosen Pengajar</div>
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.15rem" }}>
+                          Bidang: <span style={{ color: "#34d399", fontWeight: 600 }}>{lecturer?.bidang_keilmuan || (lang === "id" ? "Penerbangan" : "Aviation")}</span>
+                        </div>
                       </div>
                     </div>
-
-                    {waUrl && (
-                      <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", background: "rgba(16,185,129,0.1)", borderColor: "rgba(16,185,129,0.2)", color: "#10b981" }}>
-                        💬 WhatsApp Dosen
-                      </a>
-                    )}
                   </div>
                 );
               })}

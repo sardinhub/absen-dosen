@@ -24,6 +24,7 @@ export default function AdminDosen() {
   const [namaBank, setNamaBank] = useState("BCA");
   const [namaPemilikRek, setNamaPemilikRek] = useState("");
   const [noWa, setNoWa] = useState("");
+  const [bidangKeilmuan, setBidangKeilmuan] = useState("");
 
   const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -56,6 +57,7 @@ export default function AdminDosen() {
     setNamaBank("BCA");
     setNamaPemilikRek("");
     setNoWa("");
+    setBidangKeilmuan("");
     setJenisKelamin("L");
     setSelectedDosen(null);
   };
@@ -76,6 +78,7 @@ export default function AdminDosen() {
     setNamaBank(dosen.nama_bank || "BCA");
     setNamaPemilikRek(dosen.nama_pemilik_rek || "");
     setNoWa(dosen.no_wa || "");
+    setBidangKeilmuan(dosen.bidang_keilmuan || "");
     setJenisKelamin(dosen.jenis_kelamin || "L");
     setModalMode("edit");
     setIsModalOpen(true);
@@ -124,6 +127,7 @@ export default function AdminDosen() {
           nama_bank: namaBank,
           nama_pemilik_rek: namaPemilikRek,
           no_wa: noWa,
+          bidang_keilmuan: bidangKeilmuan,
           jenis_kelamin: jenisKelamin
         };
 
@@ -141,6 +145,7 @@ export default function AdminDosen() {
           nama_bank: namaBank,
           nama_pemilik_rek: namaPemilikRek,
           no_wa: noWa,
+          bidang_keilmuan: bidangKeilmuan,
           jenis_kelamin: jenisKelamin
         };
         await saveUser(updatedDosen);
@@ -199,6 +204,7 @@ export default function AdminDosen() {
               <tr>
                 <th>Avatar</th>
                 <th>{t.lecturerName}</th>
+                <th>{lang === "id" ? "Bidang Keilmuan" : "Expertise"}</th>
                 <th>{lang === "id" ? "Kontak" : "Contact"}</th>
                 <th>{lang === "id" ? "Info Rekening" : "Account Info"}</th>
                 <th style={{ textAlign: "right" }}>{t.action}</th>
@@ -212,6 +218,11 @@ export default function AdminDosen() {
                   </td>
                   <td>
                     <strong>{dosen.nama_lengkap}</strong>
+                  </td>
+                  <td>
+                    <span className="badge badge-warning" style={{ fontSize: "0.8rem" }}>
+                      {dosen.bidang_keilmuan || (lang === "id" ? "Penerbangan" : "Aviation")}
+                    </span>
                   </td>
                   <td>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -412,6 +423,17 @@ export default function AdminDosen() {
               placeholder="e.g. ANDI WIJAYA"
               value={namaPemilikRek}
               onChange={(e) => setNamaPemilikRek(e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">{lang === "id" ? "Bidang Keilmuan / Keahlian" : "Field of Expertise"}</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="e.g. Flight Safety, Navigation Systems"
+              value={bidangKeilmuan}
+              onChange={(e) => setBidangKeilmuan(e.target.value)}
             />
           </div>
 
