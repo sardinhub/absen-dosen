@@ -224,7 +224,7 @@ export default function AdminKHSPreview() {
             width: 100% !important;
             background: transparent !important;
             color: black !important;
-            padding: 45mm 12mm 12mm 12mm !important;
+            padding: 38mm 12mm 12mm 12mm !important;
             box-shadow: none !important;
             border: none !important;
             box-sizing: border-box !important;
@@ -242,10 +242,11 @@ export default function AdminKHSPreview() {
             border-collapse: collapse !important;
             width: 100% !important;
             color: black !important;
+            font-size: 0.8rem !important;
           }
           .custom-table th, .custom-table td {
             border: 1px solid #111 !important;
-            padding: 8px !important;
+            padding: 6px 8px !important;
             color: black !important;
             background: transparent !important;
           }
@@ -277,14 +278,15 @@ export default function AdminKHSPreview() {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
             gap: 1rem !important;
-            margin-bottom: 1.5rem !important;
-            font-size: 0.95rem !important;
+            margin-bottom: 0.75rem !important;
+            font-size: 0.85rem !important;
           }
           .print-footer {
             display: flex !important;
             justify-content: space-between !important;
-            margin-top: 3rem !important;
+            margin-top: 1.5rem !important;
             page-break-inside: avoid !important;
+            font-size: 0.85rem !important;
           }
           .signature-box {
             text-align: center !important;
@@ -432,7 +434,7 @@ export default function AdminKHSPreview() {
           {/* Background Kop Surat Template */}
           <img src="/kop_surat.png" alt="Kop Surat Background" className="print-bg" />
           
-          <div style={{ fontSize: "1.25rem", fontWeight: "bold", textAlign: "center", textDecoration: "underline", textTransform: "uppercase", marginBottom: "1.5rem" }}>
+          <div style={{ fontSize: "1.25rem", fontWeight: "bold", textAlign: "center", textDecoration: "underline", textTransform: "uppercase", marginBottom: "0.75rem" }}>
             KARTU HASIL STUDI (KHS) SISWA
           </div>
 
@@ -469,7 +471,7 @@ export default function AdminKHSPreview() {
           </div>
 
           {/* Academic Records Table */}
-          <table className="custom-table" style={{ marginTop: "1.5rem" }}>
+          <table className="custom-table" style={{ marginTop: "0.75rem" }}>
             <thead>
               <tr>
                 <th style={{ width: "10%" }}>KODE</th>
@@ -495,7 +497,7 @@ export default function AdminKHSPreview() {
           </table>
 
           {/* GPA Summary */}
-          <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ marginTop: "0.75rem", display: "flex", justifyContent: "flex-end" }}>
             <table style={{ borderCollapse: "collapse", width: "300px" }}>
               <tbody>
                 <tr>
@@ -515,14 +517,14 @@ export default function AdminKHSPreview() {
             <div className="signature-box">
               <div>Mengetahui,</div>
               <div>Manager Akademik</div>
-              <div style={{ height: "60px" }}></div>
+              <div style={{ height: "45px" }}></div>
               <div style={{ borderBottom: "1px solid #111", fontWeight: "bold" }}>Darwin</div>
             </div>
             
             <div className="signature-box">
               <div>Makassar, {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</div>
               <div>Direktur</div>
-              <div style={{ height: "60px" }}></div>
+              <div style={{ height: "45px" }}></div>
               <div style={{ borderBottom: "1px solid #111", fontWeight: "bold" }}>Sugeng Rianto</div>
             </div>
           </div>
