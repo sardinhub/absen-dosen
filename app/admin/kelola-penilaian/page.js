@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { getStudentEvaluations, getCourses, getUsers } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import { exportGradesToPDF } from "../../../lib/exportUtils";
@@ -301,7 +302,7 @@ export default function KelolaPenilaianAdmin() {
       )}
 
       {/* Preview Modal */}
-      {isPreviewModalOpen && (
+      {isPreviewModalOpen && typeof document !== "undefined" && createPortal(
         <div className="modal-overlay" onClick={() => setIsPreviewModalOpen(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()} style={{ width: "90%", maxWidth: "1000px", height: "90vh", display: "flex", flexDirection: "column" }}>
             <div className="modal-header">
@@ -318,7 +319,8 @@ export default function KelolaPenilaianAdmin() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>
