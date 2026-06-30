@@ -223,6 +223,63 @@ export default function EvaluasiPenilaianDosen() {
         </p>
       </div>
 
+      {/* ── Grading Guide ── */}
+      <div className="glass-panel" style={{ padding: "1.25rem 1.5rem", background: "rgba(255,255,255,0.015)" }}>
+        <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem", color: "#9ca3af", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 18, height: 18 }}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+          </svg>
+          {lang === "id" ? "Panduan Kriteria Penilaian" : "Grading Criteria Guide"}
+        </h3>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-secondary)" }}>
+                <th style={{ padding: "0.5rem", fontWeight: 600 }}>Skor Akhir</th>
+                <th style={{ padding: "0.5rem", fontWeight: 600 }}>Bobot</th>
+                <th style={{ padding: "0.5rem", fontWeight: 600 }}>Grade</th>
+                <th style={{ padding: "0.5rem", fontWeight: 600 }}>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>95 - 100</td><td style={{ padding: "0.5rem" }}>4.0</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#10b981" }}>A+</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Istimewa (Terrific)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>90 - 94</td><td style={{ padding: "0.5rem" }}>3.8</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#059669" }}>A</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Luar Biasa (Excellent)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>85 - 89</td><td style={{ padding: "0.5rem" }}>3.6</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#34d399" }}>A-</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Luar Biasa (Excellent)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>80 - 84</td><td style={{ padding: "0.5rem" }}>3.4</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#3b82f6" }}>B+</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Sangat Baik (Very Good)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>75 - 79</td><td style={{ padding: "0.5rem" }}>3.2</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#2563eb" }}>B</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Sangat Baik (Very Good)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>70 - 74</td><td style={{ padding: "0.5rem" }}>3.0</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#60a5fa" }}>B-</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Baik (Good)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>65 - 69</td><td style={{ padding: "0.5rem" }}>2.75</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#f59e0b" }}>C+</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Rata-Rata (Average)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>60 - 64</td><td style={{ padding: "0.5rem" }}>2.5</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#d97706" }}>C</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Rata-Rata (Average)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>50 - 59</td><td style={{ padding: "0.5rem" }}>2.0</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#ef4444" }}>D</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Gagal (Failure)</td>
+              </tr>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.02)" }}>
+                <td style={{ padding: "0.5rem" }}>30 - 49</td><td style={{ padding: "0.5rem" }}>1.0</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#b91c1c" }}>E</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Gagal (Failure)</td>
+              </tr>
+              <tr>
+                <td style={{ padding: "0.5rem" }}>0 - 29</td><td style={{ padding: "0.5rem" }}>0.0</td><td style={{ padding: "0.5rem", fontWeight: 700, color: "#9ca3af" }}>K</td><td style={{ padding: "0.5rem", color: "var(--text-secondary)" }}>Kosong (Empty)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* ── Filters ── */}
       <div className="glass-panel" style={{ padding: "1.25rem 1.5rem", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "flex-end" }}>
         <div style={{ flex: "1 1 250px" }}>
