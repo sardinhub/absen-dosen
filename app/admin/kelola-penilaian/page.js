@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { getStudentEvaluations, getCourses, getUsers } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
+import { exportGradesToPDF } from "../../../lib/exportUtils";
 
 // Grading logic based on the user's specific instructions
 function getGradeCriteria(score) {
@@ -21,6 +22,11 @@ function getGradeCriteria(score) {
 export default function KelolaPenilaianAdmin() {
   const [lang, setLang] = useState("id");
   const [loading, setLoading] = useState(true);
+  
+  // Preview State
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   
   // Data
   const [evaluations, setEvaluations] = useState([]);
@@ -100,6 +106,20 @@ export default function KelolaPenilaianAdmin() {
     );
   }
 
+  const handlePreviewPDF = async () => {
+    setIsGeneratingPdf(true);
+    try {
+      const url = await exportGradesToPDF(filteredRecords, lecturers, lang, 'preview');
+      setPreviewUrl(url);
+      setIsPreviewModalOpen(true);
+    } catch (err) {
+      console.error(err);
+      alert(lang === "id" ? "Gagal memuat pratinjau PDF." : "Failed to load PDF preview.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   const t = translations[lang] || translations.id;
 
   return (
@@ -168,7 +188,22 @@ export default function KelolaPenilaianAdmin() {
           </select>
         </div>
 
-        <div>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <button 
+            className="btn btn-secondary"
+            onClick={handlePreviewPDF}
+            style={{ height: "42px", display: "flex", alignItems: "center", gap: "0.5rem" }}
+            disabled={isGeneratingPdf}
+          >
+            👁️ {isGeneratingPdf ? (lang === "id" ? "Memproses..." : "Loading...") : (lang === "id" ? "Pratinjau" : "Preview")}
+          </button>
+          <button 
+            className="btn btn-primary"
+            onClick={() => exportGradesToPDF(filteredRecords, lecturers, lang)}
+            style={{ height: "42px", display: "flex", alignItems: "center", gap: "0.5rem" }}
+          >
+            🖨️ {lang === "id" ? "Cetak PDF" : "Print PDF"}
+          </button>
           <button 
             className="btn btn-secondary"
             onClick={() => { setFilterMk(""); setFilterKelas(""); setFilterDosen(""); }}
@@ -264,6 +299,28 @@ export default function KelolaPenilaianAdmin() {
           })}
         </div>
       )}
+
+      {/* Preview Modal */}
+      {isPreviewModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsPreviewModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ width: "90%", maxWidth: "1000px", height: "90vh", display: "flex", flexDirection: "column" }}>
+            <div className="modal-header">
+              <h3 className="modal-title">
+                {lang === "id" ? "Pratinjau Daftar Nilai" : "Grades Preview"}
+              </h3>
+              <button className="modal-close" onClick={() => setIsPreviewModalOpen(false)}>×</button>
+            </div>
+            <div className="modal-body" style={{ flex: 1, padding: 0 }}>
+              {previewUrl ? (
+                <iframe src={previewUrl} style={{ width: "100%", height: "100%", border: "none", borderRadius: "0 0 16px 16px" }} title="PDF Preview" />
+              ) : (
+                <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
