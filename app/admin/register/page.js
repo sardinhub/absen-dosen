@@ -12,7 +12,7 @@ const ADMIN_MENUS = [
   { key: "silabus",             labelId: "Silabus Pembelajaran",    labelEn: "Course Syllabus" },
   { key: "validasi",            labelId: "Validasi Kehadiran Dosen",labelEn: "Lecturer Attendance Validation" },
   { key: "laporan",             labelId: "Rekap & Laporan",         labelEn: "Summary & Reports" },
-  { key: "evaluasi-penilaian",  labelId: "Evaluasi & Penilaian",    labelEn: "Evaluation & Grading" },
+  { key: "evaluasi-penilaian",  labelId: "Nilai KHS Siswa",         labelEn: "Student KHS Grades" },
 ];
 
 const ALL_MENU_KEYS = ADMIN_MENUS.map(m => m.key);
@@ -28,12 +28,23 @@ export default function AdminRegisterPage() {
   const [fotoProfil, setFotoProfil] = useState(null);
   const [menuPermissions, setMenuPermissions] = useState([]);
 
+  // States for checking existing account
+  const [allUsers, setAllUsers] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const syncData = () => {
+  const syncData = async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
+    try {
+      const list = await getUsers();
+      setAllUsers(list);
+    } catch (e) {
+      console.error("Gagal mengambil data user:", e);
+    }
   };
 
   useEffect(() => {
@@ -41,6 +52,35 @@ export default function AdminRegisterPage() {
     window.addEventListener("storage", syncData);
     return () => window.removeEventListener("storage", syncData);
   }, []);
+
+  // Check email reactive lookup
+  useEffect(() => {
+    if (!email.trim()) {
+      setIsEditMode(false);
+      setEditingUserId(null);
+      return;
+    }
+    const matched = allUsers.find(
+      u => u.email.toLowerCase() === email.trim().toLowerCase() && u.role === "admin"
+    );
+    if (matched) {
+      setIsEditMode(true);
+      setEditingUserId(matched.id);
+      setNama(matched.nama_lengkap || matched.nama || "");
+      setPassword(matched.password || "");
+      setMenuPermissions(matched.menu_permissions || []);
+      setFotoProfil(matched.foto_profil || null);
+    } else {
+      if (isEditMode) {
+        setIsEditMode(false);
+        setEditingUserId(null);
+        setNama("");
+        setPassword("");
+        setMenuPermissions([]);
+        setFotoProfil(null);
+      }
+    }
+  }, [email, allUsers]);
 
   const t = translations[lang];
 
@@ -99,42 +139,71 @@ export default function AdminRegisterPage() {
     }
 
     try {
-      const users = await getUsers();
+      if (isEditMode) {
+        const updatedUser = {
+          id: editingUserId,
+          email: email.toLowerCase().trim(),
+          password: password,
+          nama_lengkap: nama,
+          nip: "-",
+          role: "admin",
+          menu_permissions: menuPermissions,
+          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
+        };
 
-      // Validate unique email
-      if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
-        setError(lang === "id" ? "Email sudah terdaftar!" : "Email already registered!");
+        await saveUser(updatedUser);
+
+        // Refresh all users cache
+        const list = await getUsers();
+        setAllUsers(list);
+
+        setSuccess(lang === "id"
+          ? `Data akun admin ${nama} berhasil diperbarui!`
+          : `Admin account data for ${nama} updated successfully!`);
+        resetForm();
         setLoading(false);
-        return;
+      } else {
+        const usersList = await getUsers();
+
+        // Validate unique email
+        if (usersList.some((u) => u.email.toLowerCase() === email.toLowerCase().trim())) {
+          setError(lang === "id" ? "Email sudah terdaftar!" : "Email already registered!");
+          setLoading(false);
+          return;
+        }
+
+        const newUserId = "admin_" + Math.random().toString(36).substr(2, 9);
+
+        const newUser = {
+          id: newUserId,
+          email: email.toLowerCase().trim(),
+          password: password,
+          nama_lengkap: nama,
+          nip: "-",
+          role: "admin",
+          menu_permissions: menuPermissions,
+          foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
+        };
+
+        await saveUser(newUser);
+
+        // Refresh all users cache
+        const list = await getUsers();
+        setAllUsers(list);
+
+        const accountType = isSuperAdmin
+          ? (lang === "id" ? "Super Admin" : "Super Admin")
+          : (lang === "id" ? "Admin Terbatas" : "Limited Admin");
+
+        setSuccess(lang === "id"
+          ? `Akun ${accountType} baru berhasil didaftarkan!`
+          : `New ${accountType} account registered successfully!`);
+        resetForm();
+        setLoading(false);
       }
-
-      const newUserId = "admin_" + Math.random().toString(36).substr(2, 9);
-
-      const newUser = {
-        id: newUserId,
-        email: email.toLowerCase(),
-        password: password,
-        nama_lengkap: nama,
-        nip: "-",
-        role: "admin",
-        menu_permissions: menuPermissions,
-        foto_profil: fotoProfil || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
-      };
-
-      await saveUser(newUser);
-
-      const accountType = isSuperAdmin
-        ? (lang === "id" ? "Super Admin" : "Super Admin")
-        : (lang === "id" ? "Admin Terbatas" : "Limited Admin");
-
-      setSuccess(lang === "id"
-        ? `Akun ${accountType} baru berhasil didaftarkan!`
-        : `New ${accountType} account registered successfully!`);
-      resetForm();
-      setLoading(false);
     } catch (err) {
       console.error(err);
-      setError(lang === "id" ? "Gagal mendaftarkan user baru!" : "Failed to register user!");
+      setError(lang === "id" ? "Gagal memproses data akun!" : "Failed to process account data!");
       setLoading(false);
     }
   };
@@ -143,10 +212,14 @@ export default function AdminRegisterPage() {
     <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", minHeight: "calc(100vh - 8rem)", maxWidth: "650px", margin: "0 auto" }}>
       <div className="glass-panel" style={{ padding: "1.5rem 2rem", background: "linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%)", marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.5rem", fontWeight: 800 }}>
-          {lang === "id" ? "Registrasi Akun Baru" : "Register New Account"}
+          {isEditMode
+            ? (lang === "id" ? "Pembaruan Akun Admin" : "Update Admin Account")
+            : (lang === "id" ? "Registrasi Akun Baru" : "Register New Account")}
         </h2>
         <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-          {lang === "id" ? "Gunakan form ini untuk mendaftarkan akun Staff Akademik (Admin) baru" : "Use this form to register new Academic Staff (Admin) accounts"}
+          {isEditMode
+            ? (lang === "id" ? "Email terdeteksi terdaftar. Form beralih ke mode edit untuk memperbarui data." : "Email detected as registered. Form switched to edit mode to update account data.")
+            : (lang === "id" ? "Gunakan form ini untuk mendaftarkan akun Staff Akademik (Admin) baru" : "Use this form to register new Academic Staff (Admin) accounts")}
         </p>
       </div>
 
@@ -159,13 +232,18 @@ export default function AdminRegisterPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Fixed Role */}
+          {/* Fixed Role & Edit Mode Indicator */}
           <div className="form-group" style={{ marginBottom: "1.5rem" }}>
             <label className="form-label">
-              {lang === "id" ? "Tipe Akun" : "Account Type"}
+              {lang === "id" ? "Mode Form & Tipe Akun" : "Form Mode & Account Type"}
             </label>
-            <div style={{ padding: "0.75rem", background: "rgba(59, 130, 246, 0.1)", border: "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "0.5rem", color: "#60a5fa", fontWeight: "600", fontSize: "0.9rem" }}>
-              {lang === "id" ? "Staff Akademik / Admin" : "Academic Staff / Admin"}
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              <span className={`badge ${isEditMode ? "badge-warning" : "badge-success"}`} style={{ fontSize: "0.8rem", padding: "0.3rem 0.6rem", textTransform: "uppercase" }}>
+                {isEditMode ? (lang === "id" ? "MODE EDIT (UPDATE)" : "EDIT MODE (UPDATE)") : (lang === "id" ? "PENDAFTARAN BARU" : "NEW REGISTRATION")}
+              </span>
+              <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: "600" }}>
+                {lang === "id" ? "Staff Akademik / Admin" : "Academic Staff / Admin"}
+              </span>
             </div>
           </div>
 
@@ -357,7 +435,11 @@ export default function AdminRegisterPage() {
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: "100%", padding: "1rem" }} disabled={loading}>
-            {loading ? "Registering account..." : lang === "id" ? "Daftarkan Akun Baru" : "Register New Account"}
+            {loading 
+              ? (isEditMode ? "Updating account..." : "Registering account...") 
+              : isEditMode 
+                ? (lang === "id" ? "Simpan Perubahan Akun" : "Save Account Changes") 
+                : (lang === "id" ? "Daftarkan Akun Baru" : "Register New Account")}
           </button>
         </form>
       </div>
