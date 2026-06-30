@@ -110,10 +110,30 @@ export default function SiswaDashboard() {
         getUsers()
       ]);
 
+      // Get today's local date string (YYYY-MM-DD)
+      const today = new Date();
+      const offset = today.getTimezoneOffset();
+      const localToday = new Date(today.getTime() - (offset * 60 * 1000));
+      const todayStr = localToday.toISOString().split("T")[0];
+
       const filteredSchedules = rawSchedules.filter(
         s => (s.kelas || "").trim().toUpperCase() === (user?.kelas || "").trim().toUpperCase()
       );
-      setSchedules(filteredSchedules);
+
+      // Filter out past schedules (strictly before today)
+      const upcomingSchedules = filteredSchedules.filter(s => {
+        if (!s.tanggal) return true; // Keep if there's no date
+        return s.tanggal >= todayStr;
+      });
+
+      // Sort upcoming schedules ascending by date
+      upcomingSchedules.sort((a, b) => {
+        if (!a.tanggal) return 1;
+        if (!b.tanggal) return -1;
+        return new Date(a.tanggal) - new Date(b.tanggal);
+      });
+
+      setSchedules(upcomingSchedules);
       setCourses(rawCourses);
       setEvaluations(rawEvals);
       setLecturers(rawUsers.filter(u => u.role === "dosen"));
