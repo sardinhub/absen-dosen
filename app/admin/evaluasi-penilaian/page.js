@@ -197,10 +197,18 @@ export default function AdminKHSPreview() {
           display: none;
         }
 
+        @page {
+          size: A4;
+          margin: 0;
+        }
+
         @media print {
           /* Enforce single page limits */
           html, body {
+            width: 210mm !important;
             height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
             overflow: hidden !important;
             background: white !important;
             color: black !important;
