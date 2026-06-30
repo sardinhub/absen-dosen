@@ -230,6 +230,49 @@ export default function SiswaDashboard() {
     return schedules.filter(s => s.hari === currentDay);
   }, [schedules]);
 
+  // KHS Records calculation
+  const khsRecords = useMemo(() => {
+    if (!schedules.length || !courses.length) return [];
+    
+    // Get unique course IDs from class schedule
+    const uniqueCourseIds = Array.from(new Set(schedules.map(s => s.mk_id)));
+    
+    return uniqueCourseIds.map(mkId => {
+      const course = courses.find(c => c.id === mkId);
+      const evalData = evaluations.find(ev => ev.mk_id === mkId);
+      const studentEval = evalData
+        ? (evalData.students || []).find(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
+        : null;
+
+      const meetings = course ? (parseInt(course.jumlah_pertemuan, 10) || 14) : 14;
+
+      if (studentEval && studentEval.score !== undefined) {
+        const { grade, bobot, predicate, color } = getGradeCriteria(studentEval.score);
+        return {
+          courseCode: course?.kode_mk || "-",
+          courseName: course?.nama_mk || "-",
+          meetings,
+          score: studentEval.score,
+          grade,
+          bobot,
+          color,
+          status: lang === "id" ? "Selesai" : "Completed"
+        };
+      } else {
+        return {
+          courseCode: course?.kode_mk || "-",
+          courseName: course?.nama_mk || "-",
+          meetings,
+          score: "-",
+          grade: "-",
+          bobot: 0,
+          color: "#9ca3af",
+          status: lang === "id" ? "Dalam Proses" : "In Progress"
+        };
+      }
+    });
+  }, [schedules, courses, evaluations, studentInfo, lang]);
+
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "4rem" }}>
@@ -507,6 +550,70 @@ export default function SiswaDashboard() {
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+
+      {/* ── TAB CONTENT: KARTU HASIL STUDI (KHS) ── */}
+      {activeTab === "khs" && (
+        <div className="glass-panel">
+          <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.25rem" }}>📖 Kartu Hasil Studi (KHS) Semester Berjalan</h3>
+          {khsRecords.length === 0 ? (
+            <div style={{ padding: "3rem", textAlign: "center", color: "var(--text-secondary)" }}>
+              Tidak ada mata kuliah aktif yang terdaftar di jadwal kelas Anda.
+            </div>
+          ) : (
+            <div className="table-container">
+              <table className="custom-table" style={{ margin: 0 }}>
+                <thead>
+                  <tr>
+                    <th>Kode</th>
+                    <th>Mata Kuliah</th>
+                    <th style={{ textAlign: "center" }}>Jumlah Pertemuan</th>
+                    <th style={{ textAlign: "center" }}>Nilai Akhir</th>
+                    <th style={{ textAlign: "center" }}>Bobot</th>
+                    <th style={{ textAlign: "center" }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {khsRecords.map((rec, idx) => (
+                    <tr key={idx}>
+                      <td><span className="badge badge-secondary" style={{ fontSize: "0.75rem" }}>{rec.courseCode}</span></td>
+                      <td style={{ fontWeight: "bold" }}>{rec.courseName}</td>
+                      <td style={{ textAlign: "center" }}>{rec.meetings} Sesi</td>
+                      <td style={{ textAlign: "center" }}>
+                        {rec.score !== "-" ? (
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                            <strong style={{ color: "var(--text-primary)" }}>{rec.score}</strong>
+                            <span style={{ 
+                              background: `${rec.color}15`, 
+                              color: rec.color, 
+                              border: `1px solid ${rec.color}30`,
+                              padding: "0.15rem 0.4rem",
+                              borderRadius: "4px",
+                              fontWeight: "bold",
+                              fontSize: "0.75rem"
+                            }}>
+                              {rec.grade}
+                            </span>
+                          </div>
+                        ) : (
+                          <span style={{ color: "var(--text-secondary)" }}>-</span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: "center", fontWeight: "bold", color: rec.score !== "-" ? "var(--primary)" : "var(--text-secondary)" }}>
+                        {rec.score !== "-" ? rec.bobot.toFixed(2) : "-"}
+                      </td>
+                      <td style={{ textAlign: "center" }}>
+                        <span className={`badge ${rec.score !== "-" ? "badge-success" : "badge-warning"}`} style={{ fontSize: "0.75rem" }}>
+                          {rec.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
