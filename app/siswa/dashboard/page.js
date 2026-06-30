@@ -239,7 +239,10 @@ export default function SiswaDashboard() {
     
     return uniqueCourseIds.map(mkId => {
       const course = courses.find(c => c.id === mkId);
-      const evalData = evaluations.find(ev => ev.mk_id === mkId);
+      const evalData = evaluations.find(ev => 
+        ev.mk_id === mkId && 
+        (ev.students || []).some(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
+      );
       const studentEval = evalData
         ? (evalData.students || []).find(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
         : null;
