@@ -249,9 +249,9 @@ export default function AdminKHSPreview() {
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
-            margin-bottom: 2rem !important;
-            border-bottom: 3px double #111 !important;
-            padding-bottom: 1rem !important;
+            margin-bottom: 1rem !important;
+            border: none !important;
+            padding: 0 !important;
           }
           .print-title {
             font-size: 1.5rem !important;
@@ -417,14 +417,12 @@ export default function AdminKHSPreview() {
         </div>
       </div>
 
-      {/* Hidden Print Container - Only renders when printing */}
       {activeStudent && (
         <div className="print-area">
           {/* Print Letterhead Header */}
-          <div className="print-header">
-            <h2 className="print-title">Triesakti Institute of Airlines Makassar</h2>
-            <div className="print-subtitle">Jl. Arung Teko, Sudiang - Makassar | www.triesaktigroup.id</div>
-            <div style={{ fontSize: "1.2rem", fontWeight: "bold", marginTop: "1rem" }}>KARTU HASIL STUDI (KHS) SISWA</div>
+          <div className="print-header" style={{ display: "flex", flexDirection: "column", alignItems: "center", border: "none", paddingBottom: 0, marginBottom: "1rem" }}>
+            <img src="/kop_surat.png" alt="Kop Surat" style={{ width: "100%", height: "auto", display: "block" }} />
+            <div style={{ fontSize: "1.25rem", fontWeight: "bold", marginTop: "1rem", textDecoration: "underline", textTransform: "uppercase" }}>KARTU HASIL STUDI (KHS) SISWA</div>
           </div>
 
           {/* Student Profile Info Grid */}
