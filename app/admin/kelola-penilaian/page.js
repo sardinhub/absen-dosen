@@ -8,16 +8,18 @@ import { exportGradesToPDF } from "../../../lib/exportUtils";
 
 // Grading logic based on the user's specific instructions
 function getGradeCriteria(score) {
-  if (score >= 95 && score <= 100) return { grade: "A+", predicate: "Terrific", color: "#10b981" };
-  if (score >= 86 && score <= 94) return { grade: "A", predicate: "Excellent", color: "#059669" };
-  if (score >= 81 && score <= 85) return { grade: "A-", predicate: "Excellent", color: "#34d399" };
-  if (score >= 76 && score <= 80) return { grade: "B+", predicate: "Very Good", color: "#3b82f6" };
-  if (score >= 71 && score <= 75) return { grade: "B", predicate: "Very Good", color: "#2563eb" };
-  if (score >= 66 && score <= 70) return { grade: "B-", predicate: "Good", color: "#60a5fa" };
-  if (score >= 61 && score <= 65) return { grade: "C+", predicate: "Average", color: "#f59e0b" };
-  if (score >= 51 && score <= 60) return { grade: "C", predicate: "Average", color: "#d97706" };
-  if (score >= 0 && score <= 50) return { grade: "D", predicate: "Failure", color: "#ef4444" };
-  return { grade: "-", predicate: "-", color: "#9ca3af" };
+  if (score >= 95 && score <= 100) return { bobot: 4.0, grade: "A+", predicate: "Terrific", color: "#10b981" };
+  if (score >= 90 && score <= 94) return { bobot: 3.8, grade: "A", predicate: "Excellent", color: "#059669" };
+  if (score >= 85 && score <= 89) return { bobot: 3.6, grade: "A-", predicate: "Excellent", color: "#34d399" };
+  if (score >= 80 && score <= 84) return { bobot: 3.4, grade: "B+", predicate: "Very Good", color: "#3b82f6" };
+  if (score >= 75 && score <= 79) return { bobot: 3.2, grade: "B", predicate: "Very Good", color: "#2563eb" };
+  if (score >= 70 && score <= 74) return { bobot: 3.0, grade: "B-", predicate: "Good", color: "#60a5fa" };
+  if (score >= 65 && score <= 69) return { bobot: 2.75, grade: "C+", predicate: "Average", color: "#f59e0b" };
+  if (score >= 60 && score <= 64) return { bobot: 2.5, grade: "C", predicate: "Average", color: "#d97706" };
+  if (score >= 50 && score <= 59) return { bobot: 2.0, grade: "D", predicate: "Failure", color: "#ef4444" };
+  if (score >= 30 && score <= 49) return { bobot: 1.0, grade: "E", predicate: "Failure", color: "#b91c1c" };
+  if (score >= 0 && score <= 29) return { bobot: 0.0, grade: "K", predicate: "Empty", color: "#9ca3af" };
+  return { bobot: 0.0, grade: "-", predicate: "-", color: "#9ca3af" };
 }
 
 export default function KelolaPenilaianAdmin() {
@@ -260,19 +262,21 @@ export default function KelolaPenilaianAdmin() {
                         <th>{t.nim}</th>
                         <th>{lang === "id" ? "Nama Lengkap" : "Full Name"}</th>
                         <th style={{ textAlign: "center" }}>Skor Dosen</th>
+                        <th style={{ textAlign: "center" }}>Bobot</th>
                         <th style={{ textAlign: "center" }}>Grade</th>
                         <th style={{ textAlign: "center" }}>Kriteria</th>
                       </tr>
                     </thead>
                     <tbody>
                       {siswaList.map((siswa, idx) => {
-                        const { grade, predicate, color } = getGradeCriteria(siswa.score);
+                        const { bobot, grade, predicate, color } = getGradeCriteria(siswa.score);
                         return (
                           <tr key={siswa.siswa_id}>
                             <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", paddingLeft: "1.5rem" }}>{idx + 1}</td>
                             <td><span className="badge badge-warning" style={{ fontSize: "0.7rem" }}>{siswa.nim}</span></td>
                             <td style={{ fontWeight: 600 }}>{siswa.nama}</td>
                             <td style={{ textAlign: "center", fontWeight: 800 }}>{siswa.score}</td>
+                            <td style={{ textAlign: "center", fontWeight: 800, color: "var(--primary)" }}>{bobot}</td>
                             <td style={{ textAlign: "center" }}>
                               <span style={{
                                 padding: "0.2rem 0.6rem",
