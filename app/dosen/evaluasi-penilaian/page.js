@@ -10,6 +10,23 @@ import {
 } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 
+// Grading logic based on the user's specific instructions
+function getGradeCriteria(score) {
+  if (score === "" || score === undefined || score === null) return { grade: "-", color: "#9ca3af" };
+  if (score >= 95 && score <= 100) return { grade: "A+", color: "#10b981" };
+  if (score >= 90 && score <= 94) return { grade: "A", color: "#059669" };
+  if (score >= 85 && score <= 89) return { grade: "A-", color: "#34d399" };
+  if (score >= 80 && score <= 84) return { grade: "B+", color: "#3b82f6" };
+  if (score >= 75 && score <= 79) return { grade: "B", color: "#2563eb" };
+  if (score >= 70 && score <= 74) return { grade: "B-", color: "#60a5fa" };
+  if (score >= 65 && score <= 69) return { grade: "C+", color: "#f59e0b" };
+  if (score >= 60 && score <= 64) return { grade: "C", color: "#d97706" };
+  if (score >= 50 && score <= 59) return { grade: "D", color: "#ef4444" };
+  if (score >= 30 && score <= 49) return { grade: "E", color: "#b91c1c" };
+  if (score >= 0 && score <= 29) return { grade: "K", color: "#9ca3af" };
+  return { grade: "-", color: "#9ca3af" };
+}
+
 export default function EvaluasiPenilaianDosen() {
   const [lang, setLang] = useState("id");
   const [loggedInUser, setLoggedInUser] = useState(null);
@@ -272,12 +289,16 @@ export default function EvaluasiPenilaianDosen() {
                     <th>{t.nim}</th>
                     <th>{lang === "id" ? "Nama Lengkap" : "Full Name"}</th>
                     <th style={{ width: "150px", textAlign: "center" }}>{lang === "id" ? "Skor (0-100)" : "Score (0-100)"}</th>
+                    <th style={{ width: "100px", textAlign: "center" }}>Grade</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {studentsInClass.map((siswa, idx) => (
-                    <tr key={siswa.id}>
-                      <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", paddingLeft: "1.5rem" }}>{idx + 1}</td>
+                  {studentsInClass.map((siswa, idx) => {
+                    const currentScore = studentScores[siswa.id] !== undefined ? studentScores[siswa.id] : "";
+                    const { grade, color } = getGradeCriteria(currentScore);
+                    return (
+                      <tr key={siswa.id}>
+                        <td style={{ color: "var(--text-muted)", fontSize: "0.8rem", paddingLeft: "1.5rem" }}>{idx + 1}</td>
                       <td><span className="badge badge-warning" style={{ fontSize: "0.7rem" }}>{siswa.nim}</span></td>
                       <td style={{ fontWeight: 600 }}>{siswa.nama_lengkap || siswa.nama}</td>
                       <td style={{ textAlign: "center" }}>
@@ -291,9 +312,25 @@ export default function EvaluasiPenilaianDosen() {
                           onChange={(e) => handleScoreChange(siswa.id, e.target.value)}
                           placeholder="0"
                         />
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          <span style={{
+                            display: "inline-block",
+                            padding: "0.2rem 0.6rem",
+                            borderRadius: "8px",
+                            background: `${color}15`,
+                            border: `1px solid ${color}40`,
+                            color: color,
+                            fontWeight: 800,
+                            fontSize: "0.9rem",
+                            minWidth: "40px"
+                          }}>
+                            {grade}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
