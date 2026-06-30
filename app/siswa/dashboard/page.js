@@ -96,7 +96,7 @@ export default function SiswaDashboard() {
       ]);
 
       const filteredSchedules = rawSchedules.filter(
-        s => s.kelas.trim().toUpperCase() === user.kelas.trim().toUpperCase()
+        s => (s.kelas || "").trim().toUpperCase() === (user?.kelas || "").trim().toUpperCase()
       );
       setSchedules(filteredSchedules);
       setCourses(rawCourses);
@@ -299,7 +299,7 @@ export default function SiswaDashboard() {
               {schedules.map(sch => {
                 const lecturer = lecturers.find(l => l.id === sch.dosen_id);
                 const waUrl = lecturer?.no_wa 
-                  ? `https://wa.me/${lecturer.no_wa.replace(/[^0-9]/g, "")}?text=Halo%20dosen%20${encodeURIComponent(lecturer.nama_lengkap)}%2C%20saya%20${encodeURIComponent(studentInfo.nama_lengkap)}%20dari%20kelas%20${studentInfo.kelas}` 
+                  ? `https://wa.me/${lecturer.no_wa.replace(/[^0-9]/g, "")}?text=Halo%20dosen%20${encodeURIComponent(lecturer?.nama_lengkap || "")}%2C%20saya%20${encodeURIComponent(studentInfo?.nama_lengkap || "")}%20dari%20kelas%20${encodeURIComponent(studentInfo?.kelas || "")}` 
                   : null;
 
                 return (

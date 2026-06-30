@@ -15,8 +15,10 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
   const router = useRouter();
 
   const [isKelolaDataOpen, setIsKelolaDataOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Keep the sub-menu open if we are in one of the nested routes
     if (
       pathname.startsWith("/admin/dosen") ||
@@ -324,7 +326,7 @@ export default function Sidebar({ user, lang, setLang, translations, isOpen, set
             }
 
             const isActive = item.path.includes("?") 
-              ? (typeof window !== "undefined" && (pathname + window.location.search) === item.path)
+              ? (mounted && (pathname + window.location.search) === item.path)
               : pathname === item.path;
             return (
               <li key={idx} style={{ marginBottom: "0.25rem" }}>
