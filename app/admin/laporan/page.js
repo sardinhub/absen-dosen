@@ -99,7 +99,13 @@ export default function AdminLaporan() {
       setCurrentPage(1);
       // Only cache the unfiltered result so it's safe to reuse across sessions
       if (!hasActiveFilter) {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch (storageError) {
+          console.warn("Could not save report to cache, quota might be exceeded", storageError);
+          // Optional: clear the cache if it's too big to make room, or just let it be.
+          localStorage.removeItem(CACHE_KEY);
+        }
       }
       
       // Fetch materi list if both lecturer and course filters are active
@@ -236,7 +242,7 @@ export default function AdminLaporan() {
       const newData = attendance.map(item => item.id === selectedRecord.id ? updatedRecord : item);
       setAttendance(newData);
       // Invalidate cache so other devices fetch fresh data on next load
-      localStorage.removeItem("sikad_laporan_cache");
+      localStorage.removeItem(CACHE_KEY);
       
       setIsEditModalOpen(false);
       alert(lang === "id" ? "Data pertemuan berhasil diperbarui!" : "Meeting data updated successfully!");
@@ -253,7 +259,7 @@ export default function AdminLaporan() {
         // Remove from local state immediately (optimistic update)
         setAttendance(prev => prev.filter(item => item.id !== id));
         // Invalidate cache so other devices fetch fresh data on next load
-        localStorage.removeItem("sikad_laporan_cache");
+        localStorage.removeItem(CACHE_KEY);
       } catch (err) {
         console.error("Delete failed:", err);
         alert("Gagal menghapus data!");
