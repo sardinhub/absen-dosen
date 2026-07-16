@@ -1,0 +1,46 @@
+const https = require('https');
+
+function get(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+async function findFirebaseConfig() {
+  try {
+    const html = await get('https://sikad-v1.vercel.app/');
+    
+    // Find all script tags
+    const scriptRegex = /<script[^>]+src="([^">]+)"/g;
+    let match;
+    const scripts = [];
+    while ((match = scriptRegex.exec(html)) !== null) {
+      if (match[1].includes('_next/static')) {
+        scripts.push('https://sikad-v1.vercel.app' + (match[1].startsWith('/') ? '' : '/') + match[1]);
+      }
+    }
+    
+    console.log(`Found ${scripts.length} scripts to check.`);
+    
+    for (const scriptUrl of scripts) {
+      const js = await get(scriptUrl);
+      if (js.includes('apiKey') && js.includes('projectId')) {
+        console.log(`\nFound config in ${scriptUrl}:`);
+        // Try to extract the config object
+        const projectIdMatch = js.match(/projectId:"([^"]+)"/);
+        const apiKeyMatch = js.match(/apiKey:"([^"]+)"/);
+        
+        console.log(`Project ID in Vercel bundle: ${projectIdMatch ? projectIdMatch[1] : 'not found'}`);
+        console.log(`API Key in Vercel bundle: ${apiKeyMatch ? apiKeyMatch[1] : 'not found'}`);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+findFirebaseConfig();

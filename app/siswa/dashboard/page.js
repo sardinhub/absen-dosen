@@ -250,7 +250,7 @@ export default function SiswaDashboard() {
 
   // KHS Records calculation
   const khsRecords = useMemo(() => {
-    if (!courses.length) return [];
+    if (!courses.length && !evaluations.length) return [];
     
     // Get unique course IDs from all schedules of this class OR evaluations
     const scheduleMkIds = allClassSchedules.map(s => s.mk_id);
@@ -258,25 +258,38 @@ export default function SiswaDashboard() {
       (ev.students || []).some(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
     ).map(ev => ev.mk_id);
     
-    const uniqueCourseIds = Array.from(new Set([...scheduleMkIds, ...evalMkIds]));
+    const uniqueCourseIds = Array.from(new Set([...scheduleMkIds, ...evalMkIds])).filter(Boolean);
     
     return uniqueCourseIds.map(mkId => {
       const course = courses.find(c => c.id === mkId);
-      const evalData = evaluations.find(ev => 
+      
+      // Prioritize finding an evaluation record that actually has a score
+      let evalData = evaluations.find(ev => 
         ev.mk_id === mkId && 
-        (ev.students || []).some(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
+        (ev.students || []).some(s => (s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim) && s.score !== "" && s.score !== undefined && s.score !== null)
       );
+
+      // Fallback if no evaluation has a score yet
+      if (!evalData) {
+        evalData = evaluations.find(ev => 
+          ev.mk_id === mkId && 
+          (ev.students || []).some(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
+        );
+      }
+
       const studentEval = evalData
         ? (evalData.students || []).find(s => s.siswa_id === studentInfo?.id || s.nim === studentInfo?.nim)
         : null;
 
       const meetings = course ? (parseInt(course.jumlah_pertemuan, 10) || 14) : 14;
+      const courseName = course?.nama_mk || (evalData ? evalData.mk_nama : "-");
+      const courseCode = course?.kode_mk || "-";
 
-      if (studentEval && studentEval.score !== undefined) {
+      if (studentEval && studentEval.score !== undefined && studentEval.score !== null && studentEval.score !== "") {
         const { grade, bobot, predicate, color } = getGradeCriteria(studentEval.score);
         return {
-          courseCode: course?.kode_mk || "-",
-          courseName: course?.nama_mk || "-",
+          courseCode,
+          courseName,
           meetings,
           score: studentEval.score,
           grade,
@@ -286,8 +299,8 @@ export default function SiswaDashboard() {
         };
       } else {
         return {
-          courseCode: course?.kode_mk || "-",
-          courseName: course?.nama_mk || "-",
+          courseCode,
+          courseName,
           meetings,
           score: "-",
           grade: "-",
@@ -297,7 +310,7 @@ export default function SiswaDashboard() {
         };
       }
     });
-  }, [schedules, courses, evaluations, studentInfo, lang]);
+  }, [allClassSchedules, courses, evaluations, studentInfo, lang]);
 
   if (loading) {
     return (
