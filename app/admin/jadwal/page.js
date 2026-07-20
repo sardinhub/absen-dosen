@@ -425,7 +425,7 @@ export default function AdminJadwal() {
                 style={{ background: "#0b0f19" }}
                 required
               >
-                {["GS38", "GS39", "AV08", "FA10", "AV08-FA10"].map((opt) => (
+                {["GS38", "GS39", "GS40", "AV08", "FA10", "AV08-FA10"].map((opt) => (
                   <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>

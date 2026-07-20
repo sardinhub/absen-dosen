@@ -6,7 +6,7 @@ import { getStudents, saveStudent, deleteStudent } from "../../../lib/db";
 import { translations } from "../../../lib/translations";
 import Modal from "../../../components/Modal";
 
-const KELAS_OPTIONS = ["GS38", "GS39", "AV08", "FA10", "AV08-FA10"];
+const KELAS_OPTIONS = ["GS38", "GS39", "GS40", "AV08", "FA10", "AV08-FA10"];
 
 // Normalise header key dari Excel (case-insensitive, trim whitespace)
 function normaliseKey(raw) {
