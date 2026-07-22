@@ -131,7 +131,8 @@ export default function DosenUploadMateri() {
       alert(lang === "id" ? "Materi berhasil diupload!" : "Material uploaded successfully!");
     } catch (err) {
       console.error(err);
-      alert(lang === "id" ? "Terjadi kesalahan." : "An error occurred.");
+      const msg = err?.message || (lang === "id" ? "Terjadi kesalahan tidak diketahui." : "An unknown error occurred.");
+      alert(lang === "id" ? `Terjadi kesalahan: ${msg}` : `An error occurred: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }
