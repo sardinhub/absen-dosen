@@ -36,6 +36,49 @@ const isClassMatch = (schKelas, studentKelas) => {
   return false;
 };
 
+// Compute IPK for a single student given all data
+function computeStudentIpk(student, schedules, courses, evaluations) {
+  const studentSchedules = schedules.filter(s => isClassMatch(s.kelas, student.kelas));
+  const scheduleMkIds = studentSchedules.map(s => s.mk_id);
+  const studentEvalData = evaluations.filter(ev =>
+    (ev.students || []).some(s => s.siswa_id === student.id || s.nim === student.nim)
+  );
+  const evalMkIds = studentEvalData.map(ev => ev.mk_id);
+  const uniqueCourseIds = Array.from(new Set([...scheduleMkIds, ...evalMkIds]));
+
+  let totalWeighted = 0;
+  let totalPertemuan = 0;
+
+  uniqueCourseIds.forEach(mkId => {
+    const course = courses.find(c => c.id === mkId);
+    const evalData = evaluations.find(ev =>
+      ev.mk_id === mkId &&
+      (ev.students || []).some(s => s.siswa_id === student.id || s.nim === student.nim)
+    );
+    const studentEval = evalData
+      ? (evalData.students || []).find(s => s.siswa_id === student.id || s.nim === student.nim)
+      : null;
+
+    if (studentEval && studentEval.score !== undefined) {
+      const meetingsVal = course ? (parseInt(course.jumlah_pertemuan, 10) || 14) : 14;
+      const { bobot } = getGradeCriteria(studentEval.score);
+      totalPertemuan += meetingsVal;
+      totalWeighted += meetingsVal * bobot;
+    }
+  });
+
+  return totalPertemuan > 0 ? parseFloat((totalWeighted / totalPertemuan).toFixed(2)) : null;
+}
+
+// Get IPK color based on value
+function getIpkColor(ipk) {
+  if (ipk === null) return "#6b7280";
+  if (ipk >= 3.5) return "#10b981";
+  if (ipk >= 3.0) return "#3b82f6";
+  if (ipk >= 2.5) return "#f59e0b";
+  return "#ef4444";
+}
+
 export default function AdminKHSPreview() {
   const [lang, setLang] = useState("id");
   const [loading, setLoading] = useState(true);
@@ -48,6 +91,7 @@ export default function AdminKHSPreview() {
 
   // Selections
   const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [expandedStudentId, setExpandedStudentId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const syncData = useCallback(async () => {
@@ -326,30 +370,189 @@ export default function AdminKHSPreview() {
             style={{ marginBottom: "1rem" }}
           />
 
-          <div style={{ maxHeight: "380px", overflowY: "auto", border: "1px solid var(--border-color)", borderRadius: "8px" }}>
+          <div style={{ maxHeight: "520px", overflowY: "auto", border: "1px solid var(--border-color)", borderRadius: "8px" }}>
             {filteredStudentsList.length === 0 ? (
               <div style={{ padding: "1.5rem", fontStyle: "italic", color: "var(--text-secondary)", textAlign: "center" }}>
                 {lang === "id" ? "Siswa tidak ditemukan" : "No students found"}
               </div>
             ) : (
-              filteredStudentsList.map(student => (
-                <div
-                  key={student.id}
-                  onClick={() => setSelectedStudentId(student.id)}
-                  style={{
-                    padding: "0.75rem 1rem",
-                    borderBottom: "1px solid var(--border-color)",
-                    cursor: "pointer",
-                    background: selectedStudentId === student.id ? "rgba(59, 130, 246, 0.15)" : "transparent",
-                    transition: "background 0.2s"
-                  }}
-                >
-                  <div style={{ fontWeight: "bold", fontSize: "0.9rem" }}>{student.nama_lengkap || student.nama}</div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.15rem" }}>
-                    NIM: {student.nim} | Kelas: <span style={{ color: "var(--warning)", fontWeight: 600 }}>{student.kelas}</span>
+              filteredStudentsList.map(student => {
+                const ipk = computeStudentIpk(student, schedules, courses, evaluations);
+                const ipkColor = getIpkColor(ipk);
+                const isExpanded = expandedStudentId === student.id;
+                const isSelected = selectedStudentId === student.id;
+
+                // Compute transcript for expanded view
+                let expandedTranscript = [];
+                if (isExpanded) {
+                  const studentSchedules = schedules.filter(s => isClassMatch(s.kelas, student.kelas));
+                  const scheduleMkIds = studentSchedules.map(s => s.mk_id);
+                  const studentEvalData = evaluations.filter(ev =>
+                    (ev.students || []).some(s => s.siswa_id === student.id || s.nim === student.nim)
+                  );
+                  const evalMkIds = studentEvalData.map(ev => ev.mk_id);
+                  const uniqueCourseIds = Array.from(new Set([...scheduleMkIds, ...evalMkIds]));
+
+                  uniqueCourseIds.forEach(mkId => {
+                    const course = courses.find(c => c.id === mkId);
+                    const evalData = evaluations.find(ev =>
+                      ev.mk_id === mkId &&
+                      (ev.students || []).some(s => s.siswa_id === student.id || s.nim === student.nim)
+                    );
+                    const studentEval = evalData
+                      ? (evalData.students || []).find(s => s.siswa_id === student.id || s.nim === student.nim)
+                      : null;
+
+                    if (studentEval && studentEval.score !== undefined) {
+                      const { grade, bobot, color } = getGradeCriteria(studentEval.score);
+                      expandedTranscript.push({
+                        courseCode: course?.kode_mk || "-",
+                        courseName: course?.nama_mk || "-",
+                        score: studentEval.score,
+                        grade,
+                        bobot,
+                        color
+                      });
+                    } else {
+                      expandedTranscript.push({
+                        courseCode: course?.kode_mk || "-",
+                        courseName: course?.nama_mk || "-",
+                        score: "-",
+                        grade: "-",
+                        bobot: 0,
+                        color: "#9ca3af"
+                      });
+                    }
+                  });
+                }
+
+                return (
+                  <div key={student.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                    {/* Student Row Header */}
+                    <div
+                      onClick={() => {
+                        const newExpanded = isExpanded ? "" : student.id;
+                        setExpandedStudentId(newExpanded);
+                        setSelectedStudentId(student.id);
+                      }}
+                      style={{
+                        padding: "0.75rem 1rem",
+                        cursor: "pointer",
+                        background: isSelected
+                          ? "rgba(59, 130, 246, 0.15)"
+                          : "transparent",
+                        transition: "background 0.2s",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "0.5rem"
+                      }}
+                    >
+                      {/* Left: name + nim */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: "bold", fontSize: "0.9rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {student.nama_lengkap || student.nama}
+                        </div>
+                        <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)", marginTop: "0.15rem" }}>
+                          NIM: {student.nim} | Kelas: <span style={{ color: "var(--warning)", fontWeight: 600 }}>{student.kelas}</span>
+                        </div>
+                      </div>
+
+                      {/* Right: IPK Badge */}
+                      <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        background: `${ipkColor}18`,
+                        border: `1.5px solid ${ipkColor}55`,
+                        borderRadius: "10px",
+                        padding: "0.3rem 0.65rem",
+                        minWidth: "58px",
+                        flexShrink: 0,
+                        boxShadow: `0 0 8px ${ipkColor}22`
+                      }}>
+                        <div style={{ fontSize: "0.6rem", color: ipkColor, fontWeight: 700, letterSpacing: "0.04em", opacity: 0.85 }}>IPK</div>
+                        <div style={{ fontSize: "1.25rem", fontWeight: 800, color: ipkColor, lineHeight: 1.1 }}>
+                          {ipk !== null ? ipk.toFixed(2) : "—"}
+                        </div>
+                      </div>
+
+                      {/* Expand chevron */}
+                      <div style={{ color: "var(--text-secondary)", fontSize: "0.8rem", flexShrink: 0, transition: "transform 0.2s", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>▼</div>
+                    </div>
+
+                    {/* Expandable KHS Detail */}
+                    {isExpanded && (
+                      <div style={{
+                        background: "rgba(0,0,0,0.18)",
+                        borderTop: "1px solid var(--border-color)",
+                        padding: "0.75rem 1rem",
+                        animation: "fadeIn 0.2s ease"
+                      }}>
+                        {expandedTranscript.length === 0 ? (
+                          <div style={{ color: "var(--text-secondary)", fontSize: "0.8rem", textAlign: "center", padding: "0.5rem" }}>
+                            Belum ada data nilai
+                          </div>
+                        ) : (
+                          <>
+                            <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)", marginBottom: "0.5rem", fontWeight: 600 }}>
+                              RINCIAN NILAI MATA KULIAH
+                            </div>
+                            {expandedTranscript.map((rec, idx) => (
+                              <div key={idx} style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                marginBottom: "0.4rem",
+                                padding: "0.35rem 0.5rem",
+                                borderRadius: "6px",
+                                background: "rgba(255,255,255,0.04)"
+                              }}>
+                                <span style={{
+                                  fontSize: "0.65rem",
+                                  background: "rgba(255,255,255,0.08)",
+                                  padding: "0.1rem 0.35rem",
+                                  borderRadius: "4px",
+                                  fontWeight: 700,
+                                  minWidth: "38px",
+                                  textAlign: "center",
+                                  color: "var(--text-secondary)"
+                                }}>{rec.courseCode}</span>
+                                <span style={{ flex: 1, fontSize: "0.75rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {rec.courseName}
+                                </span>
+                                {rec.score !== "-" ? (
+                                  <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", flexShrink: 0 }}>
+                                    <span style={{ fontSize: "0.8rem", fontWeight: 700 }}>{rec.score}</span>
+                                    <span style={{
+                                      background: `${rec.color}20`,
+                                      color: rec.color,
+                                      border: `1px solid ${rec.color}40`,
+                                      padding: "0.1rem 0.35rem",
+                                      borderRadius: "4px",
+                                      fontWeight: 800,
+                                      fontSize: "0.72rem"
+                                    }}>{rec.grade}</span>
+                                    <span style={{ fontSize: "0.7rem", color: "var(--text-secondary)" }}>{rec.bobot.toFixed(2)}</span>
+                                  </div>
+                                ) : (
+                                  <span style={{ fontSize: "0.72rem", color: "#9ca3af" }}>Belum dinilai</span>
+                                )}
+                              </div>
+                            ))}
+                            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.5rem", paddingTop: "0.4rem", borderTop: "1px dashed var(--border-color)" }}>
+                              <span style={{ fontSize: "0.72rem", color: "var(--text-secondary)", marginRight: "0.5rem" }}>IPK Semester:</span>
+                              <span style={{ fontSize: "0.9rem", fontWeight: 800, color: ipkColor }}>
+                                {ipk !== null ? ipk.toFixed(2) : "—"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
