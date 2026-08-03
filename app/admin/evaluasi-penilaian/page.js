@@ -120,15 +120,26 @@ export default function AdminKHSPreview() {
     syncData();
   }, [syncData]);
 
-  // Filter students based on search query
+  // Filter students based on search query, then sort by IPK descending
   const filteredStudentsList = useMemo(() => {
-    if (!searchQuery.trim()) return students;
-    return students.filter(s =>
-      (s.nama_lengkap || s.nama || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.nim || "").includes(searchQuery) ||
-      (s.kelas || "").toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [students, searchQuery]);
+    const filtered = !searchQuery.trim()
+      ? students
+      : students.filter(s =>
+          (s.nama_lengkap || s.nama || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (s.nim || "").includes(searchQuery) ||
+          (s.kelas || "").toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+    return [...filtered].sort((a, b) => {
+      const ipkA = computeStudentIpk(a, schedules, courses, evaluations);
+      const ipkB = computeStudentIpk(b, schedules, courses, evaluations);
+      // null (belum ada nilai) diletakkan paling bawah
+      if (ipkA === null && ipkB === null) return 0;
+      if (ipkA === null) return 1;
+      if (ipkB === null) return -1;
+      return ipkB - ipkA;
+    });
+  }, [students, searchQuery, schedules, courses, evaluations]);
 
   const activeStudent = useMemo(() => {
     return students.find(s => s.id === selectedStudentId);
