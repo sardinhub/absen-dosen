@@ -23,7 +23,10 @@ export default function RekapAbsenSiswa() {
   // Filters
   const [filterMk, setFilterMk] = useState("");
   const [filterKelas, setFilterKelas] = useState("");
-  const [filterDate, setFilterDate] = useState("");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
+  const [filterSearchName, setFilterSearchName] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
 
   const syncData = useCallback(async () => {
     setLang(localStorage.getItem("sikad_lang") || "id");
@@ -86,10 +89,37 @@ export default function RekapAbsenSiswa() {
     return attendances.filter(a => {
       const matchMk = filterMk === "" || a.mk_nama === filterMk;
       const matchKelas = filterKelas === "" || a.kelas === filterKelas;
-      const matchDate = filterDate === "" || a.tanggal === filterDate;
-      return matchMk && matchKelas && matchDate;
-    }).sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-  }, [attendances, filterMk, filterKelas, filterDate]);
+      const matchStartDate = filterStartDate === "" || a.tanggal >= filterStartDate;
+      const matchEndDate = filterEndDate === "" || a.tanggal <= filterEndDate;
+      return matchMk && matchKelas && matchStartDate && matchEndDate;
+    }).map(rec => {
+      let filteredSiswa = rec.siswa || [];
+      
+      if (filterSearchName) {
+        const q = filterSearchName.toLowerCase();
+        filteredSiswa = filteredSiswa.filter(s => (s.nama && s.nama.toLowerCase().includes(q)) || (s.nim && s.nim.toLowerCase().includes(q)));
+      }
+
+      if (filterStatus) {
+        filteredSiswa = filteredSiswa.filter(s => s.status === filterStatus);
+      }
+      
+      return { ...rec, siswa: filteredSiswa };
+    }).filter(rec => rec.siswa.length > 0)
+      .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+  }, [attendances, filterMk, filterKelas, filterStartDate, filterEndDate, filterSearchName, filterStatus]);
+
+  const totalSummary = useMemo(() => {
+    const summary = { hadir: 0, sakit: 0, izin: 0, alpha: 0 };
+    filteredRecords.forEach(rec => {
+      (rec.siswa || []).forEach(s => {
+        if (summary[s.status] !== undefined) {
+          summary[s.status]++;
+        }
+      });
+    });
+    return summary;
+  }, [filteredRecords]);
 
   if (loading) {
     return (
@@ -157,23 +187,68 @@ export default function RekapAbsenSiswa() {
           </select>
         </div>
 
-        <div style={{ flex: "1 1 180px" }}>
+        <div style={{ flex: "1 1 140px" }}>
           <label className="form-label" style={{ display: "block", marginBottom: "0.5rem" }}>
-            {lang === "id" ? "Tanggal" : "Date"}
+            Mulai Tanggal
           </label>
           <input
             type="date"
             className="form-control"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
+            value={filterStartDate}
+            onChange={(e) => setFilterStartDate(e.target.value)}
             style={{ background: "#0b0f19", color: "#fff" }}
           />
+        </div>
+
+        <div style={{ flex: "1 1 140px" }}>
+          <label className="form-label" style={{ display: "block", marginBottom: "0.5rem" }}>
+            Sampai Tanggal
+          </label>
+          <input
+            type="date"
+            className="form-control"
+            value={filterEndDate}
+            onChange={(e) => setFilterEndDate(e.target.value)}
+            style={{ background: "#0b0f19", color: "#fff" }}
+          />
+        </div>
+
+        <div style={{ flex: "1 1 160px" }}>
+          <label className="form-label" style={{ display: "block", marginBottom: "0.5rem" }}>
+            {lang === "id" ? "Pencarian Nama/NIM" : "Search Name/NIM"}
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            placeholder={lang === "id" ? "Cari siswa..." : "Search student..."}
+            value={filterSearchName}
+            onChange={(e) => setFilterSearchName(e.target.value)}
+            style={{ background: "#0b0f19", color: "#fff" }}
+          />
+        </div>
+
+        <div style={{ flex: "1 1 140px" }}>
+          <label className="form-label" style={{ display: "block", marginBottom: "0.5rem" }}>
+            {lang === "id" ? "Status Kehadiran" : "Attendance Status"}
+          </label>
+          <select
+            className="form-control"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{ background: "#0b0f19", color: "#fff" }}
+          >
+            <option value="">{lang === "id" ? "Semua Status" : "All Status"}</option>
+            <option value="hadir">Hadir</option>
+            <option value="sakit">Sakit</option>
+            <option value="izin">Izin</option>
+            <option value="alpha">Alpha</option>
+          </select>
         </div>
 
         <div>
           <button 
             className="btn btn-secondary"
-            onClick={() => { setFilterMk(""); setFilterKelas(""); setFilterDate(""); }}
+            onClick={() => { setFilterMk(""); setFilterKelas(""); setFilterStartDate(""); setFilterEndDate(""); setFilterSearchName(""); setFilterStatus(""); }}
             style={{ height: "42px" }}
           >
             Reset
@@ -296,6 +371,31 @@ export default function RekapAbsenSiswa() {
               </div>
             );
           })}
+
+          {/* ── Summary Data ── */}
+          <div className="glass-panel" style={{ padding: "2rem", marginTop: "1rem", textAlign: "center" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--primary)", marginBottom: "1.5rem" }}>
+              {lang === "id" ? "Ringkasan Total Keseluruhan (Sesuai Filter)" : "Overall Summary (Based on Filters)"}
+            </h3>
+            <div style={{ display: "flex", justifyContent: "center", gap: "2rem", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <span style={{ fontSize: "2rem", fontWeight: 800, color: "#10b981" }}>{totalSummary.hadir}</span>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Total Hadir</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <span style={{ fontSize: "2rem", fontWeight: 800, color: "#60a5fa" }}>{totalSummary.sakit}</span>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Total Sakit</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <span style={{ fontSize: "2rem", fontWeight: 800, color: "#f59e0b" }}>{totalSummary.izin}</span>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Total Izin</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <span style={{ fontSize: "2rem", fontWeight: 800, color: "#ef4444" }}>{totalSummary.alpha}</span>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Total Alpha</span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
