@@ -25,6 +25,7 @@ export default function LoginPage() {
         const user = JSON.parse(loggedInUser);
         if (user.role === "admin") router.replace("/admin/dashboard");
         else if (user.role === "siswa") router.replace("/siswa/dashboard");
+        else if (user.role === "casis") router.replace("/casis/dashboard");
         else router.replace("/dosen/dashboard");
       } catch (err) {
         localStorage.removeItem("sikad_logged_in_user");
@@ -48,13 +49,15 @@ export default function LoginPage() {
             router.replace("/admin/dashboard");
           } else if (matchedUser.role === "siswa") {
             router.replace("/siswa/dashboard");
+          } else if (matchedUser.role === "casis") {
+            router.replace("/casis/dashboard");
           } else {
             router.replace("/dosen/dashboard");
           }
         }, 300);
       } else {
         setLoading(false);
-        setError(lang === "id" ? "Email atau password salah!" : "Incorrect email or password!");
+        setError(lang === "id" ? "Email/Username atau password salah!" : "Incorrect email/username or password!");
       }
     } catch (err) {
       console.error("Login error:", err);
