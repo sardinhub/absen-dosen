@@ -5,11 +5,9 @@ import { getCasis, saveCasis, deleteCasis, convertCasisToNim } from "../../../li
 import { translations } from "../../../lib/translations";
 
 const JURUSAN_OPTIONS = [
-  "Manajemen Penerbangan",
-  "Air Traffic Controller",
-  "Flight Operations / Pilot Prep",
-  "Teknik Penerbangan & Maintenance",
-  "Logistik Aviasi & Kargo"
+  "Ground Staff",
+  "AVSEC",
+  "Flight Attendant"
 ];
 
 export default function AdminCasisPage() {
@@ -267,13 +265,20 @@ export default function AdminCasisPage() {
         </div>
         <div style={{ width: "220px" }}>
           <select
-            className="form-control"
+            className="form-control select-dark"
             value={selectedJurusan}
             onChange={(e) => setSelectedJurusan(e.target.value)}
+            style={{
+              backgroundColor: "#0f172a",
+              color: "#f8fafc",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              fontWeight: 600,
+              cursor: "pointer"
+            }}
           >
-            <option value="ALL">-- Semua Jurusan --</option>
+            <option value="ALL" style={{ backgroundColor: "#0f172a", color: "#ffffff" }}>-- Semua Jurusan --</option>
             {JURUSAN_OPTIONS.map((j, i) => (
-              <option key={i} value={j}>{j}</option>
+              <option key={i} value={j} style={{ backgroundColor: "#0f172a", color: "#ffffff" }}>{j}</option>
             ))}
           </select>
         </div>
@@ -455,12 +460,19 @@ export default function AdminCasisPage() {
               <div className="form-group" style={{ marginBottom: "1rem" }}>
                 <label className="form-label">Jurusan yang Diambil *</label>
                 <select
-                  className="form-control"
+                  className="form-control select-dark"
                   value={formData.jurusan}
                   onChange={(e) => setFormData({ ...formData, jurusan: e.target.value })}
+                  style={{
+                    backgroundColor: "#0f172a",
+                    color: "#f8fafc",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
                 >
                   {JURUSAN_OPTIONS.map((j, idx) => (
-                    <option key={idx} value={j}>{j}</option>
+                    <option key={idx} value={j} style={{ backgroundColor: "#0f172a", color: "#ffffff" }}>{j}</option>
                   ))}
                 </select>
               </div>

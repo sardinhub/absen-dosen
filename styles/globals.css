@@ -264,24 +264,35 @@ body {
 }
 
 /* Dark-mode select dropdown option visibility */
+select,
+select.form-control,
 .select-dark {
-  background: #1a1f2e;
-  color: var(--text-primary);
+  color-scheme: dark;
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
   cursor: pointer;
 }
 
+select option,
+select.form-control option,
 .select-dark option,
 .select-option {
-  background: #1a1f2e;
-  color: #e2e8f0;
-  padding: 0.5rem 1rem;
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  padding: 0.6rem 1rem;
 }
 
+select option:hover,
+select option:focus,
+select option:checked,
+select.form-control option:hover,
+select.form-control option:focus,
+select.form-control option:checked,
 .select-dark option:hover,
 .select-dark option:focus,
 .select-dark option:checked {
-  background: #2d3a5e;
-  color: #ffffff;
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
 }
 
 

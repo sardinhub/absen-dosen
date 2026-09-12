@@ -54,12 +54,12 @@ const FACILITY_LIST = [
 ];
 
 const CURRICULUM_DATA = [
-  { kode_mk: "AV-101", nama_mk: "Introduction to Aviation & Airline Operations", sks: 3, semester: "Semester 1", desc: "Pengenalan komprehensif alur kerja maskapai penerbangan, regulasi aviasi, dan organisasi penerbangan sipil." },
-  { kode_mk: "AV-102", nama_mk: "Aviation English Phraseology & Communication", sks: 2, semester: "Semester 1", desc: "Pelatihan komunikasi radio standar ICAO untuk keamanan penerbangan darat dan udara." },
-  { kode_mk: "AV-103", nama_mk: "Aerodynamics & Flight Theory Fundamentals", sks: 3, semester: "Semester 1", desc: "Prinsip dasar gaya aerodinamika, stabilitas pesawat, dan mekanika penerbangan." },
-  { kode_mk: "AV-201", nama_mk: "Aviation Safety & Human Factors", sks: 3, semester: "Semester 2", desc: "Analisis faktor manusia (Human Factors) dalam keselamatan penerbangan dan sistem SMS (Safety Management System)." },
-  { kode_mk: "AV-202", nama_mk: "Aircraft Systems & Instrumentation", sks: 3, semester: "Semester 2", desc: "Studi sistem instrumen kokpit, kelistrikan, hidrolik, dan aviasi navigasi." },
-  { kode_mk: "AV-203", nama_mk: "Air Traffic Management & Airspace Control", sks: 4, semester: "Semester 2", desc: "Pengenalan manajemen ruang udara, pemisahan pesawat, dan operasi tower kontrol lalu lintas udara." }
+  { kode_mk: "GS-101", nama_mk: "Passenger Handling & Airport Check-in System", sks: 3, semester: "Semester 1", desc: "Prosedur penanganan penumpang, sistem DCS Check-In (Desk Control System), boarding gate, dan pelayanan bagasi (Ground Staff)." },
+  { kode_mk: "SEC-102", nama_mk: "Aviation Security (AVSEC) Inspection & Screening", sks: 3, semester: "Semester 1", desc: "Standar keamanan bandara (ICAO Annex 17), teknik screening X-Ray, metal detector, dan profil keamanan penerbangan (AVSEC)." },
+  { kode_mk: "FA-103", nama_mk: "In-Flight Cabin Safety & Emergency Procedures", sks: 4, semester: "Semester 1", desc: "Prosedur keselamatan kabin, peragaan keselamatan penerbangan, penanganan keadaan darurat, dan evakuasi pesawat (Flight Attendant)." },
+  { kode_mk: "AV-201", nama_mk: "Dangerous Goods Regulations (DGR)", sks: 2, semester: "Semester 2", desc: "Penanganan bahan dan barang berbahaya sesuai standar IATA untuk keselamatan darat dan penerbangan." },
+  { kode_mk: "AV-202", nama_mk: "Aviation English & Passenger Service Excellence", sks: 3, semester: "Semester 2", desc: "Komunikasi profesional bahasa Inggris aviasi, public announcement, dan standar pelayanan prima pelanggan." },
+  { kode_mk: "FA-203", nama_mk: "Cabin First Aid & Medical Emergencies", sks: 3, semester: "Semester 2", desc: "Pertolongan pertama pada kecelakaan/kesehatan di udara, CPR, dan manajemen pelayanan medis di kabin pesawat." }
 ];
 
 export default function CasisDashboard() {
@@ -132,7 +132,7 @@ export default function CasisDashboard() {
                 {lang === "id" ? "Selamat Datang," : "Welcome,"} <span className="gradient-text">{casisUser.nama_lengkap}</span>!
               </h2>
               <p style={{ margin: 0, color: "#9ca3af", fontSize: "0.9rem" }}>
-                Calon Siswa Triesakti Institute of Airlines Makassar — Jurusan <strong style={{ color: "#38bdf8" }}>{casisUser.jurusan || "Manajemen Penerbangan"}</strong>
+                Calon Siswa Triesakti Institute of Airlines Makassar — Jurusan <strong style={{ color: "#38bdf8" }}>{casisUser.jurusan || "Ground Staff"}</strong>
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ export default function CasisDashboard() {
 
               <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "0.6rem" }}>
                 <span style={{ color: "#9ca3af", fontSize: "0.9rem" }}>Jurusan Pilihan:</span>
-                <span style={{ fontWeight: 600, color: "#818cf8" }}>{casisUser.jurusan || "Manajemen Penerbangan"}</span>
+                <span style={{ fontWeight: 600, color: "#818cf8" }}>{casisUser.jurusan || "Ground Staff"}</span>
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "0.6rem" }}>
@@ -298,7 +298,7 @@ export default function CasisDashboard() {
               📚 Kurikulum & Mata Kuliah (Preview Calon Siswa)
             </h3>
             <p style={{ margin: 0, color: "#9ca3af", fontSize: "0.88rem" }}>
-              Berikut adalah daftar mata kuliah dasar dan keahlian penerbangan yang akan Anda pelajari selama masa pendidikan di jurusan <strong style={{ color: "#38bdf8" }}>{casisUser.jurusan || "Manajemen Penerbangan"}</strong>.
+              Berikut adalah daftar mata kuliah dasar dan keahlian penerbangan yang akan Anda pelajari selama masa pendidikan di jurusan <strong style={{ color: "#38bdf8" }}>{casisUser.jurusan || "Ground Staff"}</strong>.
             </p>
           </div>
 
