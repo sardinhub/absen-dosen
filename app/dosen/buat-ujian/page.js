@@ -10,65 +10,93 @@ import {
   getExamResults 
 } from "../../../lib/db";
 
-// Generator for sample aviation & general exam questions (30, 40, 50 items)
+// Generator for sample aviation & general exam questions with media support
 function generateSampleQuestions(count = 30) {
   const numPg = Math.round(count * 0.7); // 70% Pilihan Ganda
   const numIsian = count - numPg;        // 30% Isian Singkat
 
   const samplePgList = [
-    { pertanyaan: "Apa nama instrumen utama yang digunakan pilot untuk mengukur ketinggian pesawat dari permukaan laut?", opsi: { A: "Altimeter", B: "Airspeed Indicator", C: "Variometer", D: "Attitude Indicator", E: "Tachometer" }, kunci: "A" },
-    { pertanyaan: "Gaya yang melawan gaya dorong (thrust) pada pesawat saat mengudara dinamakan gaya...", opsi: { A: "Lift", B: "Weight / Gravity", C: "Drag (Hambatan)", D: "Torque", E: "Pitch" }, kunci: "C" },
-    { pertanyaan: "Bagian ekor pesawat yang berfungsi menjaga kestabilan arah horizontal (yaw) adalah...", opsi: { A: "Rudder", B: "Elevator", C: "Aileron", D: "Flap", E: "Spoiler" }, kunci: "A" },
-    { pertanyaan: "Prinsip aerodinamika yang menjelaskan bahwa peningkatan kecepatan fluida menyebabkan penurunan tekanan adalah hukum...", opsi: { A: "Bernoulli", B: "Newton III", C: "Pascal", D: "Boyle", E: "Archimedes" }, kunci: "A" },
-    { pertanyaan: "Kecepatan penerbangan yang diukur relatif terhadap udara sekitar disebut...", opsi: { A: "Groundspeed", B: "Indicated Airspeed (IAS)", C: "Calibrated Airspeed", D: "True Airspeed", E: "Mach Speed" }, kunci: "B" },
-    { pertanyaan: "Fungsi utama dari komponen Flap pada sayap pesawat adalah untuk...", opsi: { A: "Menambah daya angkat saat lepas landas dan mendarat", B: "Meningkatkan kecepatan maksimum saat jelajah", C: "Mengurangi konsumsi bahan bakar", D: "Mengunci posisi roda pendaratan", E: "Mengontrol putaran gelombang radio" }, kunci: "A" },
-    { pertanyaan: "Istilah untuk jalur penerbangan yang ditentukan di udara dinamakan...", opsi: { A: "Airway / Air Route", B: "Taxiway", C: "Runway", D: "Terminal Control Area", E: "Holding Pattern" }, kunci: "A" },
-    { pertanyaan: "Lembaga internasional yang mengatur standar dan keselamatan penerbangan sipil dunia adalah...", opsi: { A: "ICAO", B: "IATA", C: "FAA", D: "BMKG", E: "EASA" }, kunci: "A" },
-    { pertanyaan: "Komponen kontrol penerbangan di sayap yang mengatur gerakan perbankan (roll) adalah...", opsi: { A: "Aileron", B: "Elevator", C: "Rudder", D: "Trim Tab", E: "Slats" }, kunci: "A" },
-    { pertanyaan: "Sudut antara garis kord sayap dan aliran udara bebas disebut...", opsi: { A: "Angle of Attack (AoA)", B: "Angle of Incidence", C: "Dihedral Angle", D: "Sweepback Angle", E: "Bank Angle" }, kunci: "A" },
-    { pertanyaan: "Suatu kondisi ketika sayap kehilangan daya angkat secara tiba-tiba akibat AoA terlalu tinggi disebut...", opsi: { A: "Stall", B: "Spin", C: "Turbulence", D: "Windshear", E: "Overspeed" }, kunci: "A" },
-    { pertanyaan: "Sistem navigasi berbasis satelit global yang paling umum digunakan adalah...", opsi: { A: "GPS", B: "VOR", C: "NDB", D: "ILS", E: "DME" }, kunci: "A" },
-    { pertanyaan: "Sistem navigasi instrumen pendaratan presisi di bandara dinamakan...", opsi: { A: "ILS (Instrument Landing System)", B: "VOR", C: "Radar ATC", D: "TCAS", E: "GPWS" }, kunci: "A" },
-    { pertanyaan: "Alat pengukur kecepatan pendakian atau penurunan pesawat (vertical speed) adalah...", opsi: { A: "VSI (Vertical Speed Indicator)", B: "Turn Coordinator", C: "HSI", D: "ASI", E: "Compass" }, kunci: "A" },
-    { pertanyaan: "Fenomena perubahan arah dan kecepatan angin secara mendadak yang sangat berbahaya bagi penerbangan disebut...", opsi: { A: "Windshear", B: "Microburst", C: "Thermal", D: "Jet Stream", E: "Frontal Squall" }, kunci: "A" },
-    { pertanyaan: "Kode transponder standar internasional untuk situasi darurat umum (emergency) adalah...", opsi: { A: "7700", B: "7600", C: "7500", D: "1200", E: "2000" }, kunci: "A" },
-    { pertanyaan: "Kode transponder untuk indikasi pembajakan pesawat (hijack) adalah...", opsi: { A: "7500", B: "7600", C: "7700", D: "7000", E: "1000" }, kunci: "A" },
-    { pertanyaan: "Kode transponder untuk kegagalan komunikasi radio (radio failure) adalah...", opsi: { A: "7600", B: "7500", C: "7700", D: "1200", E: "0000" }, kunci: "A" },
-    { pertanyaan: "Batas kecepatan jelajah pesawat udara pada ketinggian rendah di bawah 10.000 feet biasanya adalah...", opsi: { A: "250 knots", B: "300 knots", C: "200 knots", D: "180 knots", E: "400 knots" }, kunci: "A" },
-    { pertanyaan: "Suatu area udara di sekitar bandara tempat pesawat berkumpul sebelum mendarat dinamakan...", opsi: { A: "Holding Area / Pattern", B: "Approach Zone", C: "Touchdown Zone", D: "Apron", E: "Taxiway Zone" }, kunci: "A" },
-    { pertanyaan: "Waktu standar dunia yang digunakan dalam seluruh dokumentasi penerbangan adalah...", opsi: { A: "UTC / Zulu Time", B: "GMT", C: "EST", D: "WITA", E: "LST" }, kunci: "A" },
-    { pertanyaan: "Laporan cuaca rutin bandara penerbangan dirilis setiap jam dalam format...", opsi: { A: "METAR", B: "TAF", C: "SIGMET", D: "NOTAM", E: "AIRMET" }, kunci: "A" },
-    { pertanyaan: "Pemberitahuan resmi kepada personel penerbangan mengenai kondisi fasilitas navigasi atau bahaya dipublikasikan melalui...", opsi: { A: "NOTAM (Notice to Airmen)", B: "METAR", C: "TAF", D: "AIC", E: "PIREP" }, kunci: "A" },
-    { pertanyaan: "Alat pengukur arah kompas pada panel pesawat dinamakan...", opsi: { A: "Heading Indicator / Directional Gyro", B: "Turn Bank", C: "Altimeter", D: "Machmeter", E: "Chronometer" }, kunci: "A" },
-    { pertanyaan: "Sistem yang memberikan peringatan dini jika pesawat terlalu dekat dengan daratan adalah...", opsi: { A: "GPWS / EGPWS", B: "TCAS", C: "ILS", D: "VHF", E: "ADF" }, kunci: "A" },
-    { pertanyaan: "Sistem pencegah tabrakan antar pesawat di udara secara otomatis dinamakan...", opsi: { A: "TCAS (Traffic Collision Avoidance System)", B: "RADAR", C: "ADS-B", D: "GPWS", E: "DME" }, kunci: "A" },
-    { pertanyaan: "Area parkir dan pelayanan beban pesawat di bandar udara disebut...", opsi: { A: "Apron", B: "Runway", C: "Taxiway", D: "Hangar", E: "Holding Bay" }, kunci: "A" },
-    { pertanyaan: "Jalan penghubung antara apron dan landasan pacu (runway) adalah...", opsi: { A: "Taxiway", B: "Overrun", C: "Stopway", D: "Clearway", E: "Crosswind Bay" }, kunci: "A" },
-    { pertanyaan: "Unit pengontrol udara di bandara yang memandu gerak pesawat di tanah (maneuvering area) dinamakan...", opsi: { A: "Ground Control", B: "Tower Control", C: "Approach Control", D: "Center Control", E: "Departure Control" }, kunci: "A" },
-    { pertanyaan: "Gaya angkat utama (lift) pada sayap pesawat dihasilkan dari perbedaan...", opsi: { A: "Tekanan udara di atas dan di bawah sayap", B: "Suhu permukaan sayap", C: "Gesekan udara dengan bodi pesawat", D: "Kepadatan bahan bakar dalam sayap", E: "Kecepatan angin dari belakang" }, kunci: "A" },
-    { pertanyaan: "Komponen instrumen yang mendeteksi tekanan statis dan tekanan dinamis udara pada pesawat adalah...", opsi: { A: "Pitot-Static System", B: "Gyroscopic System", C: "Vacuum Pump System", D: "Electrical Bus System", E: "Hydraulic System" }, kunci: "A" },
-    { pertanyaan: "Gerakan berputar pesawat mengelilingi sumbu longitudinal disebut...", opsi: { A: "Roll", B: "Pitch", C: "Yaw", D: "Skid", E: "Slip" }, kunci: "A" },
-    { pertanyaan: "Gerakan mengangguk (naik turunnya hidung pesawat) mengelilingi sumbu lateral disebut...", opsi: { A: "Pitch", B: "Roll", C: "Yaw", D: "Bank", E: "Trim" }, kunci: "A" },
-    { pertanyaan: "Gerakan geleng ke kiri/kanan hidung pesawat mengelilingi sumbu vertikal disebut...", opsi: { A: "Yaw", B: "Pitch", C: "Roll", D: "Flap", E: "Stall" }, kunci: "A" },
-    { pertanyaan: "Bahan bakar penerbangan berstandar aviasi untuk mesin jet umumnya jenis...", opsi: { A: "AVTUR (Jet A-1)", B: "AVGAS", C: "Biodiesel", D: "Kerosene Murni", E: "High Octane Gasoline" }, kunci: "A" }
+    { 
+      pertanyaan: "Berdasarkan diagram kokpit berikut, instrumen apakah yang ditunjukkan untuk mengukur ketinggian pesawat dari permukaan laut?", 
+      opsi: { A: "Altimeter", B: "Airspeed Indicator", C: "Variometer", D: "Attitude Indicator", E: "Tachometer" }, 
+      kunci: "A",
+      media_type: "image",
+      media_url: "https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&q=80&w=600",
+      media_caption: "Gambar 1: Panel Utama Kokpit Pesawat Komersial"
+    },
+    { 
+      pertanyaan: "Dengarkan sampel transmisi radio berikut. Kode panggilan (callsign) penerbangan apakah yang disebutkan oleh ATC?", 
+      opsi: { A: "Triesakti Air 102", B: "Indonesia 405", C: "Garuda 210", D: "Lion Flight 901", E: "AirAsia 303" }, 
+      kunci: "A",
+      media_type: "audio",
+      media_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      media_caption: "Audio 1: Rekaman Transmisi Komunikasi Radio ATC"
+    },
+    { 
+      pertanyaan: "Amati cuplikan video animasi aliran udara di atas sayap berikut. Gaya manakah yang bergerak tegak lurus terhadap arah aliran udara jelajah?", 
+      opsi: { A: "Lift (Gaya Angkat)", B: "Weight (Gaya Berat)", C: "Drag (Hambatan)", D: "Thrust (Gaya Dorong)", E: "Centrifugal Force" }, 
+      kunci: "A",
+      media_type: "video",
+      media_url: "https://www.w3schools.com/html/mov_bbb.mp4",
+      media_caption: "Video 1: Visualisasi Prinsip Aerodinamika Bernoulli"
+    },
+    { pertanyaan: "Gaya yang melawan gaya dorong (thrust) pada pesawat saat mengudara dinamakan gaya...", opsi: { A: "Lift", B: "Weight / Gravity", C: "Drag (Hambatan)", D: "Torque", E: "Pitch" }, kunci: "C", media_type: "none" },
+    { pertanyaan: "Bagian ekor pesawat yang berfungsi menjaga kestabilan arah horizontal (yaw) adalah...", opsi: { A: "Rudder", B: "Elevator", C: "Aileron", D: "Flap", E: "Spoiler" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Prinsip aerodinamika yang menjelaskan bahwa peningkatan kecepatan fluida menyebabkan penurunan tekanan adalah hukum...", opsi: { A: "Bernoulli", B: "Newton III", C: "Pascal", D: "Boyle", E: "Archimedes" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Kecepatan penerbangan yang diukur relatif terhadap udara sekitar disebut...", opsi: { A: "Groundspeed", B: "Indicated Airspeed (IAS)", C: "Calibrated Airspeed", D: "True Airspeed", E: "Mach Speed" }, kunci: "B", media_type: "none" },
+    { pertanyaan: "Fungsi utama dari komponen Flap pada sayap pesawat adalah untuk...", opsi: { A: "Menambah daya angkat saat lepas landas dan mendarat", B: "Meningkatkan kecepatan maksimum saat jelajah", C: "Mengurangi konsumsi bahan bakar", D: "Mengunci posisi roda pendaratan", E: "Mengontrol putaran gelombang radio" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Istilah untuk jalur penerbangan yang ditentukan di udara dinamakan...", opsi: { A: "Airway / Air Route", B: "Taxiway", C: "Runway", D: "Terminal Control Area", E: "Holding Pattern" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Lembaga internasional yang mengatur standar dan keselamatan penerbangan sipil dunia adalah...", opsi: { A: "ICAO", B: "IATA", C: "FAA", D: "BMKG", E: "EASA" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Komponen kontrol penerbangan di sayap yang mengatur gerakan perbankan (roll) adalah...", opsi: { A: "Aileron", B: "Elevator", C: "Rudder", D: "Trim Tab", E: "Slats" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Sudut antara garis kord sayap dan aliran udara bebas disebut...", opsi: { A: "Angle of Attack (AoA)", B: "Angle of Incidence", C: "Dihedral Angle", D: "Sweepback Angle", E: "Bank Angle" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Suatu kondisi ketika sayap kehilangan daya angkat secara tiba-tiba akibat AoA terlalu tinggi disebut...", opsi: { A: "Stall", B: "Spin", C: "Turbulence", D: "Windshear", E: "Overspeed" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Sistem navigasi berbasis satelit global yang paling umum digunakan adalah...", opsi: { A: "GPS", B: "VOR", C: "NDB", D: "ILS", E: "DME" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Sistem navigasi instrumen pendaratan presisi di bandara dinamakan...", opsi: { A: "ILS (Instrument Landing System)", B: "VOR", C: "Radar ATC", D: "TCAS", E: "GPWS" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Alat pengukur kecepatan pendakian atau penurunan pesawat (vertical speed) adalah...", opsi: { A: "VSI (Vertical Speed Indicator)", B: "Turn Coordinator", C: "HSI", D: "ASI", E: "Compass" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Fenomena perubahan arah dan kecepatan angin secara mendadak yang sangat berbahaya bagi penerbangan disebut...", opsi: { A: "Windshear", B: "Microburst", C: "Thermal", D: "Jet Stream", E: "Frontal Squall" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Kode transponder standar internasional untuk situasi darurat umum (emergency) adalah...", opsi: { A: "7700", B: "7600", C: "7500", D: "1200", E: "2000" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Kode transponder untuk indikasi pembajakan pesawat (hijack) adalah...", opsi: { A: "7500", B: "7600", C: "7700", D: "7000", E: "1000" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Kode transponder untuk kegagalan komunikasi radio (radio failure) adalah...", opsi: { A: "7600", B: "7500", C: "7700", D: "1200", E: "0000" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Batas kecepatan jelajah pesawat udara pada ketinggian rendah di bawah 10.000 feet biasanya adalah...", opsi: { A: "250 knots", B: "300 knots", C: "200 knots", D: "180 knots", E: "400 knots" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Suatu area udara di sekitar bandara tempat pesawat berkumpul sebelum mendarat dinamakan...", opsi: { A: "Holding Area / Pattern", B: "Approach Zone", C: "Touchdown Zone", D: "Apron", E: "Taxiway Zone" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Waktu standar dunia yang digunakan dalam seluruh dokumentasi penerbangan adalah...", opsi: { A: "UTC / Zulu Time", B: "GMT", C: "EST", D: "WITA", E: "LST" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Laporan cuaca rutin bandara penerbangan dirilis setiap jam dalam format...", opsi: { A: "METAR", B: "TAF", C: "SIGMET", D: "NOTAM", E: "AIRMET" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Pemberitahuan resmi kepada personel penerbangan mengenai kondisi fasilitas navigasi atau bahaya dipublikasikan melalui...", opsi: { A: "NOTAM (Notice to Airmen)", B: "METAR", C: "TAF", D: "AIC", E: "PIREP" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Alat pengukur arah kompas pada panel pesawat dinamakan...", opsi: { A: "Heading Indicator / Directional Gyro", B: "Turn Bank", C: "Altimeter", D: "Machmeter", E: "Chronometer" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Sistem yang memberikan peringatan dini jika pesawat terlalu dekat dengan daratan adalah...", opsi: { A: "GPWS / EGPWS", B: "TCAS", C: "ILS", D: "VHF", E: "ADF" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Sistem pencegah tabrakan antar pesawat di udara secara otomatis dinamakan...", opsi: { A: "TCAS (Traffic Collision Avoidance System)", B: "RADAR", C: "ADS-B", D: "GPWS", E: "DME" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Area parkir dan pelayanan beban pesawat di bandar udara disebut...", opsi: { A: "Apron", B: "Runway", C: "Taxiway", D: "Hangar", E: "Holding Bay" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Jalan penghubung antara apron dan landasan pacu (runway) adalah...", opsi: { A: "Taxiway", B: "Overrun", C: "Stopway", D: "Clearway", E: "Crosswind Bay" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Unit pengontrol udara di bandara yang memandu gerak pesawat di tanah (maneuvering area) dinamakan...", opsi: { A: "Ground Control", B: "Tower Control", C: "Approach Control", D: "Center Control", E: "Departure Control" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Gaya angkat utama (lift) pada sayap pesawat dihasilkan dari perbedaan...", opsi: { A: "Tekanan udara di atas dan di bawah sayap", B: "Suhu permukaan sayap", C: "Gesekan udara dengan bodi pesawat", D: "Kepadatan bahan bakar dalam sayap", E: "Kecepatan angin dari belakang" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Komponen instrumen yang mendeteksi tekanan statis dan tekanan dinamis udara pada pesawat adalah...", opsi: { A: "Pitot-Static System", B: "Gyroscopic System", C: "Vacuum Pump System", D: "Electrical Bus System", E: "Hydraulic System" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Gerakan berputar pesawat mengelilingi sumbu longitudinal disebut...", opsi: { A: "Roll", B: "Pitch", C: "Yaw", D: "Skid", E: "Slip" }, kunci: "A", media_type: "none" },
+    { pertanyaan: "Gerakan mengangguk (naik turunnya hidung pesawat) mengelilingi sumbu lateral disebut...", opsi: { A: "Pitch", B: "Roll", C: "Yaw", D: "Bank", E: "Trim" }, kunci: "A", media_type: "none" }
   ];
 
   const sampleIsianList = [
-    { pertanyaan: "Sebutkan nama instrumen yang berfungsi menunjukkan kecepatan penerbangan relatif terhadap udara sekitar!", kunci_jawaban: "Airspeed Indicator" },
-    { pertanyaan: "Apa kepanjangan dari organisasi penerbangan sipil internasional ICAO?", kunci_jawaban: "International Civil Aviation Organization" },
-    { pertanyaan: "Sebutkan istilah gaya angkat ke atas yang dihasilkan oleh sayap pesawat!", kunci_jawaban: "Lift" },
-    { pertanyaan: "Apakah nama bagian permukaan kontrol penerbangan di ekor yang mengendalikan gerakan yaw?", kunci_jawaban: "Rudder" },
-    { pertanyaan: "Sebutkan sistem pendaratan instrumen presisi yang menggunakan sinyal radio glideslope dan localizer!", kunci_jawaban: "ILS" },
-    { pertanyaan: "Apakah nama bahan bakar khusus yang umum digunakan untuk mesin pesawat jet komersial?", kunci_jawaban: "Avtur" },
-    { pertanyaan: "Tuliskan kode angka transponder darurat (emergency) internasional!", kunci_jawaban: "7700" },
-    { pertanyaan: "Sebutkan istilah laporan prakiraan cuaca penerbangan bandara untuk periode 24-30 jam ke depan!", kunci_jawaban: "TAF" },
-    { pertanyaan: "Sebutkan istilah area parkir tempat naik turun penumpang dan pengisian bahan bakar pesawat di bandara!", kunci_jawaban: "Apron" },
-    { pertanyaan: "Apakah nama hukum fisika aerodinamika yang menyatakan tekanan fluida menurun jika kecepatannya meningkat?", kunci_jawaban: "Bernoulli" },
-    { pertanyaan: "Sebutkan nama sistem navigasi satelit global penentu posisi pesawat!", kunci_jawaban: "GPS" },
-    { pertanyaan: "Apakah istilah kondisi ketika sayap pesawat kehilangan daya angkat karena sudut serang terlalu besar?", kunci_jawaban: "Stall" },
-    { pertanyaan: "Sebutkan nama permukaan kontrol pada sayap yang digunakan untuk mengatur gerakan roll (miring)!", kunci_jawaban: "Aileron" },
-    { pertanyaan: "Sebutkan istilah jalur jalan penghubung antara apron dan runway di bandara!", kunci_jawaban: "Taxiway" },
-    { pertanyaan: "Apakah nama laporan cuaca pengamatan rutin penerbangan di bandara yang diupdate tiap jam?", kunci_jawaban: "METAR" }
+    { 
+      pertanyaan: "Amatilah gambar indikator penerbangan berikut. Tuliskan nama instrumen yang menunjukkan kecepatan udara!", 
+      kunci_jawaban: "Airspeed Indicator",
+      media_type: "image",
+      media_url: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80&w=600",
+      media_caption: "Gambar 2: Instrumen Pengukur Kecepatan Udara"
+    },
+    { pertanyaan: "Sebutkan nama instrumen yang berfungsi menunjukkan kecepatan penerbangan relatif terhadap udara sekitar!", kunci_jawaban: "Airspeed Indicator", media_type: "none" },
+    { pertanyaan: "Apa kepanjangan dari organisasi penerbangan sipil internasional ICAO?", kunci_jawaban: "International Civil Aviation Organization", media_type: "none" },
+    { pertanyaan: "Sebutkan istilah gaya angkat ke atas yang dihasilkan oleh sayap pesawat!", kunci_jawaban: "Lift", media_type: "none" },
+    { pertanyaan: "Apakah nama bagian permukaan kontrol penerbangan di ekor yang mengendalikan gerakan yaw?", kunci_jawaban: "Rudder", media_type: "none" },
+    { pertanyaan: "Sebutkan sistem pendaratan instrumen presisi yang menggunakan sinyal radio glideslope dan localizer!", kunci_jawaban: "ILS", media_type: "none" },
+    { pertanyaan: "Apakah nama bahan bakar khusus yang umum digunakan untuk mesin pesawat jet komersial?", kunci_jawaban: "Avtur", media_type: "none" },
+    { pertanyaan: "Tuliskan kode angka transponder darurat (emergency) internasional!", kunci_jawaban: "7700", media_type: "none" },
+    { pertanyaan: "Sebutkan istilah laporan prakiraan cuaca penerbangan bandara untuk periode 24-30 jam ke depan!", kunci_jawaban: "TAF", media_type: "none" },
+    { pertanyaan: "Sebutkan istilah area parkir tempat naik turun penumpang dan pengisian bahan bakar pesawat di bandara!", kunci_jawaban: "Apron", media_type: "none" },
+    { pertanyaan: "Apakah nama hukum fisika aerodinamika yang menyatakan tekanan fluida menurun jika kecepatannya meningkat?", kunci_jawaban: "Bernoulli", media_type: "none" },
+    { pertanyaan: "Sebutkan nama sistem navigasi satelit global penentu posisi pesawat!", kunci_jawaban: "GPS", media_type: "none" },
+    { pertanyaan: "Apakah istilah kondisi ketika sayap pesawat kehilangan daya angkat karena sudut serang terlalu besar?", kunci_jawaban: "Stall", media_type: "none" },
+    { pertanyaan: "Sebutkan nama permukaan kontrol pada sayap yang digunakan untuk mengatur gerakan roll (miring)!", kunci_jawaban: "Aileron", media_type: "none" },
+    { pertanyaan: "Sebutkan istilah jalur jalan penghubung antara apron dan runway di bandara!", kunci_jawaban: "Taxiway", media_type: "none" },
+    { pertanyaan: "Apakah nama laporan cuaca pengamatan rutin penerbangan di bandara yang diupdate tiap jam?", kunci_jawaban: "METAR", media_type: "none" }
   ];
 
   const resultQuestions = [];
@@ -82,7 +110,10 @@ function generateSampleQuestions(count = 30) {
       pertanyaan: template.pertanyaan,
       opsi: { ...template.opsi },
       kunci: template.kunci,
-      bobot: 1
+      bobot: 1,
+      media_type: template.media_type || "none",
+      media_url: template.media_url || "",
+      media_caption: template.media_caption || ""
     });
   }
 
@@ -94,7 +125,10 @@ function generateSampleQuestions(count = 30) {
       tipe: "isian",
       pertanyaan: template.pertanyaan,
       kunci_jawaban: template.kunci_jawaban,
-      bobot: 1
+      bobot: 1,
+      media_type: template.media_type || "none",
+      media_url: template.media_url || "",
+      media_caption: template.media_caption || ""
     });
   }
 
@@ -127,7 +161,7 @@ export default function DosenBuatUjianPage() {
     kkm: 70,
     waktu_mulai: "",
     waktu_selesai: "",
-    status: "published", // draft, published, closed
+    status: "published",
     total_soal: 30,
     soal: []
   });
@@ -175,7 +209,7 @@ export default function DosenBuatUjianPage() {
 
     const now = new Date();
     const startTime = now.toISOString().slice(0, 16);
-    const endTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16); // 1 week default
+    const endTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
 
     const firstCourse = courses[0] || {};
 
@@ -235,6 +269,34 @@ export default function DosenBuatUjianPage() {
       updatedSoal[index] = { ...updatedSoal[index], ...updatedField };
       return { ...prev, soal: updatedSoal };
     });
+  };
+
+  // Handle File Upload for Question Media (Image, Audio, Video)
+  const handleMediaFileUpload = (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check size limit (max 15MB)
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Ukuran file media terlalu besar (maksimal 15MB).");
+      e.target.value = null;
+      return;
+    }
+
+    let detectedType = "image";
+    if (file.type.startsWith("audio/")) detectedType = "audio";
+    else if (file.type.startsWith("video/")) detectedType = "video";
+    else if (file.type.startsWith("image/")) detectedType = "image";
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Data = uploadEvent.target.result;
+      handleUpdateQuestion(index, {
+        media_type: detectedType,
+        media_url: base64Data
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   // Save exam to database
@@ -315,7 +377,7 @@ export default function DosenBuatUjianPage() {
               📝 Portal Pembuat Ujian Dosen (CBT)
             </h2>
             <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-              Kelola Ujian Online dengan Kombinasi <strong style={{ color: "#60a5fa" }}>70% Pilihan Ganda</strong> & <strong style={{ color: "#f59e0b" }}>30% Isian Singkat</strong> (30-50 Soal) dan Evaluasi Auto-Scoring.
+              Kelola Ujian Online dengan Kombinasi <strong style={{ color: "#60a5fa" }}>70% Pilihan Ganda</strong> & <strong style={{ color: "#f59e0b" }}>30% Isian Singkat</strong> (30-50 Soal) dan Lampiran <strong style={{ color: "#10b981" }}>Gambar / Suara / Video</strong>.
             </p>
           </div>
           <button 
@@ -414,7 +476,7 @@ export default function DosenBuatUjianPage() {
                   {examForm.id ? "✏️ Edit Bank Soal & Pengaturan Ujian" : "➕ Buat Paket Ujian Kombinasi (30-50 Soal)"}
                 </h3>
                 <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                  Konfigurasi Ujian Online & Komposisi otomatis 70% Pilihan Ganda + 30% Isian Singkat
+                  Konfigurasi Ujian Online, Komposisi 70% PG + 30% Isian & Lampiran Gambar/Suara/Video
                 </p>
               </div>
               <button onClick={() => setShowFormModal(false)} style={{ background: "none", border: "none", color: "#9ca3af", fontSize: "1.5rem", cursor: "pointer" }}>&times;</button>
@@ -431,7 +493,7 @@ export default function DosenBuatUjianPage() {
                     className="form-control" 
                     value={examForm.judul} 
                     onChange={e => setExamForm({ ...examForm, judul: e.target.value })} 
-                    placeholder="Contoh: Ujian Tengah Semester - sistem Navigasi Udara"
+                    placeholder="Contoh: Ujian Tengah Semester - Sistem Navigasi Udara"
                     required 
                   />
                 </div>
@@ -537,6 +599,8 @@ export default function DosenBuatUjianPage() {
                   {examForm.soal.map((q, idx) => {
                     const isActive = idx === activeQuestionIdx;
                     const isPg = q.tipe === "pg";
+                    const hasMedia = q.media_type && q.media_type !== "none" && q.media_url;
+
                     return (
                       <button
                         key={idx}
@@ -553,11 +617,17 @@ export default function DosenBuatUjianPage() {
                             ? "#2563eb" 
                             : (isPg ? "rgba(59,130,246,0.15)" : "rgba(245,158,11,0.18)"),
                           color: isActive ? "#fff" : (isPg ? "#60a5fa" : "#fbbf24"),
-                          cursor: "pointer"
+                          cursor: "pointer",
+                          position: "relative"
                         }}
-                        title={`Soal #${idx + 1} (${isPg ? "PG" : "Isian"})`}
+                        title={`Soal #${idx + 1} (${isPg ? "PG" : "Isian"})${hasMedia ? " - dengan Lampiran Media" : ""}`}
                       >
                         {idx + 1}
+                        {hasMedia && (
+                          <span style={{ position: "absolute", top: "-2px", right: "-2px", fontSize: "0.6rem" }}>
+                            {q.media_type === "image" ? "🖼️" : (q.media_type === "audio" ? "🎵" : "🎥")}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
@@ -566,8 +636,8 @@ export default function DosenBuatUjianPage() {
 
               {/* Question Editor Card */}
               {currentQuestion && (
-                <div style={{ background: "rgba(255,255,255,0.02)", padding: "1.25rem", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <div style={{ background: "rgba(255,255,255,0.02)", padding: "1.25rem", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                       <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--primary)" }}>Soal No. {activeQuestionIdx + 1}</span>
                       <span className={`badge ${currentQuestion.tipe === "pg" ? "badge-secondary" : "badge-warning"}`} style={{ fontSize: "0.75rem" }}>
@@ -592,7 +662,7 @@ export default function DosenBuatUjianPage() {
                   </div>
 
                   {/* Pertanyaan Text Area */}
-                  <div style={{ marginBottom: "1rem" }}>
+                  <div>
                     <label className="form-label" style={{ fontSize: "0.85rem", fontWeight: 600 }}>Teks Pertanyaan</label>
                     <textarea 
                       className="form-control" 
@@ -602,6 +672,141 @@ export default function DosenBuatUjianPage() {
                       placeholder="Masukkan pertanyaan soal di sini..."
                       required
                     />
+                  </div>
+
+                  {/* ── MEDIA ATTACHMENT SECTION (Gambar, Suara, Video) ── */}
+                  <div style={{ background: "rgba(16,185,129,0.05)", padding: "1.25rem", borderRadius: "10px", border: "1px solid rgba(16,185,129,0.2)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                      <label className="form-label" style={{ fontSize: "0.9rem", fontWeight: 700, color: "#10b981", margin: 0 }}>
+                        📎 Lampiran Media Soal (Gambar, Suara, atau Video)
+                      </label>
+
+                      {currentQuestion.media_type && currentQuestion.media_type !== "none" && (
+                        <button 
+                          type="button" 
+                          className="btn btn-danger btn-sm" 
+                          style={{ fontSize: "0.75rem", padding: "0.2rem 0.5rem" }}
+                          onClick={() => handleUpdateQuestion(activeQuestionIdx, { media_type: "none", media_url: "", media_caption: "" })}
+                        >
+                          ❌ Hapus Media
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Media Type Selector Tabs */}
+                    <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+                      {[
+                        { key: "none", label: "Tanpa Media" },
+                        { key: "image", label: "🖼️ Gambar" },
+                        { key: "audio", label: "🎵 Suara / Audio" },
+                        { key: "video", label: "🎥 Video" }
+                      ].map(tab => (
+                        <button
+                          key={tab.key}
+                          type="button"
+                          onClick={() => handleUpdateQuestion(activeQuestionIdx, { media_type: tab.key })}
+                          className={`btn ${currentQuestion.media_type === tab.key ? "btn-primary" : "btn-secondary"}`}
+                          style={{ fontSize: "0.8rem", padding: "0.35rem 0.75rem" }}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Media Input Form if Type != none */}
+                    {currentQuestion.media_type && currentQuestion.media_type !== "none" && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                          
+                          {/* Option A: Upload File */}
+                          <div>
+                            <label className="form-label" style={{ fontSize: "0.8rem", fontWeight: 600 }}>
+                              📁 Upload File {currentQuestion.media_type === "image" ? "Gambar (PNG/JPG/WebP)" : (currentQuestion.media_type === "audio" ? "Audio (MP3/WAV)" : "Video (MP4)")}:
+                            </label>
+                            <input 
+                              type="file" 
+                              className="form-control" 
+                              style={{ fontSize: "0.8rem", padding: "0.4rem" }}
+                              accept={currentQuestion.media_type === "image" ? "image/*" : (currentQuestion.media_type === "audio" ? "audio/*" : "video/*")}
+                              onChange={(e) => handleMediaFileUpload(e, activeQuestionIdx)}
+                            />
+                          </div>
+
+                          {/* Option B: Input URL Direct */}
+                          <div>
+                            <label className="form-label" style={{ fontSize: "0.8rem", fontWeight: 600 }}>
+                              🔗 Atau Masukkan URL Media / Link YouTube:
+                            </label>
+                            <input 
+                              type="text" 
+                              className="form-control" 
+                              style={{ fontSize: "0.85rem" }}
+                              value={currentQuestion.media_url || ""}
+                              onChange={e => handleUpdateQuestion(activeQuestionIdx, { media_url: e.target.value })}
+                              placeholder={currentQuestion.media_type === "image" ? "https://example.com/diagram.jpg" : (currentQuestion.media_type === "audio" ? "https://example.com/audio.mp3" : "https://www.youtube.com/watch?v=... atau link mp4")}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Caption input */}
+                        <div>
+                          <label className="form-label" style={{ fontSize: "0.8rem", fontWeight: 600 }}>Keterangan / Judul Media (Opsional)</label>
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            style={{ fontSize: "0.85rem" }}
+                            value={currentQuestion.media_caption || ""}
+                            onChange={e => handleUpdateQuestion(activeQuestionIdx, { media_caption: e.target.value })}
+                            placeholder="Contoh: Gambar 1. Diagram Cockpit Boeing 737-800"
+                          />
+                        </div>
+
+                        {/* Real-time Preview Area */}
+                        {currentQuestion.media_url && (
+                          <div style={{ marginTop: "0.5rem", padding: "0.75rem", background: "rgba(0,0,0,0.3)", borderRadius: "8px", border: "1px dashed rgba(255,255,255,0.15)" }}>
+                            <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginBottom: "0.5rem", fontWeight: 700 }}>PREVIEW MEDIA:</div>
+                            
+                            {currentQuestion.media_type === "image" && (
+                              <img 
+                                src={currentQuestion.media_url} 
+                                alt="Preview Soal" 
+                                style={{ maxHeight: "200px", borderRadius: "6px", objectFit: "contain" }}
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/400x200?text=Gambar+Tidak+Dapat+Dimuat"; }}
+                              />
+                            )}
+
+                            {currentQuestion.media_type === "audio" && (
+                              <audio controls src={currentQuestion.media_url} style={{ width: "100%", maxWidth: "450px" }}>
+                                Browser Anda tidak mendukung pemutar audio.
+                              </audio>
+                            )}
+
+                            {currentQuestion.media_type === "video" && (
+                              currentQuestion.media_url.includes("youtube.com") || currentQuestion.media_url.includes("youtu.be") ? (
+                                <iframe 
+                                  width="100%" 
+                                  height="220" 
+                                  src={currentQuestion.media_url.replace("watch?v=", "embed/")} 
+                                  title="Video Preview"
+                                  style={{ borderRadius: "8px", border: "none", maxWidth: "450px" }}
+                                />
+                              ) : (
+                                <video controls src={currentQuestion.media_url} style={{ maxHeight: "220px", maxWidth: "100%", borderRadius: "6px" }}>
+                                  Browser Anda tidak mendukung pemutar video.
+                                </video>
+                              )
+                            )}
+
+                            {currentQuestion.media_caption && (
+                              <div style={{ fontSize: "0.8rem", color: "#10b981", marginTop: "0.4rem", fontStyle: "italic" }}>
+                                📌 {currentQuestion.media_caption}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                      </div>
+                    )}
                   </div>
 
                   {/* PG Options & Answer Key */}

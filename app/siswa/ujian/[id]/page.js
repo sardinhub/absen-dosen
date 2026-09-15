@@ -322,9 +322,51 @@ export default function SiswaExamPlayerPage() {
             </div>
 
             {/* Pertanyaan Text */}
-            <div style={{ fontSize: "1.05rem", fontWeight: 600, color: "#fff", lineHeight: "1.6", marginBottom: "1.5rem" }}>
+            <div style={{ fontSize: "1.05rem", fontWeight: 600, color: "#fff", lineHeight: "1.6", marginBottom: "1.25rem" }}>
               {currentQ.pertanyaan}
             </div>
+
+            {/* Media Rendering (Gambar / Suara / Video) */}
+            {currentQ.media_type && currentQ.media_type !== "none" && currentQ.media_url && (
+              <div style={{ marginBottom: "1.5rem", padding: "1rem", background: "rgba(0,0,0,0.3)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
+                {currentQ.media_type === "image" && (
+                  <img 
+                    src={currentQ.media_url} 
+                    alt="Media Soal" 
+                    style={{ maxWidth: "100%", maxHeight: "350px", borderRadius: "8px", objectFit: "contain" }}
+                    onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/600x300?text=Gambar+Soal+Tidak+Dapat+Dimuat"; }}
+                  />
+                )}
+
+                {currentQ.media_type === "audio" && (
+                  <audio controls src={currentQ.media_url} style={{ width: "100%", maxWidth: "500px" }}>
+                    Browser Anda tidak mendukung pemutar audio.
+                  </audio>
+                )}
+
+                {currentQ.media_type === "video" && (
+                  currentQ.media_url.includes("youtube.com") || currentQ.media_url.includes("youtu.be") ? (
+                    <iframe 
+                      width="100%" 
+                      height="300" 
+                      src={currentQ.media_url.replace("watch?v=", "embed/")} 
+                      title="Video Soal"
+                      style={{ borderRadius: "8px", border: "none", maxWidth: "600px" }}
+                    />
+                  ) : (
+                    <video controls src={currentQ.media_url} style={{ maxWidth: "100%", maxHeight: "350px", borderRadius: "8px" }}>
+                      Browser Anda tidak mendukung pemutar video.
+                    </video>
+                  )
+                )}
+
+                {currentQ.media_caption && (
+                  <div style={{ fontSize: "0.85rem", color: "#10b981", fontStyle: "italic", textAlign: "center" }}>
+                    📌 {currentQ.media_caption}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Options for PG / Input for Isian */}
             {currentQ.tipe === "pg" ? (
